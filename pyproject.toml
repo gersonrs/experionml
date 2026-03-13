@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "experionml"
-version = "1.1.1"
+version = "1.2.0"
 description = "A Python package for fast exploration of machine learning pipelines"
 authors = [{name = "gersonrs", email = "gersonrodriguessantos8@gmail.com"}]
 license = {file = "LICENSE"}

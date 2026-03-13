@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/gersonrs/experionml/compare/v1.1.1...v1.2.0) (2026-03-13)
+
+
+### 🚀 New Features
+
+* update version ([84b6626](https://github.com/gersonrs/experionml/commit/84b6626e5c2f78bf788216cf801194888b877c78))
+
 ## [1.1.1](https://github.com/gersonrs/experionml/compare/v1.1.0...v1.1.1) (2026-03-13)
 
 
