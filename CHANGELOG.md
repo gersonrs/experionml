@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/gersonrs/experionml/compare/v1.1.0...v1.1.1) (2026-03-13)
+
+
+### 🔥 Bug Fixes
+
+* adjust project build ([b5aaa0e](https://github.com/gersonrs/experionml/commit/b5aaa0e5d1b60b93352cdc5f6fc988affe67b964))
+
 ## [1.1.0](https://github.com/gersonrs/experionml/compare/v1.0.0...v1.1.0) (2026-03-13)
 
 
