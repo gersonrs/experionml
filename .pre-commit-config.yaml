@@ -1,10 +1,64 @@
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+        exclude: ^(node_modules/|docs/|dags/spark/yamls/)
+      - id: debug-statements
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+        exclude: ^(.astro/|plugin/|.github/|data/|htmlcov|tests/fixtures/)
+      - id: pretty-format-json
+        args: ["--autofix"]
+        exclude: "Pipfile.lock"
+      - id: no-commit-to-branch
+        args: ["--branch", "main"]
+  - repo: https://github.com/asottile/reorder-python-imports
+    rev: v3.14.0
+    hooks:
+      - id: reorder-python-imports
+        args: [--py310-plus, --add-import, "from __future__ import annotations"]
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.19.1
+    hooks:
+      - id: pyupgrade
+        args: [--py310-plus]
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        use_pyproject: true
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.1.1
+    hooks:
+      - id: flake8
+        args: [--config=.flake8]
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.14.1
+    hooks:
+      - id: mypy
+        args: [--config-file=mypy.ini]
+        exclude: ^(.github/|htmlcov)
+        additional_dependencies: [beartype, pandas-stubs, types-markdown, types-requests, types-pyyaml]
+        files: ^(?!docs/).*\.(py|ipy)$
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        types_or: [css, javascript, html, json, yaml]
+        exclude: ^(github/|dags/spark/yamls/)
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v9.20.0
+    hooks:
+      - id: commitlint
+        stages: [commit-msg]
+        additional_dependencies: ["@commitlint/config-conventional"]
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:
       - id: isort
         files: ^(?!docs/).*\.(py|ipy)$
-
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.4.7
     hooks:
@@ -12,30 +66,3 @@ repos:
       types_or: [ python, pyi ]
       args: [--fix]
       files: ^(?!docs/).*\.(py|ipy)$
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.10.0
-    hooks:
-      - id: mypy
-        additional_dependencies: [beartype, pandas-stubs, types-markdown, types-requests, types-pyyaml]
-        files: ^(?!docs/).*\.(py|ipy)$
-
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
-    hooks:
-      - id: check-added-large-files
-        args: [ --maxkb=80000 ]
-      - id: check-merge-conflict
-      - id: check-toml
-      - id: check-yaml
-        args: [--unsafe]  # Only check parsing
-      - id: end-of-file-fixer
-      - id: mixed-line-ending
-      - id: name-tests-test
-        args: [--pytest-test-first]
-      - id: trailing-whitespace
-
-  - repo: https://github.com/pdm-project/pdm
-    rev: 2.15.4
-    hooks:
-      - id: pdm-lock-check

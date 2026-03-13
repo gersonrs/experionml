@@ -1,6 +1,6 @@
 [build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "experionml"
@@ -16,6 +16,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Information Analysis",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
@@ -100,18 +101,11 @@ doc = [
 ]
 
 [project.urls]
-"Documentation" = "https://tvdboom.github.io/ExperionML/"
-"Issues" = "https://github.com/tvdboom/ExperionML/issues"
-"Repository" = "https://github.com/tvdboom/ExperionML"
-"Slack" = "https://join.slack.com/t/experionml-alm7229/shared_invite/zt-upd8uc0z-LL63MzBWxFf5tVWOGCBY5g"
+"Repository" = "https://github.com/gersonrs/ExperionML"
+"Bug Tracker" = "https://github.com/gersonrs/ExperionML/issues"
 
-[tool.pdm.version]
-source = "file"
-path = "experionml/utils/constants.py"
-
-[tool.pdm.build]
-includes = ["experionml"]
-source-includes = ["tests/*.py"]
+[tool.setuptools]
+packages = ["experionml"]
 
 [tool.pytest.ini_options]
 cache_dir = ".cache/pytest"
@@ -219,3 +213,19 @@ exclude_also = [
     "if TYPE_CHECKING:",
     "@(abc\\.)?abstractmethod",
 ]
+
+[tool.black]
+line-length = 100
+target-version = ['py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # The following are specific to Black, you probably don't want those.
+  tests/ignore
+  | htmlcov
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100

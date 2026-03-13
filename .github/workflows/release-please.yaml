@@ -1,0 +1,13 @@
+---
+name: "release-please"
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  release:
+    uses: GersonRS/modern-gitops-stack/.github/workflows/modules-release-please.yaml@main
+    secrets:
+      PROJECT_APP_PRIVATE_KEY: ${{ secrets.PROJECT_APP_PRIVATE_KEY }}
