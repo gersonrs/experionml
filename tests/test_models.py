@@ -1,0 +1,402 @@
+
+from platform import machine, system
+from unittest.mock import Mock, patch
+
+import pandas as pd
+import pytest
+from optuna.distributions import IntDistribution
+from optuna.pruners import PatientPruner
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sktime.forecasting.croston import Croston
+
+from experionml import ExperionMLClassifier, ExperionMLForecaster, ExperionMLModel, ExperionMLRegressor
+from experionml.pipeline import Pipeline
+
+from .conftest import X_bin, X_class, X_ex, X_reg, y_bin, y_class, y_fc, y_reg
+
+
+def test_custom_model_properties():
+    """Assert that name and acronym are assigned correctly."""
+    experionml = ExperionMLRegressor(X_reg, y_reg, random_state=1)
+    experionml.run(models=ExperionMLModel(RandomForestRegressor(n_estimators=5, n_jobs=1)))
+    assert experionml.rfr.name == "RFR"
+    assert experionml.rfr.fullname == "RandomForestRegressor"
+
+
+def test_custom_model_invalid_acronym():
+    """Assert that an error is raised when name and acronym don't match."""
+    experionml = ExperionMLRegressor(X_reg, y_reg, random_state=1)
+    with pytest.raises(ValueError, match=".*do not match.*"):
+        experionml.run(models=ExperionMLModel(RandomForestRegressor, acronym="forest"))
+
+
+def test_all_models_binary():
+    """Assert that all models work with binary classification."""
+    experionml = ExperionMLClassifier(X_bin, y_bin, n_rows=0.5, random_state=1)
+    experionml.run(
+        models=["!CatB", "!CatNB", "!LGB", "!RNN", "!XGB"],
+        n_trials=5,
+        est_params={
+            "AdaB": {"n_estimators": 5},
+            "Bag": {"n_estimators": 5},
+            "ET": {"n_estimators": 5},
+            "GBM": {"n_estimators": 5},
+            "hGBM": {"max_iter": 5},
+            "LR": {"max_iter": 5},
+            "MLP": {"hidden_layer_sizes": (5,), "max_iter": 5},
+            "PA": {"max_iter": 5},
+            "Perc": {"max_iter": 5},
+            "RF": {"n_estimators": 5},
+            "SGD": {"max_iter": 5},
+        },
+        errors="raise",
+    )
+
+
+def test_all_models_multiclass():
+    """Assert that all models work with multiclass classification."""
+    experionml = ExperionMLClassifier(X_class, y_class, n_rows=0.5, random_state=1)
+    experionml.run(
+        models=["!CatB", "!CatNB", "!LGB", "!RNN", "!XGB"],
+        n_trials=5,
+        est_params={
+            "AdaB": {"n_estimators": 5},
+            "Bag": {"n_estimators": 5},
+            "ET": {"n_estimators": 5},
+            "GBM": {"n_estimators": 5},
+            "hGBM": {"max_iter": 5},
+            "KNN": {"n_neighbors": 2},
+            "LR": {"max_iter": 5},
+            "MLP": {"hidden_layer_sizes": (5,), "max_iter": 5},
+            "PA": {"max_iter": 5},
+            "Perc": {"max_iter": 5},
+            "RF": {"n_estimators": 5},
+            "SGD": {"max_iter": 5},
+        },
+        errors="raise",
+    )
+
+
+def test_all_models_regression():
+    """Assert that all models work with regression."""
+    experionml = ExperionMLRegressor(X_reg, y_reg, n_rows=0.5, random_state=2)
+    experionml.run(
+        models=["!CatB", "!LGB", "!RNN", "!XGB"],
+        n_trials=5,
+        est_params={
+            "AdaB": {"n_estimators": 5},
+            "Bag": {"n_estimators": 5},
+            "ET": {"n_estimators": 5},
+            "GBM": {"n_estimators": 5},
+            "hGBM": {"max_iter": 5},
+            "MLP": {"hidden_layer_sizes": (5,), "max_iter": 5},
+            "PA": {"max_iter": 5},
+            "RF": {"n_estimators": 5},
+            "SGD": {"max_iter": 5},
+        },
+        errors="raise",
+    )
+
+
+def test_all_models_forecast():
+    """Assert that all models work with forecast."""
+    experionml = ExperionMLForecaster(y_fc, sp=12, random_state=1)
+    experionml.run(
+        models=["!DF", "!MSTL", "!VAR", "!VARMAX"],
+        n_trials=1,
+        est_params={
+            "arima": {"maxiter": 5, "method": "nm"},
+            "autoarima": {"maxiter": 5, "method": "nm"},
+            "bats": {"use_box_cox": False, "use_trend": False, "use_arma_errors": False},
+            "stl": {"seasonal": 3, "seasonal_deg": 0, "low_pass_deg": 0},
+            "tbats": {"use_box_cox": False, "use_trend": False, "use_arma_errors": False},
+            "ets": {"maxiter": 5},
+        },
+        errors="raise",
+    )
+
+
+def test_all_models_forecast_multivariate():
+    """Assert that all models work with multivariate forecast."""
+    experionml = ExperionMLForecaster(X_ex, y=(-1, -2), random_state=1)
+    experionml.run(
+        models=["DF", "VAR", "VARMAX"],
+        n_trials=1,
+        est_params={
+            "df": {"k_factors": 1},
+            "varmax": {"error_cov_type": "diagonal", "method": "nm", "maxiter": 5},
+        },
+        errors="raise",
+    )
+
+
+def test_univariate_models_forecast_custom_seasonality():
+    """Assert that univariate models accept custom seasonality."""
+    experionml = ExperionMLForecaster(y_fc, random_state=1)
+    experionml.run(
+        models=["ARIMA", "SARIMAX"],
+        n_trials=1,
+        est_params={
+            "arima": {"maxiter": 5, "method": "nm"},
+            "order": (1, 0, 0),
+            "seasonal_order": (1, 0, 0, 12),
+        },
+        errors="raise",
+    )
+
+
+def test_multivariate_forecast_custom_seasonality():
+    """Assert that multivariate models accept custom seasonality."""
+    experionml = ExperionMLForecaster(X_ex, y=(-1, -2), random_state=1)
+    experionml.run(
+        models=["VARMAX"],
+        n_trials=1,
+        est_params={"error_cov_type": "diagonal", "method": "nm", "maxiter": 5, "order": (1, 0)},
+        errors="raise",
+    )
+
+
+@pytest.mark.skipif(
+    system() == "Darwin" or machine() not in ("x86_64", "AMD64"), reason="No sklearnex"
+)
+@pytest.mark.parametrize("device", ["cpu", "gpu"])
+def test_models_sklearnex_classification(device):
+    """Assert the sklearnex engine works for classification tasks."""
+    experionml = ExperionMLClassifier(X_bin, y_bin, device=device, engine="sklearnex", random_state=1)
+    experionml.run(
+        models=["KNN", "LR", "RF", "SVM"],
+        n_trials=2,
+        est_params={"LR": {"max_iter": 5}, "RF": {"n_estimators": 5}},
+    )
+    assert all(m.estimator.__module__.startswith(("daal4py", "sklearnex")) for m in experionml._models)
+
+
+@pytest.mark.skipif(machine() not in ("x86_64", "AMD64"), reason="Only x86 support.")
+@pytest.mark.parametrize("device", ["cpu", "gpu"])
+def test_models_sklearnex_regression(device):
+    """Assert the sklearnex engine works for regression tasks."""
+    experionml = ExperionMLRegressor(X_reg, y_reg, device=device, engine="sklearnex", random_state=1)
+    experionml.run(
+        models=["EN", "KNN", "Lasso", "OLS", "RF", "Ridge", "SVM"],
+        n_trials=2,
+        est_params={"RF": {"n_estimators": 5}},
+    )
+    assert all(m.estimator.__module__.startswith(("daal4py", "sklearnex")) for m in experionml._models)
+
+
+@patch.dict(
+    "sys.modules",
+    {
+        "cuml": Mock(spec=["__spec__"]),
+        "cuml.common.device_selection": Mock(spec=["set_global_device_type"]),
+        "cuml.internals.memory_utils": Mock(spec=["set_global_output_type"]),
+    },
+)
+def test_models_cuml_classification():
+    """Assert that all classification models can be called with cuml."""
+    experionml = ExperionMLClassifier(X_bin, y_bin, device="gpu", engine="cuml", verbose=2, random_state=1)
+    experionml.run(
+        models=["!CatB", "!LGB", "!XGB"],
+        n_trials=1,
+        est_params={
+            "AdaB": {"n_estimators": 5},
+            "Bag": {"n_estimators": 5},
+            "ET": {"n_estimators": 5},
+            "GBM": {"n_estimators": 5},
+            "hGBM": {"max_iter": 5},
+            "LR": {"max_iter": 5},
+            "MLP": {"hidden_layer_sizes": (5,), "max_iter": 5},
+            "PA": {"max_iter": 5},
+            "Perc": {"max_iter": 5},
+            "RF": {"n_estimators": 5},
+            "SGD": {"max_iter": 5},
+        },
+    )
+
+
+@patch.dict(
+    "sys.modules",
+    {
+        "cuml": Mock(spec=["__spec__"]),
+        "cuml.common.device_selection": Mock(spec=["set_global_device_type"]),
+        "cuml.internals.memory_utils": Mock(spec=["set_global_output_type"]),
+    },
+)
+def test_models_cuml_regression():
+    """Assert that all regression models can be called with cuml."""
+    experionml = ExperionMLRegressor(X_reg, y_reg, device="gpu", engine="cuml", random_state=1)
+    experionml.run(
+        models=["!CatB", "!LGB", "!XGB"],
+        n_trials=1,
+        est_params={
+            "AdaB": {"n_estimators": 5},
+            "Bag": {"n_estimators": 5},
+            "ET": {"n_estimators": 5},
+            "GBM": {"n_estimators": 5},
+            "hGBM": {"max_iter": 5},
+            "MLP": {"hidden_layer_sizes": (5,), "max_iter": 5},
+            "PA": {"max_iter": 5},
+            "RF": {"n_estimators": 5},
+            "SGD": {"max_iter": 5},
+        },
+    )
+
+
+def test_CatNB(random):
+    """Assert that the CatNB model works. Needs special dataset."""
+    X = random.integers(2, size=(150, 10))
+    y = random.integers(2, size=150)
+
+    experionml = ExperionMLClassifier(X, y, random_state=1)
+    assert experionml.scaled  # Check scaling is True for all binary columns
+    experionml.run(models="CatNB", n_trials=1)
+    assert hasattr(experionml, "CatNB")
+
+
+def test_RNN():
+    """Assert that the RNN model works. Fails with default parameters."""
+    experionml = ExperionMLClassifier(X_class, y_class, random_state=1)
+    experionml.run("RNN", n_trials=1, est_params={"outlier_label": "most_frequent"})
+    assert experionml.models == "RNN"
+
+
+@patch("sktime.forecasting.statsforecast.StatsForecastMSTL")
+def test_MSTL_with_stl_kwargs_params(cls):
+    """Assert that the MSTL model works when providing stl_kwargs params."""
+    cls.return_value.fit = Mock()
+    cls.return_value.set_params.return_value.predict.__name__ = "predict"
+
+    experionml = ExperionMLForecaster(y_fc, random_state=1)
+    experionml.run(
+        models="MSTL",
+        n_trials=1,
+        est_params={"stl_kwargs": {"seasonal_deg": 0}},
+        ht_params={"catch": (Exception,)},
+        errors="raise",
+    )
+    assert experionml.models == "MSTL"
+
+
+def test_Prophet_non_standard_seasonality():
+    """Assert that the Prophet model works with non-standard seasonality."""
+    experionml = ExperionMLForecaster(y_fc, sp=3, random_state=1)
+    experionml.run("Prophet")
+    assert experionml.models == "Prophet"
+
+
+@pytest.mark.parametrize("model", ["CatB", "LGB", "XGB"])
+def test_pruning_non_sklearn(model):
+    """Assert that non-sklearn models can be pruned."""
+    experionml = ExperionMLClassifier(X_class, y_class, random_state=1)
+    experionml.run(
+        models=model,
+        n_trials=7,
+        est_params={"n_estimators": 10, "max_depth": 2},
+        ht_params={"pruner": PatientPruner(None, patience=1)},
+    )
+    assert "PRUNED" in experionml.winner.trials["state"].unique()
+
+
+@pytest.mark.parametrize("model", ["CatB", "LGB", "XGB"])
+def test_custom_metric_evals_non_sklearn(model):
+    """Assert that non-sklearn models can be pruned."""
+    experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
+    experionml.run(model, est_params={"n_estimators": 5, "max_depth": 2})
+    assert getattr(experionml, model).evals is not None
+
+    experionml = ExperionMLClassifier(X_class, y_class, random_state=1)
+    experionml.run(model, est_params={"n_estimators": 5, "max_depth": 2})
+    assert getattr(experionml, model).evals is not None
+
+    experionml = ExperionMLRegressor(X_reg, y_reg, random_state=1)
+    experionml.run(model, est_params={"n_estimators": 5, "max_depth": 2})
+    assert getattr(experionml, model).evals is not None
+
+
+def test_MLP_custom_hidden_layer_sizes():
+    """Assert that the MLP model can have custom hidden_layer_sizes."""
+    experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
+    experionml.run(
+        models="MLP",
+        n_trials=1,
+        est_params={"hidden_layer_sizes": (31, 2), "max_iter": 5},
+    )
+    assert "hidden_layer_1" not in experionml.mlp.best_params
+    assert experionml.mlp.estimator.get_params()["hidden_layer_sizes"] == (31, 2)
+
+
+def test_MLP_custom_n_layers():
+    """Assert that the MLP model can have a custom number of hidden layers."""
+    experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
+    experionml.run(
+        models="MLP",
+        n_trials=5,
+        est_params={"max_iter": 5},
+        ht_params={
+            "distributions": {
+                "hidden_layer_1": IntDistribution(2, 4),
+                "hidden_layer_2": IntDistribution(0, 4),
+                "hidden_layer_3": IntDistribution(0, 4),
+                "hidden_layer_4": IntDistribution(0, 4),
+            },
+        },
+    )
+    assert "hidden_layer_1" in experionml.mlp.trials
+
+
+# Test ensembles =================================================== >>
+
+def test_ensemble_failed_feature_importance():
+    """Assert that the Stacking model works."""
+    experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
+    experionml.run(models=["LDA", "SVM"])
+    experionml.voting()
+    with pytest.raises(ValueError, match=".*feature importance for meta-estimator.*"):
+        print(experionml.vote.feature_importance)
+
+
+def test_stacking():
+    """Assert that the Stacking model works."""
+    experionml = ExperionMLRegressor(X_reg, y_reg, random_state=1)
+    experionml.run(models=["RF", "XGB"])
+    experionml.stacking()
+    assert isinstance(experionml.stack.estimator.estimators_[0], RandomForestRegressor)
+    assert isinstance(experionml.stack.estimator.estimators_[1], Pipeline)
+    assert isinstance(experionml.stack.feature_importance, pd.Series)
+
+
+def test_stacking_forecast():
+    """Assert that the Stacking model works for forecast tasks."""
+    experionml = ExperionMLForecaster(y_fc, random_state=1)
+    experionml.run(models=["Croston", "Theta"])
+    experionml.stacking()
+    assert isinstance(experionml.stack.estimator.forecasters_[0], Croston)
+
+
+def test_voting():
+    """Assert that the Voting model works."""
+    experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
+    experionml.run(
+        models=["SVM", "RF", "XGB"],
+        est_params={
+            "RF": {"n_estimators": 5, "max_depth": 2},
+            "XGB": {"n_estimators": 5, "max_depth": 2},
+        },
+    )
+
+    # Not all models have predict_proba
+    with pytest.raises(ValueError, match=".*a predict_proba method.*"):
+        experionml.voting(voting="soft")
+
+    experionml.voting(models=["RF", "XGB"])
+    assert isinstance(experionml.vote.estimator.estimators_[0], RandomForestClassifier)
+    assert isinstance(experionml.vote.estimator.estimators_[1], Pipeline)
+    assert isinstance(experionml.vote.feature_importance, pd.Series)
+
+
+def test_voting_forecast():
+    """Assert that the Voting model works for forecast tasks."""
+    experionml = ExperionMLForecaster(y_fc, random_state=1)
+    experionml.run(models=["Croston", "Theta"])
+    experionml.voting()
+    assert isinstance(experionml.vote.estimator.forecasters_[0], Croston)
