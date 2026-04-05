@@ -23,6 +23,7 @@ classifiers = [
 dependencies = [
     "beartype>=0.18.5",
     "category-encoders>=2.6.3",
+    "setuptools>=41.0,<70",  # woodwork/featuretools require pkg_resources (removed in setuptools 70+)
     "dill>=0.3.6",
     "featuretools>=1.28.0",
     "gplearn>=0.4.2",
