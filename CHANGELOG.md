@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.0](https://github.com/gersonrs/experionml/compare/v1.2.1...v1.3.0) (2026-04-05)
+
+
+### 🚀 New Features
+
+* adjust release please ([8b63fc7](https://github.com/gersonrs/experionml/commit/8b63fc7d67f5d420b872052f40b4705e53798f17))
+* adjust release please ([e3d0f55](https://github.com/gersonrs/experionml/commit/e3d0f5504613e99a03fcfba367d53ba631f994b7))
+* new adjust ([0e2ffc7](https://github.com/gersonrs/experionml/commit/0e2ffc717e1b50f19115ead87b54ba80095e82e1))
+
 ## [1.2.1](https://github.com/gersonrs/experionml/compare/v1.2.0...v1.2.1) (2026-03-15)
 
 
