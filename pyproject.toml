@@ -104,8 +104,9 @@ doc = [
 "Repository" = "https://github.com/gersonrs/ExperionML"
 "Bug Tracker" = "https://github.com/gersonrs/ExperionML/issues"
 
-[tool.setuptools]
-packages = ["experionml"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["experionml*"]
 
 [tool.pytest.ini_options]
 cache_dir = ".cache/pytest"
