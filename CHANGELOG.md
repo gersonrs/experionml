@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/gersonrs/experionml/compare/v1.3.0...v1.4.0) (2026-04-05)
+
+
+### 🚀 New Features
+
+* adjust lib ([522b65f](https://github.com/gersonrs/experionml/commit/522b65f34cd8a48d16d0ff0faa39e631e261fcf1))
+
 ## [1.3.0](https://github.com/gersonrs/experionml/compare/v1.2.1...v1.3.0) (2026-04-05)
 
 
