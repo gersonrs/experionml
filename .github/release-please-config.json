@@ -78,10 +78,7 @@
       "release-type": "python",
       "extra-files": [
         "pyproject.toml",
-        {
-          "type": "python",
-          "path": "experionml/utils/constants.py"
-        }
+        "experionml/utils/constants.py"
       ]
     }
   }
