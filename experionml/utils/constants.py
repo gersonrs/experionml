@@ -1,5 +1,5 @@
 # Current library version
-__version__ = "1.4.0"  # x-release-please-version
+__version__ = "1.5.0"  # x-release-please-version
 
 # Column types considered categorical
 CAT_TYPES = ["object", "category", "string", "boolean"]
