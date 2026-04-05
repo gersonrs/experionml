@@ -137,13 +137,13 @@ class FeatureExtractor(TransformerMixin):
     n_features_in_: int
         Número de atributos vistos durante o `fit`.
 
-    See Also
+    Veja também
     --------
     experionml.feature_engineering:FeatureGenerator
     experionml.feature_engineering:FeatureGrouper
     experionml.feature_engineering:FeatureSelector
 
-    Examples
+    Exemplos
     --------
     === "experionml"
         ```pycon
@@ -395,13 +395,13 @@ class FeatureGenerator(TransformerMixin):
     n_features_in_: int
         Número de atributos vistos durante o `fit`.
 
-    See Also
+    Veja também
     --------
     experionml.feature_engineering:FeatureExtractor
     experionml.feature_engineering:FeatureGrouper
     experionml.feature_engineering:FeatureSelector
 
-    Examples
+    Exemplos
     --------
     === "experionml"
         ```pycon
@@ -660,13 +660,13 @@ class FeatureGrouper(TransformerMixin):
     n_features_in_: int
         Número de atributos vistos durante o `fit`.
 
-    See Also
+    Veja também
     --------
     experionml.feature_engineering:FeatureExtractor
     experionml.feature_engineering:FeatureGenerator
     experionml.feature_engineering:FeatureSelector
 
-    Examples
+    Exemplos
     --------
     === "experionml"
         ```pycon
@@ -975,13 +975,13 @@ class FeatureSelector(TransformerMixin):
     n_features_in_: int
         Número de atributos vistos durante o `fit`.
 
-    See Also
+    Veja também
     --------
     experionml.feature_engineering:FeatureExtractor
     experionml.feature_engineering:FeatureGenerator
     experionml.feature_engineering:FeatureGrouper
 
-    Examples
+    Exemplos
     --------
     === "experionml"
         ```pycon
@@ -1103,8 +1103,8 @@ class FeatureSelector(TransformerMixin):
 
                 if self.solver is None:
                     raise ValueError(
-                        "Invalid value for the solver parameter. The "
-                        f"value can't be None for strategy={self.strategy}"
+                        "Valor inválido para o parâmetro solver. O "
+                        f"valor não pode ser None para strategy={self.strategy}"
                     )
                 elif isinstance(self.solver, str):
                     # Define o goal para inicializar o modelo predefinido

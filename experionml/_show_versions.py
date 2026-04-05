@@ -57,7 +57,7 @@ DEFAULT_DEPS = [
 def _get_sys_info():
     """Obtém informações do sistema e da versão do Python.
 
-    Returns
+    Retorna
     -------
     dict
         Informações coletadas.
@@ -73,12 +73,12 @@ def _get_sys_info():
 def _get_deps_info(deps: list[str]) -> dict[str, str | None]:
     """Retorna uma visão geral das versões instaladas das dependências principais.
 
-    Parameters
+    Parâmetros
     ----------
     deps: list of str
         Dependências das quais obter a versão.
 
-    Returns
+    Retorna
     -------
     dict
         Informações de versão das bibliotecas em `deps`, onde as chaves

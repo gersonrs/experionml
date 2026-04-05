@@ -1262,7 +1262,7 @@ class ClassMap:
             return self.__data.index(self._get_data(key))
 
 
-# Functions ======================================================== >>
+# Funções ========================================================== >>
 
 
 def flt(x: Any) -> Any:
@@ -2241,7 +2241,7 @@ def get_custom_scorer(metric: str | MetricFunction | Scorer, pos_label: PosLabel
     return scorer
 
 
-# Pipeline functions =============================================== >>
+# Funções de pipeline ============================================= >>
 
 
 def name_cols(
@@ -2383,17 +2383,17 @@ def reorder_cols(
     for col in df:
         if col in original_df and col not in col_names:
             raise ValueError(
-                f"Column '{col}' returned by transformer {transformer} "
+                f"Coluna '{col}' retornada pelo transformador {transformer} "
                 "já existe no conjunto de dados original."
             )
 
     # Força novos índices no conjunto antigo para o merge
     try:
         original_df.index = df.index
-    except ValueError as ex:  # Length mismatch
+    except ValueError as ex:  # Incompatibilidade de tamanho
         raise IndexError(
-            f"Length of values ({len(df)}) does not match length of "
-            f"index ({len(original_df)}). This usually happens when "
+            f"Comprimento dos valores ({len(df)}) não corresponde ao comprimento "
+            f"do índice ({len(original_df)}). Isso geralmente ocorre quando "
             "transformações que removem linhas não são aplicadas a "
             "todas as colunas."
         ) from ex
@@ -2460,13 +2460,13 @@ def fit_one(
                         kwargs["X"] = to_df(y)[inc]
                     elif X is None:
                         raise ValueError(
-                            "Exception while trying to fit transformer "
-                            f"{estimator.__class__.__name__}. Parameter "
+                            "Exceção ao tentar ajustar o transformador "
+                            f"{estimator.__class__.__name__}. O parâmetro "
                             "X é obrigatório, mas não foi fornecido."
                         )
                     elif X.empty:
                         raise ValueError(
-                            "Exception while trying to fit transformer "
+                            "Exceção ao tentar ajustar o transformador "
                             f"{estimator.__class__.__name__}. O parâmetro X é "
                             "obrigatório, mas o conjunto de atributos fornecido está vazio. "
                             "Use o parâmetro columns para transformar apenas a "
@@ -2476,7 +2476,7 @@ def fit_one(
             if y is not None:
                 if "y" in params:
                     kwargs["y"] = y
-                if "Y" in params:  # Some estimators like ClassifierChain use Y
+                if "Y" in params:  # Alguns estimadores como ClassifierChain usam Y
                     kwargs["Y"] = y
 
             # Mantém atributos customizados, pois alguns transformadores os redefinem no fit
@@ -2650,7 +2650,7 @@ def fit_transform_one(
     return Xt, yt, transformer
 
 
-# Decorators ======================================================= >>
+# Decoradores ====================================================== >>
 
 
 def cache(f: Callable) -> Callable:
@@ -2862,7 +2862,7 @@ def make_sklearn(
     return obj
 
 
-# Custom scorers =================================================== >>
+# Scorers customizados ============================================= >>
 
 
 def true_negatives(y_true: Sequence[Int], y_pred: Sequence[Int]) -> Int:

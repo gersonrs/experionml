@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import math
@@ -33,35 +32,69 @@ from experionml.models import MODELS, create_stacking_model, create_voting_model
 from experionml.pipeline import Pipeline
 from experionml.utils.constants import COLOR_SCHEME, DF_ATTRS
 from experionml.utils.types import (
-    Bool, HarmonicsSelector, IndexSelector, Int, IntLargerOne,
-    MetricConstructor, Model, ModelSelector, ModelsSelector, Pandas,
-    RowSelector, Scalar, Seasonality, Segment, Sequence, SPDict,
-    TargetSelector, YSelector, bool_t, int_t, pandas_t, segment_t, sequence_t,
+    Bool,
+    HarmonicsSelector,
+    IndexSelector,
+    Int,
+    IntLargerOne,
+    MetricConstructor,
+    Model,
+    ModelSelector,
+    ModelsSelector,
+    Pandas,
+    RowSelector,
+    Scalar,
+    Seasonality,
+    Segment,
+    Sequence,
+    SPDict,
+    TargetSelector,
+    YSelector,
+    bool_t,
+    int_t,
+    pandas_t,
+    segment_t,
+    sequence_t,
 )
 from experionml.utils.utils import (
-    ClassMap, DataContainer, Goal, SeasonalPeriod, Task, check_is_fitted,
-    composed, crash, divide, flt, get_cols, get_segment, get_versions,
-    has_task, lst, merge, method_to_log, n_cols,
+    ClassMap,
+    DataContainer,
+    Goal,
+    SeasonalPeriod,
+    Task,
+    check_is_fitted,
+    composed,
+    crash,
+    divide,
+    flt,
+    get_cols,
+    get_segment,
+    get_versions,
+    has_task,
+    lst,
+    merge,
+    method_to_log,
+    n_cols,
 )
 
 
 class BaseRunner(BaseTracker, metaclass=ABCMeta):
-    """Base class for runners.
+    """Classe base para runners.
 
-    Contains shared attributes and methods for experionml and trainers.
+    Contém atributos e métodos compartilhados para o experionml e treinadores.
 
     """
 
     def __getstate__(self) -> dict[str, Any]:
-        """Require storing an extra attribute with the package versions."""
+        """Requer o armazenamento de um atributo extra com as versões dos pacotes."""
         return self.__dict__ | {"_versions": get_versions(self._models)}
 
     def __setstate__(self, state: dict[str, Any]):
-        """Check if the loaded versions match with those installed."""
+        """Verifica se as versões carregadas correspondem às instaladas."""
         versions = state.pop("_versions", None)
         self.__dict__.update(state)
 
-        # Check that all package versions match or raise a warning
+        # Verifica se todas as versões dos pacotes correspondem ou emite um aviso
         if versions:
             for key, value in get_versions(state["_models"]).items():
                 if versions[key] != value:
@@ -74,108 +107,110 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
                     )
 
     def __dir__(self) -> list[str]:
-        """Add additional attrs from __getattr__ to the dir."""
-        # Exclude from _available_if conditions
+        """Adiciona atributos extras de __getattr__ ao dir."""
+        # Exclui das condições _available_if
         attrs = [x for x in super().__dir__() if hasattr(self, x)]
 
-        # Add additional attrs from the branch
+        # Adiciona atributos extras da branch
         attrs += self.branch._get_shared_attrs()
 
-        # Add additional attrs from the dataset
+        # Adiciona atributos extras do dataset
         attrs += [x for x in DF_ATTRS if hasattr(self.dataset, x)]
 
-        # Add branch names in lower-case
+        # Adiciona nomes de branches em minúsculas
         attrs += [b.name.lower() for b in self._branches]
 
-        # Add column names (excluding those with spaces)
+        # Adiciona nomes de colunas (excluindo as que têm espaços)
         attrs += [c for c in self.columns if re.fullmatch(r"\w+$", c)]
 
-        # Add model names in lower-case
+        # Adiciona nomes de modelos em minúsculas
         if isinstance(self._models, ClassMap):
             attrs += [m.name.lower() for m in self._models]
 
         return attrs
 
     def __getattr__(self, item: str) -> Any:
-        """Get branch, attr from branch, model, column or attr from dataset."""
+        """Obtém branch, atributo da branch, modelo, coluna ou atributo do dataset."""
         if item in self.__dict__["_branches"]:
-            return self._branches[item]  # Get branch
+            return self._branches[item]  # Obtém branch
         elif item in self.branch._get_shared_attrs():
             if isinstance(attr := getattr(self.branch, item), pandas_t):
-                return self._convert(attr)  # Transform data through data engine
+                return self._convert(attr)  # Transforma dados pelo mecanismo de dados
             else:
                 return attr
         elif item in self.__dict__["_models"]:
-            return self._models[item]  # Get model
+            return self._models[item]  # Obtém modelo
         elif item in self.branch.columns:
-            return self.branch.dataset[item]  # Get column from dataset
+            return self.branch.dataset[item]  # Obtém coluna do dataset
         elif item in DF_ATTRS and hasattr(self.dataset, item):
-            return getattr(self.dataset, item)  # Get attr from dataset
+            return getattr(self.dataset, item)  # Obtém atributo do dataset
         else:
-            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{item}'.")
+            raise AttributeError(
+                f"O objeto '{self.__class__.__name__}' não possui o atributo '{item}'."
+            )
 
     def __setattr__(self, item: str, value: Any):
-        """Set attr to branch when it's a property of Branch."""
+        """Define atributo na branch quando é uma propriedade de Branch."""
         if isinstance(getattr(Branch, item, None), property):
             setattr(self.branch, item, value)
         else:
             super().__setattr__(item, value)
 
     def __delattr__(self, item: str):
-        """Delete model."""
+        """Exclui modelo."""
         if item in self._models:
             self.delete(item)
         else:
             super().__delattr__(item)
 
     def __len__(self) -> int:
-        """Return length of dataset."""
+        """Retorna o comprimento do dataset."""
         return len(self.branch.dataset)
 
     def __contains__(self, item: str) -> bool:
-        """Whether the item is a column in the dataset."""
+        """Verifica se o item é uma coluna no dataset."""
         return item in self.dataset
 
     def __getitem__(self, item: Int | str | list) -> Any:
-        """Get a branch, model or column from the dataset."""
+        """Obtém uma branch, modelo ou coluna do dataset."""
         if self.branch._container is None:
             raise RuntimeError(
-                "This instance has no dataset annexed to it. "
-                "Use the run method before calling __getitem__."
+                "Esta instância não possui um dataset anexado. "
+                "Use o método run antes de chamar __getitem__."
             )
         elif isinstance(item, int_t):
             return self.dataset[self.columns[item]]
         elif isinstance(item, str):
             if item in self._branches:
-                return self._branches[item]  # Get branch
+                return self._branches[item]  # Obtém branch
             elif item in self._models:
-                return self._models[item]  # Get model
+                return self._models[item]  # Obtém modelo
             elif item in self.dataset:
-                return self.dataset[item]  # Get column from dataset
+                return self.dataset[item]  # Obtém coluna do dataset
             else:
                 raise ValueError(
-                    f"{self.__class__.__name__} object has no "
-                    f"branch, model or column called {item}."
+                    f"O objeto {self.__class__.__name__} não possui "
+                    f"branch, modelo ou coluna chamado {item}."
                 )
         else:
-            return self.dataset[item]  # Get subset of dataset
+            return self.dataset[item]  # Obtém subconjunto do dataset
 
     def __sklearn_is_fitted__(self) -> bool:
-        """Return fitted when there are trained models."""
+        """Retorna True quando há modelos treinados."""
         return bool(self._models)
 
     # Utility properties =========================================== >>
 
     @cached_property
     def task(self) -> Task:
-        """Dataset's [task][] type."""
+        """Tipo de [tarefa][task] do dataset."""
         return self._goal.infer_task(self.branch.y)
 
     @property
     def sp(self) -> Bunch:
-        """Seasonality of the time series.
+        """Sazonalidade da série temporal.
 
-        Read more about seasonality in the [user guide][seasonality].
+        Leia mais sobre sazonalidade no [guia do usuário][seasonality].
 
         """
         return self._config.sp
@@ -183,7 +218,7 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
     @sp.setter
     @beartype
     def sp(self, sp: Seasonality | SPDict):
-        """Convert seasonality to information container."""
+        """Converte sazonalidade para contêner de informações."""
         if sp is None:
             self._config.sp = Bunch()
         elif isinstance(sp, dict):
@@ -193,33 +228,33 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
 
     @property
     def og(self) -> Branch:
-        """Branch containing the original dataset.
+        """Branch contendo o dataset original.
 
-        This branch contains the data prior to any transformations.
-        It redirects to the current branch if its pipeline is empty
-        to not have the same data in memory twice.
+        Esta branch contém os dados anteriores a quaisquer transformações.
+        Redireciona para a branch atual se o seu pipeline estiver vazio,
+        para não ter os mesmos dados na memória duas vezes.
 
         """
         return self._branches.og
 
     @property
     def branch(self) -> Branch:
-        """Current active branch."""
+        """Branch ativa atual."""
         return self._branches.current
 
     @property
     def holdout(self) -> pd.DataFrame | None:
-        """Holdout set.
+        """Conjunto holdout.
 
-        This data set is untransformed by the pipeline. Read more in
-        the [user guide][data-sets].
+        Este conjunto de dados não é transformado pelo pipeline. Leia mais em
+        [guia do usuário][data-sets].
 
         """
         return self._convert(self.branch._holdout)
 
     @property
     def models(self) -> str | list[str] | None:
-        """Name of the model(s)."""
+        """Nome do(s) modelo(s)."""
         if self._models:
             return flt(self._models.keys())
         else:
@@ -227,7 +262,7 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
 
     @property
     def metric(self) -> str | list[str] | None:
-        """Name of the metric(s)."""
+        """Nome da(s) métrica(s)."""
         if self._metric:
             return flt(self._metric.keys())
         else:
@@ -235,11 +270,11 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
 
     @property
     def winners(self) -> list[Model] | None:
-        """Models ordered by performance.
+        """Modelos ordenados por desempenho.
 
-        Performance is measured as the highest score on the model's
-        `[main_metric]_bootstrap` or `[main_metric]_test`, checked in
-        that order. Ties are resolved looking at the lowest `time_fit`.
+        O desempenho é medido pela pontuação mais alta em
+        `[main_metric]_bootstrap` ou `[main_metric]_test`, verificados
+        nessa ordem. Empates são resolvidos pelo menor `time_fit`.
 
         """
         if self._models:  # Returns None if not fitted
@@ -249,11 +284,11 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
 
     @property
     def winner(self) -> Model | None:
-        """Best performing model.
+        """Modelo com melhor desempenho.
 
-        Performance is measured as the highest score on the model's
-        `[main_metric]_bootstrap` or `[main_metric]_test`, checked in
-        that order. Ties are resolved looking at the lowest `time_fit`.
+        O desempenho é medido pela pontuação mais alta em
+        `[main_metric]_bootstrap` ou `[main_metric]_test`, verificados
+        nessa ordem. Empates são resolvidos pelo menor `time_fit`.
 
         """
         if self.winners:  # Returns None if not fitted
@@ -263,44 +298,44 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
 
     @winner.deleter
     def winner(self):
-        """[Delete][experionmlclassifier-delete] the best performing model."""
+        """[Exclui][experionmlclassifier-delete] o modelo com melhor desempenho."""
         if self._models:  # Do nothing if not fitted
             self.delete(self.winner.name)
 
     @property
     def results(self) -> Styler:
-        """Overview of the training results.
+        """Visão geral dos resultados de treinamento.
 
-        All durations are in seconds. Possible values include:
+        Todas as durações estão em segundos. Os valores possíveis incluem:
 
-        - **[metric]_ht:** Score obtained by the hyperparameter tuning.
-        - **time_ht:** Duration of the hyperparameter tuning.
-        - **[metric]_train:** Metric score on the train set.
-        - **[metric]_test:** Metric score on the test set.
-        - **time_fit:** Duration of the model fitting on the train set.
-        - **[metric]_bootstrap:** Mean score on the bootstrapped samples.
-        - **time_bootstrap:** Duration of the bootstrapping.
-        - **time:** Total duration of the run.
+        - **[metric]_ht:** Pontuação obtida pelo ajuste de hiperparâmetros.
+        - **time_ht:** Duração do ajuste de hiperparâmetros.
+        - **[metric]_train:** Pontuação da métrica no conjunto de treino.
+        - **[metric]_test:** Pontuação da métrica no conjunto de teste.
+        - **time_fit:** Duração do ajuste do modelo no conjunto de treino.
+        - **[metric]_bootstrap:** Pontuação média nas amostras bootstrap.
+        - **time_bootstrap:** Duração do bootstrapping.
+        - **time:** Duração total da execução.
 
         !!! tip
-            This attribute returns a pandas' [Styler][] object. Convert
-            the result back to a regular dataframe using its `data`
-            attribute.
+            Este atributo retorna um objeto [Styler][] do pandas. Converta
+            o resultado de volta para um dataframe regular usando o atributo
+            `data`.
 
         """
 
         def frac(m: Model) -> float:
-            """Return the fraction of the train set used.
+            """Retorna a fração do conjunto de treino utilizada.
 
-            Parameters
+            Parâmetros
             ----------
             m: Model
-                Model used.
+                Modelo utilizado.
 
-            Returns
+            Retorna
             -------
             float
-                Calculated fraction.
+                Fração calculada.
 
             """
             if (n_models := len(m.branch.train) / m._train_idx) == int(n_models):
@@ -314,7 +349,7 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
             index=lst(self.models),
         ).dropna(axis=1, how="all")
 
-        # For sh and ts runs, include the fraction of training set
+        # Para execuções sh e ts, inclui a fração do conjunto de treino
         if any(m._train_idx != len(m.branch.train) for m in self._models):
             df = df.set_index(
                 pd.MultiIndex.from_arrays(
@@ -323,57 +358,54 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
                 )
             ).sort_index(level=0, ascending=True)
 
-        return (
-            df
-            .style
-            .highlight_max(props=COLOR_SCHEME, subset=[c for c in df if not c.startswith("time")])
-            .highlight_min(props=COLOR_SCHEME, subset=[c for c in df if c.startswith("time")])
-        )
+        return df.style.highlight_max(
+            props=COLOR_SCHEME, subset=[c for c in df if not c.startswith("time")]
+        ).highlight_min(props=COLOR_SCHEME, subset=[c for c in df if c.startswith("time")])
 
     # Utility methods ============================================== >>
 
     def _get_sp(self, sp: Seasonality) -> int | list[int] | None:
-        """Get the seasonal period.
+        """Obtém o período sazonal.
 
-        Parameters
+        Parâmetros
         ----------
         sp: int, str, sequence or None
-            Seasonal period provided. If None, it means there is
-            no seasonality.
+            Período sazonal fornecido. Se None, significa que não há
+            sazonalidade.
 
-        Returns
+        Retorna
         -------
         int, list or None
-            Seasonal period.
+            Período sazonal.
 
         """
 
         def get_single_sp(sp: Int | str) -> int:
-            """Get a seasonal period from a single value.
+            """Obtém um período sazonal a partir de um único valor.
 
-            Parameters
+            Parâmetros
             ----------
             sp: int, str or None
-                Seasonal period as int or [DateOffset][].
+                Período sazonal como int ou [DateOffset][].
 
-            Returns
+            Retorna
             -------
             int
-                Seasonal period.
+                Período sazonal.
 
             """
             if isinstance(sp, str):
-                if offset := to_offset(sp):  # Convert to pandas' DateOffset
+                if offset := to_offset(sp):  # Converte para DateOffset do pandas
                     name, period = offset.name.split("-")[0][0], offset.n
 
                 if name not in SeasonalPeriod.__members__:
                     raise ValueError(
-                        f"Invalid value for the seasonal period, got {name}. See "
+                        f"Valor inválido para o período sazonal, recebido {name}. Veja "
                         "https://pandas.pydata.org/pandas-docs/stable/user_guide/"
-                        "timeseries.html#period-aliases for a list of allowed values."
+                        "timeseries.html#period-aliases para uma lista de valores permitidos."
                     )
 
-                # Formula is same as SeasonalPeriod[name] for period=1
+                # A fórmula é a mesma que SeasonalPeriod[name] para period=1
                 return math.lcm(SeasonalPeriod[name].value, period) // period
             else:
                 return int(sp)
@@ -383,8 +415,8 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
         elif sp == "index":
             if not hasattr(self.dataset.index, "freqstr"):
                 raise ValueError(
-                    f"Invalid value for the seasonal period, got {sp}. "
-                    f"The dataset's index has no attribute freqstr."
+                    f"Valor inválido para o período sazonal, recebido {sp}. "
+                    f"O índice do dataset não possui o atributo freqstr."
                 )
             else:
                 return get_single_sp(self.dataset.index.freqstr)
@@ -398,49 +430,49 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
         *,
         index: IndexSelector | None = None,
     ) -> tuple[DataContainer, pd.DataFrame | None]:
-        """Get data sets from a sequence of indexables.
+        """Obtém conjuntos de dados a partir de uma sequência de indexáveis.
 
-        Also assigns an index, (stratified) shuffles and selects a
-        subsample of rows depending on the attributes.
+        Também atribui um índice, embaralha (de forma estratificada) e seleciona
+        uma subamostra de linhas dependendo dos atributos.
 
-        Parameters
+        Parâmetros
         ----------
         arrays: tuple of indexables
-            Data set(s) provided. Should follow the API input format.
+            Conjunto(s) de dados fornecidos. Deve seguir o formato de entrada da API.
 
         y: int, str or sequence, default=-1
-            Transformed target column.
+            Coluna alvo transformada.
 
         index: bool, int, str, sequence or None, default=None
-            Index parameter as provided in constructor. If None, the
-            index is retrieved from `self._config`.
+            Parâmetro de índice conforme fornecido no construtor. Se None, o
+            índice é obtido de `self._config`.
 
-        Returns
+        Retorna
         -------
         DataContainer
-            Train and test sets.
+            Conjuntos de treino e teste.
 
         pd.DataFrame or None
-            Holdout data set. Returns None if not specified.
+            Conjunto holdout. Retorna None se não especificado.
 
         """
 
         def _subsample(df: pd.DataFrame) -> pd.DataFrame:
-            """Select a random subset of a dataframe.
+            """Seleciona uma subamostra aleatória de um dataframe.
 
-            If shuffle=True, the subset is shuffled, else row order
-            is maintained. For forecasting tasks, rows are dropped
-            from the tail of the data set.
+            Se shuffle=True, a subamostra é embaralhada, caso contrário a ordem
+            das linhas é mantida. Para tarefas de previsão, as linhas são removidas
+            da cauda do conjunto de dados.
 
-            Parameters
+            Parâmetros
             ----------
             df: pd.DataFrame
                 Dataset.
 
-            Returns
+            Retorna
             -------
             pd.DataFrame
-                Subset of df.
+                Subconjunto de df.
 
             """
             if self._config.n_rows <= 1:
@@ -449,7 +481,7 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
                 n_rows = int(self._config.n_rows)
 
             if self._goal is Goal.forecast:
-                return df.iloc[-n_rows:]  # For forecasting, select from tail
+                return df.iloc[-n_rows:]  # Para previsão, seleciona da cauda
             else:
                 k = random.sample(range(len(df)), k=n_rows)
 
@@ -461,23 +493,23 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
                     return df.iloc[sorted(k)]
 
         def _split_sets(data: pd.DataFrame, size: Scalar) -> tuple[pd.DataFrame, pd.DataFrame]:
-            """Split the data set into two sets.
+            """Divide o conjunto de dados em dois conjuntos.
 
-            Parameters
+            Parâmetros
             ----------
             data: pd.DataFrame
                 Dataset.
 
             size: int or float
-                Size of the second set.
+                Tamanho do segundo conjunto.
 
-            Returns
+            Retorna
             -------
             pd.DataFrame
-                First set.
+                Primeiro conjunto.
 
             pd.DataFrame
-                Second set.
+                Segundo conjunto.
 
             """
             if (groups := self._config.get_groups(data)) is None:
@@ -491,12 +523,12 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
             else:
                 if self._goal is Goal.forecast:
                     raise ValueError(
-                        "Invalid value for the metadata parameter. The key "
-                        "'groups' is unavailable for forecast tasks."
+                        "Valor inválido para o parâmetro metadata. A chave "
+                        "'groups' não está disponível para tarefas de previsão."
                     )
 
-                # We don't take stratification into account since the behavior
-                # would be undefined (hence not implemented in sklearn)
+                # Não levamos a estratificação em consideração pois o comportamento
+                # seria indefinido (portanto não implementado no sklearn)
                 gss = GroupShuffleSplit(n_splits=1, test_size=size, random_state=self.random_state)
                 idx1, idx2 = next(gss.split(data, groups=groups))
 
@@ -507,32 +539,31 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
             y: Pandas | None,
             index: IndexSelector | None = None,
         ) -> pd.DataFrame:
-            """Assign an index to the dataframe.
+            """Atribui um índice ao dataframe.
 
-            Parameters
+            Parâmetros
             ----------
             df: pd.DataFrame
                 Dataset.
 
             y: pd.Series, pd.DataFrame or None
-                Target column(s). Used to check that the provided index
-                is not one of the target columns. If None, the check is
-                skipped.
+                Coluna(s) alvo. Usada para verificar que o índice fornecido
+                não é uma das colunas alvo. Se None, a verificação é ignorada.
 
             index: bool, int, str or sequence or None, default=None
-                Index parameter as provided in constructor. If None, the
-                index is retrieved from `self._config`.
+                Parâmetro de índice conforme fornecido no construtor. Se None, o
+                índice é obtido de `self._config`.
 
-            Returns
+            Retorna
             -------
             pd.DataFrame
-                Dataset with updated indices.
+                Dataset com índices atualizados.
 
             """
             if index is None:
                 index = self._config.index
 
-            # Rearrange the metadata to the current dataset
+            # Reorganiza os metadados para o dataset atual
             self._config.reindex_metadata(loc=df.index)
 
             if index is True:  # True gets caught by isinstance(int)
@@ -544,25 +575,25 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
                     df = df.set_index(df.columns[int(index)], drop=True)
                 else:
                     raise IndexError(
-                        f"Invalid value for the index parameter. Value {index} "
-                        f"is out of range for a dataset with {df.shape[1]} columns."
+                        f"Valor inválido para o parâmetro index. O valor {index} "
+                        f"está fora do intervalo para um dataset com {df.shape[1]} colunas."
                     )
             elif isinstance(index, str):
                 if index in df:
                     df = df.set_index(index, drop=True)
                 else:
                     raise ValueError(
-                        "Invalid value for the index parameter. "
-                        f"Column {index} not found in the dataset."
+                        "Valor inválido para o parâmetro index. "
+                        f"Coluna {index} não encontrada no dataset."
                     )
 
             if y is not None and df.index.name in (c.name for c in get_cols(y)):
                 raise ValueError(
-                    "Invalid value for the index parameter. The index column "
-                    f"can not be the same as the target column, got {df.index.name}."
+                    "Valor inválido para o parâmetro index. A coluna de índice "
+                    f"não pode ser a mesma que a coluna alvo, recebido {df.index.name}."
                 )
 
-            # Assign the same indices as the current dataset
+            # Atribui os mesmos índices que o dataset atual
             self._config.reindex_metadata(df.index)
 
             return df
@@ -571,60 +602,60 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
             X: pd.DataFrame,
             y: Pandas,
         ) -> tuple[DataContainer, pd.DataFrame | None]:
-            """Generate data sets from one dataset.
+            """Gera conjuntos de dados a partir de um único dataset.
 
-            Additionally, assigns an index, shuffles the data, selects
-            a subsample if `n_rows` is specified and split into sets in
-            a stratified fashion.
+            Adicionalmente, atribui um índice, embaralha os dados, seleciona
+            uma subamostra se `n_rows` for especificado e divide em conjuntos
+            de forma estratificada.
 
-            Parameters
+            Parâmetros
             ----------
             X: pd.DataFrame
-                Feature set with shape=(n_samples, n_features).
+                Conjunto de features com shape=(n_amostras, n_features).
 
             y: pd.Series or pd.DataFrame
-                Target column(s) corresponding to `X`.
+                Coluna(s) alvo correspondente(s) a `X`.
 
-            Returns
+            Retorna
             -------
             DataContainer
-                Train and test sets.
+                Conjuntos de treino e teste.
 
             pd.DataFrame or None
-                Holdout data set. Returns None if not specified.
+                Conjunto holdout. Retorna None se não especificado.
 
             """
             data = merge(X, y)
 
-            # Shuffle the dataset
+            # Embaralha o dataset
             if not 0 < self._config.n_rows <= len(data):
                 raise ValueError(
-                    "Invalid value for the n_rows parameter. Value should "
-                    f"lie between 0 and len(X)={len(data)}, got {self._config.n_rows}."
+                    "Valor inválido para o parâmetro n_rows. O valor deve "
+                    f"estar entre 0 e len(X)={len(data)}, recebido {self._config.n_rows}."
                 )
             data = _subsample(data)
 
             if isinstance(index, sequence_t):
                 if len(index) != len(data):
                     raise IndexError(
-                        "Invalid value for the index parameter. Length of index "
-                        f"({len(index)}) doesn't match that of the dataset ({len(data)})."
+                        "Valor inválido para o parâmetro index. O comprimento do índice "
+                        f"({len(index)}) não corresponde ao do dataset ({len(data)})."
                     )
                 data.index = pd.Index(index)
 
             if len(data) < 5:
                 raise ValueError(
-                    f"The length of the dataset can't be <5, got {len(data)}. "
-                    "Make sure n_rows=1 for small datasets."
+                    f"O comprimento do dataset não pode ser <5, recebido {len(data)}. "
+                    "Certifique-se de que n_rows=1 para datasets pequenos."
                 )
 
             if not 0 < self._config.test_size < len(data):
                 raise ValueError(
-                    "Invalid value for the test_size parameter. Value "
-                    f"should lie between 0 and len(X), got {self._config.test_size}."
+                    "Valor inválido para o parâmetro test_size. O valor "
+                    f"deve estar entre 0 e len(X), recebido {self._config.test_size}."
                 )
 
-            # Define test set size
+            # Define o tamanho do conjunto de teste
             if self._config.test_size < 1:
                 if (groups := self._config.get_groups()) is not None:
                     test_size = max(1, int(self._config.test_size * groups.nunique()))
@@ -633,7 +664,7 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
             else:
                 test_size = self._config.test_size
 
-            # Define holdout set size
+            # Define o tamanho do conjunto holdout
             if self._config.holdout_size:
                 if self._config.holdout_size < 1:
                     if (groups := self._config.get_groups()) is not None:
@@ -645,9 +676,9 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
 
                 if not 0 <= holdout_size <= len(data) - test_size:
                     raise ValueError(
-                        "Invalid value for the holdout_size parameter. "
-                        "Value should lie between 0 and len(X) - len(test), "
-                        f"got {self._config.holdout_size}."
+                        "Valor inválido para o parâmetro holdout_size. "
+                        "O valor deve estar entre 0 e len(X) - len(test), "
+                        f"recebido {self._config.holdout_size}."
                     )
 
                 data, holdout = _split_sets(data, size=holdout_size)
@@ -660,13 +691,13 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
 
             container = DataContainer(
                 data=(data := complete_set.iloc[: len(data)]),
-                train_idx=data.index[:-len(test)],
-                test_idx=data.index[-len(test):],
+                train_idx=data.index[: -len(test)],
+                test_idx=data.index[-len(test) :],
                 n_targets=n_cols(y),
             )
 
             if holdout is not None:
-                holdout = complete_set.iloc[len(data):]
+                holdout = complete_set.iloc[len(data) :]
 
             return container, holdout
 
@@ -678,38 +709,38 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
             X_holdout: pd.DataFrame | None = None,
             y_holdout: Pandas | None = None,
         ) -> tuple[DataContainer, pd.DataFrame | None]:
-            """Generate data sets from provided sets.
+            """Gera conjuntos de dados a partir dos conjuntos fornecidos.
 
-            Additionally, assigns an index, shuffles the data and
-            selects a subsample if `n_rows` is specified.
+            Adicionalmente, atribui um índice, embaralha os dados e
+            seleciona uma subamostra se `n_rows` for especificado.
 
-            Parameters
+            Parâmetros
             ----------
             X_train: pd.DataFrame
-                Training set.
+                Conjunto de treino.
 
             y_train: pd.Series or pd.DataFrame
-                Target column(s) corresponding to `X`_train.
+                Coluna(s) alvo correspondente(s) a `X`_train.
 
             X_test: pd.DataFrame
-                Test set.
+                Conjunto de teste.
 
             y_test: pd.Series or pd.DataFrame
-                Target column(s) corresponding to `X`_test.
+                Coluna(s) alvo correspondente(s) a `X`_test.
 
             X_holdout: pd.DataFrame or None, default=None
-                Holdout set. Can be None if not provided by the user.
+                Conjunto holdout. Pode ser None se não fornecido pelo usuário.
 
             y_holdout: pd.Series, pd.DataFrame or None, default=None
-                Target column(s) corresponding to `X`_holdout.
+                Coluna(s) alvo correspondente(s) a `X`_holdout.
 
-            Returns
+            Retorna
             -------
             DataContainer
-                Train and test sets.
+                Conjuntos de treino e teste.
 
             pd.DataFrame or None
-                Holdout data set. Returns None if not specified.
+                Conjunto holdout. Retorna None se não especificado.
 
             """
             train = merge(X_train, y_train)
@@ -720,13 +751,13 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
                 holdout = merge(X_holdout, y_holdout)
 
             if not train.columns.equals(test.columns):
-                raise ValueError("The train and test set do not have the same columns.")
+                raise ValueError("Os conjuntos de treino e teste não possuem as mesmas colunas.")
 
             if holdout is not None:
                 if not train.columns.equals(holdout.columns):
                     raise ValueError(
-                        "The holdout set does not have the "
-                        "same columns as the train and test set."
+                        "O conjunto holdout não possui as "
+                        "mesmas colunas que os conjuntos de treino e teste."
                     )
 
             if self._config.n_rows <= 1:
@@ -736,8 +767,8 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
                     holdout = _subsample(holdout)
             else:
                 raise ValueError(
-                    "Invalid value for the n_rows parameter. Value must "
-                    "be <1 when the train and test sets are provided."
+                    "Valor inválido para o parâmetro n_rows. O valor deve "
+                    "ser <1 quando os conjuntos de treino e teste são fornecidos."
                 )
 
             # If the index is a sequence, assign it before shuffling
@@ -748,44 +779,44 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
 
                 if len(index) != len_data:
                     raise IndexError(
-                        "Invalid value for the index parameter. Length of index "
-                        f"({len(index)}) doesn't match that of the data sets ({len_data})."
+                        "Valor inválido para o parâmetro index. O comprimento do índice "
+                        f"({len(index)}) não corresponde ao dos conjuntos de dados ({len_data})."
                     )
                 train.index = pd.Index(index[: len(train)])
-                test.index = pd.Index(index[len(train): len(train) + len(test)])
+                test.index = pd.Index(index[len(train) : len(train) + len(test)])
                 if holdout is not None:
-                    holdout.index = pd.Index(index[-len(holdout):])
+                    holdout.index = pd.Index(index[-len(holdout) :])
 
             complete_set = _set_index(pd.concat([train, test, holdout]), y_test, index)
 
             container = DataContainer(
-                data=(data := complete_set.iloc[:len(train) + len(test)]),
+                data=(data := complete_set.iloc[: len(train) + len(test)]),
                 train_idx=data.index[: len(train)],
-                test_idx=data.index[-len(test):],
+                test_idx=data.index[-len(test) :],
                 n_targets=n_cols(y_train),
             )
 
             if holdout is not None:
-                holdout = complete_set.iloc[len(train) + len(test):]
+                holdout = complete_set.iloc[len(train) + len(test) :]
 
             return container, holdout
 
-        # Process input arrays ===================================== >>
+        # Processa os arrays de entrada ===================================== >>
 
         if len(arrays) == 0:
             if self.branch._container:
                 return self.branch._data, self.branch._holdout
             elif self._goal is Goal.forecast and not isinstance(y, (*int_t, str)):
-                # arrays=() and y=y for forecasting
+                # arrays=() e y=y para previsão
                 sets = _no_data_sets(*self._check_input(y=y))
             else:
                 raise ValueError(
-                    "The data arrays are empty! Provide the data to run the pipeline "
-                    "successfully. See the documentation for the allowed formats."
+                    "Os arrays de dados estão vazios! Forneça os dados para executar o pipeline "
+                    "com sucesso. Consulte a documentação para os formatos permitidos."
                 )
 
         elif len(arrays) == 1:
-            # X or y for forecasting
+            # X ou y para previsão
             sets = _no_data_sets(*self._check_input(arrays[0], y=y))
 
         elif len(arrays) == 2:
@@ -799,12 +830,12 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
                     # X, y
                     sets = _no_data_sets(*self._check_input(arrays[0], arrays[1]))
                 else:
-                    # train, test for forecast
+                    # treino, teste para previsão
                     X_train, y_train = self._check_input(y=arrays[0])
                     X_test, y_test = self._check_input(y=arrays[1])
                     sets = _has_data_sets(X_train, y_train, X_test, y_test)
             else:
-                # train, test
+                # treino, teste
                 X_train, y_train = self._check_input(arrays[0], y=y)
                 X_test, y_test = self._check_input(arrays[1], y=y)
                 sets = _has_data_sets(X_train, y_train, X_test, y_test)
@@ -817,7 +848,7 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
                 X_hold, y_hold = self._check_input(arrays[2][0], arrays[2][1])
                 sets = _has_data_sets(X_train, y_train, X_test, y_test, X_hold, y_hold)
             else:
-                # train, test, holdout
+                # treino, teste, holdout
                 X_train, y_train = self._check_input(arrays[0], y=y)
                 X_test, y_test = self._check_input(arrays[1], y=y)
                 X_hold, y_hold = self._check_input(arrays[2], y=y)
@@ -837,10 +868,12 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
             sets = _has_data_sets(X_train, y_train, X_test, y_test, X_hold, y_hold)
 
         else:
-            raise ValueError("Invalid data arrays. See the documentation for the allowed formats.")
+            raise ValueError(
+                "Arrays de dados inválidos. Consulte a documentação para os formatos permitidos."
+            )
 
         if self._goal is Goal.forecast:
-            # For forecasting, check if index complies with sktime's standard
+            # Para previsão, verifica se o índice está em conformidade com o padrão do sktime
             valid, msg, _ = check_is_mtype(
                 obj=pd.DataFrame(pd.concat([sets[0].data, sets[1]])),
                 mtype="pd.DataFrame",
@@ -851,11 +884,11 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
             if not valid:
                 raise ValueError(msg)
         elif index is not False:
-            # Else check for duplicate indices
+            # Caso contrário, verifica índices duplicados
             if pd.concat([sets[0].data, sets[1]]).index.duplicated().any():
                 raise ValueError(
-                    "There are duplicate indices in the dataset. "
-                    "Use index=False to reset the index to RangeIndex."
+                    "Existem índices duplicados no dataset. "
+                    "Use index=False para redefinir o índice para RangeIndex."
                 )
 
         return sets
@@ -867,30 +900,30 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
         ensembles: Bool = True,
         branch: Branch | None = None,
     ) -> list[Model]:
-        """Get models.
+        """Obtém modelos.
 
-        Models can be selected by name, index or regex pattern. If a
-        string is provided, use `+` to select multiple models and `!`
-        to exclude them. Models cannot be included and excluded in
-        the same call. The input is case-insensitive.
+        Os modelos podem ser selecionados por nome, índice ou padrão regex. Se uma
+        string for fornecida, use `+` para selecionar múltiplos modelos e `!`
+        para excluí-los. Modelos não podem ser incluídos e excluídos na
+        mesma chamada. A entrada é insensível a maiúsculas/minúsculas.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to select. If None, it returns all models.
+            Modelos a selecionar. Se None, retorna todos os modelos.
 
         ensembles: bool, default=True
-            Whether to include ensemble models in the output. If False,
-            they are silently excluded from any return.
+            Se deve incluir modelos ensemble na saída. Se False,
+            são silenciosamente excluídos de qualquer retorno.
 
         branch: Branch or None, default=None
-            Force returned models to have been fitted on this branch,
-            else raises an exception. If None, this filter is ignored.
+            Força os modelos retornados a terem sido ajustados nesta branch,
+            caso contrário lança uma exceção. Se None, este filtro é ignorado.
 
-        Returns
+        Retorna
         -------
         list
-            Selected models.
+            Modelos selecionados.
 
         """
         inc: list[Model] = []
@@ -906,8 +939,8 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
                         inc.append(self._models[model])
                     except KeyError:
                         raise IndexError(
-                            f"Invalid value for the models parameter. Value {model} is "
-                            f"out of range. There are {len(self._models)} models."
+                            f"Valor inválido para o parâmetro models. O valor {model} está "
+                            f"fora do intervalo. Existem {len(self._models)} modelos."
                         ) from None
                 elif isinstance(model, str):
                     for mdl in model.split("+"):
@@ -924,25 +957,25 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
                             array.extend(matches)
                         else:
                             raise ValueError(
-                                "Invalid value for the models parameter. Could "
-                                f"not find any model that matches {mdl}. The "
-                                f"available models are: {', '.join(self._models.keys())}."
+                                "Valor inválido para o parâmetro models. Não foi "
+                                f"possível encontrar nenhum modelo que corresponda a {mdl}. Os "
+                                f"modelos disponíveis são: {', '.join(self._models.keys())}."
                             )
                 elif isinstance(model, Model):
                     inc.append(model)
 
         if len(inc) + len(exc) == 0:
             raise ValueError(
-                "Invalid value for the models parameter, "
-                f"got {models}. No models were selected."
+                "Valor inválido para o parâmetro models, "
+                f"recebido {models}. Nenhum modelo foi selecionado."
             )
         elif inc and exc:
             raise ValueError(
-                "Invalid value for the models parameter. You can either "
-                "include or exclude models, not combinations of these."
+                "Valor inválido para o parâmetro models. Você pode incluir "
+                "ou excluir modelos, mas não combinações de ambos."
             )
         elif exc:
-            # If models were excluded with `!`, select all but those
+            # Se modelos foram excluídos com `!`, seleciona todos exceto eles
             inc = [m for m in self._models if m not in exc]
 
         if not ensembles:
@@ -950,71 +983,71 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
 
         if branch and not all(m.branch is branch for m in inc):
             raise ValueError(
-                "Invalid value for the models parameter. Not "
-                f"all models have been fitted on {branch}."
+                "Valor inválido para o parâmetro models. Nem "
+                f"todos os modelos foram ajustados em {branch}."
             )
 
-        return list(dict.fromkeys(inc))  # Avoid duplicates
+        return list(dict.fromkeys(inc))  # Evita duplicatas
 
     def _delete_models(self, models: str | Model | Sequence[str | Model]):
-        """Delete models.
+        """Exclui modelos.
 
-        Remove models from the instance. All attributes are deleted
-        except for `errors`. If all models are removed, the metric is
-        reset.
+        Remove os modelos da instância. Todos os atributos são excluídos,
+        exceto `errors`. Se todos os modelos forem removidos, a métrica é
+        redefinida.
 
-        Parameters
+        Parâmetros
         ----------
         models: str, Model or sequence
-            Model(s) to delete.
+            Modelo(s) a excluir.
 
         """
         for model in lst(models):
             if model in self._models:
                 self._models.remove(model)
 
-        # If no models, reset the metric
+        # Se não há modelos, redefine a métrica
         if not self._models:
             self._metric = ClassMap()
 
     @crash
     def available_models(self, **kwargs) -> pd.DataFrame:
-        """Give an overview of the available predefined models.
+        """Fornece uma visão geral dos modelos predefinidos disponíveis.
 
-        Parameters
+        Parâmetros
         ----------
         **kwargs
-            Filter the returned models providing any of the column as
-            keyword arguments, where the value is the desired filter,
-            e.g., `accepts_sparse=True`, to get all models that accept
-            sparse input or `supports_engines="cuml"` to get all models
-            that support the [cuML][] engine.
+            Filtra os modelos retornados fornecendo qualquer coluna como
+            argumento de palavra-chave, onde o valor é o filtro desejado,
+            ex.: `accepts_sparse=True`, para obter todos os modelos que aceitam
+            entrada esparsa ou `supports_engines="cuml"` para obter todos os modelos
+            que suportam o mecanismo [cuML][].
 
-        Returns
+        Retorna
         -------
         pd.DataFrame
-            Tags of the available [predefined models][]. The columns
-            depend on the task, but can include:
+            Tags dos [modelos predefinidos][] disponíveis. As colunas
+            dependem da tarefa, mas podem incluir:
 
-            - **acronym:** Model's acronym (used to call the model).
-            - **fullname:** Name of the model's class.
-            - **estimator:** Name of the model's underlying estimator.
-            - **module:** The estimator's module.
-            - **handles_missing:** Whether the model can handle missing
-              values without preprocessing. If False, consider using the
-              [Imputer][] class before training the models.
-            - **needs_scaling:** Whether the model requires feature scaling.
-              If True, [automated feature scaling][] is applied.
-            - **accepts_sparse:** Whether the model accepts [sparse input][sparse-datasets].
-            - **uses_exogenous:** Whether the model uses [exogenous variables][].
-            - **multiple_seasonality:** Whether the model can handle more than
-              one [seasonality period][seasonality].
-            - **native_multilabel:** Whether the model has native support
-              for [multilabel][] tasks.
-            - **native_multioutput:** Whether the model has native support
-              for [multioutput tasks][].
-            - **validation:** Whether the model has [in-training validation][].
-            - **supports_engines:** Engines supported by the model.
+            - **acronym:** Acrônimo do modelo (usado para chamar o modelo).
+            - **fullname:** Nome da classe do modelo.
+            - **estimator:** Nome do estimador subjacente do modelo.
+            - **module:** O módulo do estimador.
+            - **handles_missing:** Se o modelo pode lidar com valores ausentes
+              sem pré-processamento. Se False, considere usar a classe
+              [Imputer][] antes de treinar os modelos.
+            - **needs_scaling:** Se o modelo requer escalonamento de features.
+              Se True, o [escalonamento automático de features][] é aplicado.
+            - **accepts_sparse:** Se o modelo aceita [entrada esparsa][sparse-datasets].
+            - **uses_exogenous:** Se o modelo usa [variáveis exógenas][].
+            - **multiple_seasonality:** Se o modelo pode lidar com mais de
+              um [período sazonal][seasonality].
+            - **native_multilabel:** Se o modelo tem suporte nativo para
+              tarefas [multilabel][].
+            - **native_multioutput:** Se o modelo tem suporte nativo para
+              [tarefas multioutput][].
+            - **validation:** Se o modelo tem [validação durante o treinamento][].
+            - **supports_engines:** Mecanismos suportados pelo modelo.
 
         """
         rows = []
@@ -1035,18 +1068,18 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
 
     @composed(crash, method_to_log)
     def clear(self):
-        """Reset attributes and clear cache from all models.
+        """Redefine atributos e limpa o cache de todos os modelos.
 
-        Reset certain model attributes to their initial state, deleting
-        potentially large data arrays. Use this method to free some
-        memory before [saving][self-save] the instance. The affected
-        attributes are:
+        Redefine certos atributos do modelo para o estado inicial, excluindo
+        arrays de dados potencialmente grandes. Use este método para liberar
+        memória antes de [salvar][self-save] a instância. Os atributos
+        afetados são:
 
-        - [In-training validation][] scores
-        - [Shap values][shap]
-        - [App instance][adaboost-create_app]
-        - [Dashboard instance][adaboost-create_dashboard]
-        - Calculated [holdout data sets][data-sets]
+        - Pontuações de [validação durante o treinamento][]
+        - [Valores Shap][shap]
+        - [Instância do App][adaboost-create_app]
+        - [Instância do Dashboard][adaboost-create_dashboard]
+        - [Conjuntos holdout][data-sets] calculados
 
         """
         for model in self._models:
@@ -1054,47 +1087,47 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
 
     @composed(crash, method_to_log, beartype)
     def delete(self, models: ModelsSelector = None):
-        """Delete models.
+        """Exclui modelos.
 
-        If all models are removed, the metric is reset. Use this
-        method to drop unwanted or to free some memory before
-        [saving][self-save]. Deleted models are not removed from
-        any active [mlflow experiment][tracking].
+        Se todos os modelos forem removidos, a métrica é redefinida. Use este
+        método para descartar modelos indesejados ou liberar memória antes de
+        [salvar][self-save]. Os modelos excluídos não são removidos de
+        nenhum [experimento mlflow][tracking] ativo.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to delete. If None, all models are deleted.
+            Modelos a excluir. Se None, todos os modelos são excluídos.
 
         """
         self._log(f"Deleting {len(models := self._get_models(models))} models...", 1)
         for m in models:
             self._delete_models(m.name)
-            self._log(f" --> Model {m.name} successfully deleted.", 1)
+            self._log(f" --> Modelo {m.name} excluído com sucesso.", 1)
 
     @composed(crash, beartype)
     def evaluate(self, metric: MetricConstructor = None, rows: RowSelector = "test") -> Styler:
-        """Get all models' scores for the provided metrics.
+        """Obtém as pontuações de todos os modelos para as métricas fornecidas.
 
         !!! tip
-            This method returns a pandas' [Styler][] object. Convert
-            the result back to a regular dataframe using its `data`
-            attribute.
+            Este método retorna um objeto [Styler][] do pandas. Converta
+            o resultado de volta para um dataframe regular usando o atributo
+            `data`.
 
-        Parameters
+        Parâmetros
         ----------
         metric: str, func, scorer, sequence or None, default=None
-            Metric to calculate. If None, it returns an overview of
-            the most common metrics per task.
+            Métrica a calcular. Se None, retorna uma visão geral das
+            métricas mais comuns por tarefa.
 
         rows: hashable, segment, sequence or dataframe, default="test"
-            [Selection of rows][row-and-column-selection] to calculate
-            metric on.
+            [Seleção de linhas][row-and-column-selection] para calcular
+            a métrica.
 
-        Returns
+        Retorna
         -------
         [Styler][]
-            Scores of the models.
+            Pontuações dos modelos.
 
         """
         check_is_fitted(self)
@@ -1105,24 +1138,24 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
 
     @composed(crash, beartype)
     def export_pipeline(self, model: str | Model | None = None) -> Pipeline:
-        """Export the internal pipeline.
+        """Exporta o pipeline interno.
 
-        This method returns a deepcopy of the branch's pipeline.
-        Optionally, you can add a model as final estimator. The
-        returned pipeline is already fitted on the training set.
+        Este método retorna uma cópia profunda do pipeline da branch.
+        Opcionalmente, você pode adicionar um modelo como estimador final. O
+        pipeline retornado já está ajustado no conjunto de treino.
 
-        Parameters
+        Parâmetros
         ----------
         model: str, Model or None, default=None
-            Model for which to export the pipeline. If the model used
-            [automated feature scaling][], the [Scaler][] is added to
-            the pipeline. If None, the pipeline in the current branch
-            is exported (without any model).
+            Modelo para o qual exportar o pipeline. Se o modelo usou
+            [escalonamento automático de features][], o [Scaler][] é adicionado ao
+            pipeline. Se None, o pipeline da branch atual é exportado
+            (sem nenhum modelo).
 
-        Returns
+        Retorna
         -------
         [Pipeline][]
-            Current branch as a sklearn-like Pipeline object.
+            Branch atual como um objeto Pipeline similar ao sklearn.
 
         """
         if model:
@@ -1136,39 +1169,39 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
         self,
         rows: RowSelector = "train",
     ) -> dict[Hashable, float] | dict[Hashable, dict[Hashable, float]]:
-        """Return class weights for a balanced data set.
+        """Retorna pesos de classe para um conjunto de dados balanceado.
 
-        Statistically, the class weights re-balance the data set so
-        that the sampled data set represents the target population
-        as closely as possible. The returned weights are inversely
-        proportional to the class frequencies in the selected rows.
+        Estatisticamente, os pesos de classe reequilibram o conjunto de dados para
+        que o conjunto de dados amostrado represente a população alvo
+        da forma mais próxima possível. Os pesos retornados são inversamente
+        proporcionais às frequências de classe nas linhas selecionadas.
 
-        Parameters
+        Parâmetros
         ----------
         rows: hashable, segment, sequence or dataframe, default="train"
-            [Selection of rows][row-and-column-selection] for which to
-            get the weights.
+            [Seleção de linhas][row-and-column-selection] para as quais
+            obter os pesos.
 
-        Returns
+        Retorna
         -------
         dict
-            Classes with the corresponding weights. A dict of dicts is
-            returned for [multioutput tasks][].
+            Classes com os pesos correspondentes. Um dict de dicts é
+            retornado para [tarefas multioutput][].
 
         """
 
         def get_weights(col: pd.Series) -> dict[Hashable, float]:
-            """Get the class weights for one column.
+            """Obtém os pesos de classe para uma coluna.
 
-            Parameters
+            Parâmetros
             ----------
             col: pd.Series
-                Column to get the weights from.
+                Coluna da qual obter os pesos.
 
-            Returns
+            Retorna
             -------
             dict
-                Class weights.
+                Pesos de classe.
 
             """
             counts = col.value_counts().sort_index()
@@ -1184,22 +1217,22 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
     @available_if(has_task("classification"))
     @composed(crash, beartype)
     def get_sample_weight(self, rows: RowSelector = "train") -> pd.Series:
-        """Return sample weights for a balanced data set.
+        """Retorna pesos de amostra para um conjunto de dados balanceado.
 
-        The returned weights are inversely proportional to the class
-        frequencies in the selected data set. For [multioutput tasks][],
-        the weights of each column of `y` will be multiplied.
+        Os pesos retornados são inversamente proporcionais às frequências de classe
+        no conjunto de dados selecionado. Para [tarefas multioutput][],
+        os pesos de cada coluna de `y` serão multiplicados.
 
-        Parameters
+        Parâmetros
         ----------
         rows: hashable, segment, sequence or dataframe, default="train"
-            [Selection of rows][row-and-column-selection] for which to
-            get the weights.
+            [Seleção de linhas][row-and-column-selection] para as quais
+            obter os pesos.
 
-        Returns
+        Retorna
         -------
         pd.Series
-            Sequence of weights with shape=(n_samples,).
+            Sequência de pesos com shape=(n_amostras,).
 
         """
         _, y = self.branch._get_rows(rows, return_X_y=True)
@@ -1214,47 +1247,47 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
         harmonics: HarmonicsSelector | None = None,
         target: TargetSelector = 0,
     ) -> int | list[int]:
-        """Get the seasonal periods of the time series.
+        """Obtém os períodos sazonais da série temporal.
 
-        Use the data in the training set to calculate the seasonal
-        period. The data is internally differentiated before the
-        seasonality is detected using ACF.
+        Usa os dados do conjunto de treino para calcular o período sazonal.
+        Os dados são diferenciados internamente antes de a sazonalidade
+        ser detectada usando ACF.
 
         !!! tip
-            Read more about seasonality in the [user guide][seasonality].
+            Leia mais sobre sazonalidade no [guia do usuário][seasonality].
 
-        Parameters
+        Parâmetros
         ----------
         max_sp: int or None, default=None
-            Maximum seasonal period to consider. If None, the maximum
-            period is given by `(len(y_train) - 1) // 2`.
+            Período sazonal máximo a considerar. Se None, o período máximo
+            é dado por `(len(y_train) - 1) // 2`.
 
         harmonics: str or None, default=None
-            Defines the strategy on how to deal with harmonics from the
-            detected seasonal periods. Choose from the following options:
+            Define a estratégia de como lidar com harmônicos dos
+            períodos sazonais detectados. Escolha entre as seguintes opções:
 
-            - None: The detected seasonal periods are left unchanged
-              (no harmonic removal).
-            - "drop": Remove all harmonics.
-            - "raw_strength": Keep the highest order harmonics, maintaining
-              the order of significance.
-            - "harmonic_strength": Replace seasonal periods with their highest
-              harmonic.
+            - None: Os períodos sazonais detectados são mantidos inalterados
+              (sem remoção de harmônicos).
+            - "drop": Remove todos os harmônicos.
+            - "raw_strength": Mantém os harmônicos de maior ordem, preservando
+              a ordem de significância.
+            - "harmonic_strength": Substitui os períodos sazonais pelo seu
+              harmônico mais alto.
 
-            E.g., if the detected seasonal periods in strength order are
-            `[2, 3, 4, 7, 8]` (note that 4 and 8 are harmonics of 2), then:
+            Ex.: se os períodos sazonais detectados em ordem de força são
+            `[2, 3, 4, 7, 8]` (note que 4 e 8 são harmônicos de 2), então:
 
-            - If "drop", result=[2, 3, 7]
-            - If "raw_strength", result=[3, 7, 8]
-            - If "harmonic_strength", result=[8, 3, 7]
+            - Se "drop", resultado=[2, 3, 7]
+            - Se "raw_strength", resultado=[3, 7, 8]
+            - Se "harmonic_strength", resultado=[8, 3, 7]
 
         target: int or str, default=0
-            Target column to look at. Only for [multivariate][] tasks.
+            Coluna alvo a analisar. Apenas para tarefas [multivariadas][].
 
-        Returns
+        Retorna
         -------
         int or list of int
-            Seasonal periods, ordered by significance.
+            Períodos sazonais, ordenados por significância.
 
         """
         yt = self.dataset[self.branch._get_target(target, only_columns=True)]
@@ -1277,15 +1310,16 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
                 else:
                     harmonic_dict[sp] = []
 
-            # For periods without harmonics, simplify operations
-            # by setting the value of the key to itself
+            # Para períodos sem harmônicos, simplifica as operações
+            # definindo o valor da chave como ela mesma
             harmonic_dict = {k: (v or [k]) for k, v in harmonic_dict.items()}
 
             if harmonics == "drop":
                 seasonal_periods = list(harmonic_dict.keys())
             elif harmonics == "raw_strength":
                 seasonal_periods = [
-                    sp for sp in seasonal_periods
+                    sp
+                    for sp in seasonal_periods
                     if any(max(v) == sp for v in harmonic_dict.values())
                 ]
             elif harmonics == "harmonic_strength":
@@ -1293,89 +1327,88 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
 
         if not (seasonal_periods := [int(sp) for sp in seasonal_periods if sp <= max_sp]):
             raise ValueError(
-                "No seasonal periods were detected. Try "
-                f"increasing the max_sp parameter, got {max_sp}."
+                "Nenhum período sazonal foi detectado. Tente "
+                f"aumentar o parâmetro max_sp, recebido {max_sp}."
             )
 
         return flt(seasonal_periods)
 
     @composed(crash, method_to_log, beartype)
     def merge(self, other: BaseRunner, /, suffix: str = "2"):
-        """Merge another instance of the same class into this one.
+        """Mescla outra instância da mesma classe nesta.
 
-        Branches, models, metrics and attributes of the other instance
-        are merged into this one. If there are branches and/or models
-        with the same name, they are merged adding the `suffix`
-        parameter to their name. The errors and missing attributes are
-        extended with those of the other instance. It's only possible
-        to merge two instances if they are initialized with the same
-        dataset and trained with the same metric.
+        Branches, modelos, métricas e atributos da outra instância
+        são mesclados nesta. Se houver branches e/ou modelos com o
+        mesmo nome, eles são mesclados adicionando o parâmetro `suffix`
+        ao final de seus nomes. Os erros e atributos ausentes são
+        estendidos com os da outra instância. Só é possível mesclar duas
+        instâncias se forem inicializadas com o mesmo dataset e treinadas
+        com a mesma métrica.
 
-        Parameters
+        Parâmetros
         ----------
         other: Runner
-            Instance with which to merge. Should be of the same class
-            as self.
+            Instância com a qual mesclar. Deve ser da mesma classe que self.
 
         suffix: str, default="2"
-            Branches and models with conflicting names are merged adding
-            `suffix` to the end of their names.
+            Branches e modelos com nomes conflitantes são mesclados adicionando
+            `suffix` ao final de seus nomes.
 
         """
         if other.__class__.__name__ != self.__class__.__name__:
             raise TypeError(
-                "Invalid class for the other parameter. Expecting a "
-                f"{self.__class__.__name__} instance, got {other.__class__.__name__}."
+                "Classe inválida para o parâmetro other. Esperando uma instância de "
+                f"{self.__class__.__name__}, recebido {other.__class__.__name__}."
             )
 
-        # Check that both instances have the same original dataset
+        # Verifica se ambas as instâncias têm o mesmo dataset original
         if not self.og._data.data.equals(other.og._data.data):
             raise ValueError(
-                "Invalid value for the other parameter. The provided instance "
-                "was initialized using a different dataset than this one."
+                "Valor inválido para o parâmetro other. A instância fornecida "
+                "foi inicializada com um dataset diferente desta."
             )
 
-        # Check that both instances have the same metric
+        # Verifica se ambas as instâncias têm a mesma métrica
         if not self._metric:
             self._metric = other._metric
         elif other.metric and self.metric != other.metric:
             raise ValueError(
-                "Invalid value for the other parameter. The provided instance uses "
-                f"a different metric ({other.metric}) than this one ({self.metric})."
+                "Valor inválido para o parâmetro other. A instância fornecida usa "
+                f"uma métrica diferente ({other.metric}) desta ({self.metric})."
             )
 
-        self._log("Merging instances...", 1)
+        self._log("Mesclando instâncias...", 1)
         for branch in other._branches:
-            self._log(f" --> Merging branch {branch.name}.", 1)
+            self._log(f" --> Mesclando branch {branch.name}.", 1)
             if branch.name in self._branches:
                 branch._name = f"{branch.name}{suffix}"
             self._branches.branches[branch.name] = branch
 
         for model in other._models:
-            self._log(f" --> Merging model {model.name}.", 1)
+            self._log(f" --> Mesclando modelo {model.name}.", 1)
             if model.name in self._models:
                 model._name = f"{model.name}{suffix}"
             self._models[model.name] = model
 
-        self._log(" --> Merging attributes.", 1)
+        self._log(" --> Mesclando atributos.", 1)
         if hasattr(self, "missing"):
             self.missing.extend([x for x in other.missing if x not in self.missing])
 
     @composed(crash, method_to_log, beartype)
     def save(self, filename: str | Path = "auto", *, save_data: Bool = True):
-        """Save the instance to a pickle file.
+        """Salva a instância em um arquivo pickle.
 
-        Parameters
+        Parâmetros
         ----------
         filename: str or Path, default="auto"
-            Filename or [pathlib.Path][] of the file to save. Use
-            "auto" for automatic naming.
+            Nome do arquivo ou [pathlib.Path][] do arquivo a salvar. Use
+            "auto" para nomeação automática.
 
         save_data: bool, default=True
-            Whether to save the dataset with the instance. This
-            parameter is ignored if the method is not called from experionml.
-            If False, add the data to the [load][experionmlclassifier-load]
-            method to reload the instance.
+            Se deve salvar o dataset junto com a instância. Este
+            parâmetro é ignorado se o método não for chamado pelo experionml.
+            Se False, adicione os dados ao método [load][experionmlclassifier-load]
+            para recarregar a instância.
 
         """
         if not save_data:
@@ -1401,7 +1434,7 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
             pickle.settings["recurse"] = True
             pickle.dump(self, f)
 
-        # Restore the data to the attributes
+        # Restaura os dados para os atributos
         if not save_data:
             if og.name not in self._branches:
                 self._branches._og._container = og._container
@@ -1411,7 +1444,7 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
                 if data[branch.name]["holdout"] is not None:
                     branch.__dict__["holdout"] = data[branch.name]["holdout"]
 
-        self._log(f"{self.__class__.__name__} successfully saved.", 1)
+        self._log(f"{self.__class__.__name__} salvo com sucesso.", 1)
 
     @composed(crash, method_to_log, beartype)
     def stacking(
@@ -1422,40 +1455,39 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
         train_on_test: Bool = False,
         **kwargs,
     ):
-        """Add a [Stacking][] model to the pipeline.
+        """Adiciona um modelo [Stacking][] ao pipeline.
 
         !!! warning
-            Combining models trained on different branches into one
-            ensemble is not allowed and will raise an exception.
+            Combinar modelos treinados em branches diferentes em um
+            ensemble não é permitido e lançará uma exceção.
 
-        Parameters
+        Parâmetros
         ----------
         models: segment, sequence or None, default=None
-            Models that feed the stacking estimator. The models must
-            have been fitted on the current branch.
+            Modelos que alimentam o estimador de stacking. Os modelos devem
+            ter sido ajustados na branch atual.
 
         name: str, default="Stack"
-            Name of the model. The name is always presided with the
-            model's acronym: `Stack`.
+            Nome do modelo. O nome é sempre precedido pelo acrônimo do
+            modelo: `Stack`.
 
         train_on_test: bool, default=False
-            Whether to train the final estimator of the stacking model
-            on the test set instead of the training set. Note that
-            training it on the training set (default option) means there
-            is a high risk of overfitting. It's recommended to use this
-            option if you have another, independent set for testing
-            ([holdout set][data-sets]).
+            Se deve treinar o estimador final do modelo de stacking no
+            conjunto de teste em vez do conjunto de treino. Note que treiná-lo
+            no conjunto de treino (opção padrão) significa que há um alto
+            risco de overfitting. É recomendado usar esta opção se você tiver
+            outro conjunto independente para testes ([conjunto holdout][data-sets]).
 
         **kwargs
-            Additional keyword arguments for one of these estimators.
+            Argumentos de palavra-chave adicionais para um destes estimadores.
 
-            - For classification tasks: [StackingClassifier][].
-            - For regression tasks: [StackingRegressor][].
-            - For forecast tasks: [StackingForecaster][].
+            - Para tarefas de classificação: [StackingClassifier][].
+            - Para tarefas de regressão: [StackingRegressor][].
+            - Para tarefas de previsão: [StackingForecaster][].
 
             !!! tip
-                The model's acronyms can be used for the `final_estimator`
-                parameter, e.g., `experionml.stacking(final_estimator="LR")`.
+                Os acrônimos dos modelos podem ser usados para o parâmetro
+                `final_estimator`, ex.: `experionml.stacking(final_estimator="LR")`.
 
         """
         check_is_fitted(self)
@@ -1463,8 +1495,8 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
 
         if len(models_c) < 2:
             raise ValueError(
-                "Invalid value for the models parameter. A Stacking model should "
-                f"contain at least two underlying estimators, got only {models_c[0]}."
+                "Valor inválido para o parâmetro models. Um modelo Stacking deve "
+                f"conter pelo menos dois estimadores subjacentes, recebido apenas {models_c[0]}."
             )
 
         if not name.lower().startswith("stack"):
@@ -1472,9 +1504,9 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
 
         if name in self._models:
             raise ValueError(
-                "Invalid value for the name parameter. It seems a model with "
-                f"the name {name} already exists. Add a different name to "
-                "train multiple Stacking models within the same instance."
+                "Valor inválido para o parâmetro name. Parece que um modelo com "
+                f"o nome {name} já existe. Adicione um nome diferente para "
+                "treinar múltiplos modelos Stacking dentro da mesma instância."
             )
 
         kw_model = {
@@ -1485,21 +1517,21 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
             **{attr: getattr(self, attr) for attr in BaseTransformer.attrs},
         }
 
-        # The parameter name is different in sklearn and sktime
+        # O nome do parâmetro é diferente no sklearn e no sktime
         regressor = "regressor" if self.task.is_forecast else "final_estimator"
         if isinstance(kwargs.get(regressor), str):
             if kwargs["final_estimator"] not in MODELS:
                 valid_models = [m.acronym for m in MODELS if self._goal.name in m._estimators]
                 raise ValueError(
-                    f"Invalid value for the {regressor} parameter. Unknown model: "
-                    f"{kwargs[regressor]}. Choose from: {', '.join(valid_models)}."
+                    f"Valor inválido para o parâmetro {regressor}. Modelo desconhecido: "
+                    f"{kwargs[regressor]}. Escolha entre: {', '.join(valid_models)}."
                 )
             else:
                 model = MODELS[kwargs[regressor]](**kw_model)
                 if self._goal.name not in model._estimators:
                     raise ValueError(
-                        f"Invalid value for the {regressor} parameter. Model "
-                        f"{model.fullname} can not perform {self.task} tasks."
+                        f"Valor inválido para o parâmetro {regressor}. O modelo "
+                        f"{model.fullname} não pode executar tarefas {self.task}."
                     )
 
                 kwargs[regressor] = model._get_est({})
@@ -1519,28 +1551,28 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
         name: str = "Vote",
         **kwargs,
     ):
-        """Add a [Voting][] model to the pipeline.
+        """Adiciona um modelo [Voting][] ao pipeline.
 
         !!! warning
-            Combining models trained on different branches into one
-            ensemble is not allowed and will raise an exception.
+            Combinar modelos treinados em branches diferentes em um
+            ensemble não é permitido e lançará uma exceção.
 
-        Parameters
+        Parâmetros
         ----------
         models: segment, sequence or None, default=None
-            Models that feed the stacking estimator. The models must have
-            been fitted on the current branch.
+            Modelos que alimentam o estimador de stacking. Os modelos devem
+            ter sido ajustados na branch atual.
 
         name: str, default="Vote"
-            Name of the model. The name is always presided with the
-            model's acronym: `Vote`.
+            Nome do modelo. O nome é sempre precedido pelo acrônimo do
+            modelo: `Vote`.
 
         **kwargs
-            Additional keyword arguments for one of these estimators.
+            Argumentos de palavra-chave adicionais para um destes estimadores.
 
-            - For classification tasks: [VotingClassifier][].
-            - For regression tasks: [VotingRegressor][].
-            - For forecast tasks: [EnsembleForecaster][].
+            - Para tarefas de classificação: [VotingClassifier][].
+            - Para tarefas de regressão: [VotingRegressor][].
+            - Para tarefas de previsão: [EnsembleForecaster][].
 
         """
         check_is_fitted(self)
@@ -1548,8 +1580,8 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
 
         if len(models_c) < 2:
             raise ValueError(
-                "Invalid value for the models parameter. A Voting model should "
-                f"contain at least two underlying estimators, got only {models_c[0]}."
+                "Valor inválido para o parâmetro models. Um modelo Voting deve "
+                f"conter pelo menos dois estimadores subjacentes, recebido apenas {models_c[0]}."
             )
 
         if not name.lower().startswith("vote"):
@@ -1557,18 +1589,18 @@ class BaseRunner(BaseTracker, metaclass=ABCMeta):
 
         if name in self._models:
             raise ValueError(
-                "Invalid value for the name parameter. It seems a model with "
-                f"the name {name} already exists. Add a different name to "
-                "train multiple Voting models within the same instance."
+                "Valor inválido para o parâmetro name. Parece que um modelo com "
+                f"o nome {name} já existe. Adicione um nome diferente para "
+                "treinar múltiplos modelos Voting dentro da mesma instância."
             )
 
         if kwargs.get("voting") == "soft":
             for m in models_c:
                 if not hasattr(m.estimator, "predict_proba"):
                     raise ValueError(
-                        "Invalid value for the voting parameter. If "
-                        "'soft', all models in the ensemble should have "
-                        f"a predict_proba method, got {m.name}."
+                        "Valor inválido para o parâmetro voting. Se "
+                        "'soft', todos os modelos no ensemble devem ter "
+                        f"um método predict_proba, recebido {m.name}."
                     )
 
         self._models.append(

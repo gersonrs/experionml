@@ -57,13 +57,13 @@ class ARIMA(ForecastModel):
                     `#!python experionml.run("arima", n_trials=5,
                     ht_params={"catch": (Exception,)})`.
 
-    See Also
+    Veja também
     --------
     experionml.models:AutoARIMA
     experionml.models:SARIMAX
     experionml.models:VARMAX
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLForecaster
@@ -195,13 +195,13 @@ class AutoARIMA(ForecastModel):
 
     - [AutoARIMA][autoarimaclass] para tarefas de previsão.
 
-    See Also
+    Veja também
     --------
     experionml.models:ARIMA
     experionml.models:ETS
     experionml.models:SARIMAX
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLForecaster
@@ -271,13 +271,13 @@ class AutoETS(ForecastModel):
 
     - [AutoETS][] para tarefas de previsão.
 
-    See Also
+    Veja também
     --------
     experionml.models:AutoARIMA
     experionml.models:ETS
     experionml.models:SARIMAX
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLForecaster
@@ -361,13 +361,13 @@ class BATS(ForecastModel):
 
     - [BATS][batsclass] para tarefas de previsão.
 
-    See Also
+    Veja também
     --------
     experionml.models:ARIMA
     experionml.models:AutoARIMA
     experionml.models:TBATS
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLForecaster
@@ -441,13 +441,13 @@ class Croston(ForecastModel):
 
     - [Croston][crostonclass] para tarefas de previsão.
 
-    See Also
+    Veja também
     --------
     experionml.models:ExponentialSmoothing
     experionml.models:ETS
     experionml.models:NaiveForecaster
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLForecaster
@@ -498,13 +498,13 @@ class DynamicFactor(ForecastModel):
 
     - [DynamicFactor][dynamicfactorclass] para tarefas de previsão.
 
-    See Also
+    Veja também
     --------
     experionml.models:ExponentialSmoothing
     experionml.models:STL
     experionml.models:PolynomialTrend
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLForecaster
@@ -563,13 +563,13 @@ class ExponentialSmoothing(ForecastModel):
 
     - [ExponentialSmoothing][esclass] para tarefas de previsão.
 
-    See Also
+    Veja também
     --------
     experionml.models:ARIMA
     experionml.models:ETS
     experionml.models:PolynomialTrend
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLForecaster
@@ -597,12 +597,12 @@ class ExponentialSmoothing(ForecastModel):
     def _get_est(self, params: dict[str, Any]) -> Predictor:
         """Obtém o estimador do modelo com os parâmetros desempacotados.
 
-        Parameters
+        Parâmetros
         ----------
         params: dict
             Hiperparâmetros para o estimador.
 
-        Returns
+        Retorna
         -------
         Predictor
             Instância do estimador.
@@ -620,7 +620,7 @@ class ExponentialSmoothing(ForecastModel):
     def _get_distributions() -> dict[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
             Distribuições de hiperparâmetros.
@@ -647,13 +647,13 @@ class ETS(ForecastModel):
 
     - [AutoETS][] para tarefas de previsão.
 
-    See Also
+    Veja também
     --------
     experionml.models:ARIMA
     experionml.models:AutoETS
     experionml.models:SARIMAX
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLForecaster
@@ -679,12 +679,12 @@ class ETS(ForecastModel):
     def _get_est(self, params: dict[str, Any]) -> Predictor:
         """Obtém o estimador do modelo com os parâmetros desempacotados.
 
-        Parameters
+        Parâmetros
         ----------
         params: dict
             Hiperparâmetros para o estimador.
 
-        Returns
+        Retorna
         -------
         Predictor
             Instância do estimador.
@@ -702,7 +702,7 @@ class ETS(ForecastModel):
     def _get_distributions() -> dict[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
             Distribuições de hiperparâmetros.
@@ -736,13 +736,13 @@ class MSTL(ForecastModel):
 
     - [StatsForecastMSTL][] para tarefas de previsão.
 
-    See Also
+    Veja também
     --------
     experionml.models:Prophet
     experionml.models:STL
     experionml.models:TBATS
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLForecaster
@@ -770,12 +770,12 @@ class MSTL(ForecastModel):
     def _get_est(self, params: dict[str, Any]) -> Predictor:
         """Obtém o estimador do modelo com os parâmetros desempacotados.
 
-        Parameters
+        Parâmetros
         ----------
         params: dict
             Hiperparâmetros para o estimador.
 
-        Returns
+        Retorna
         -------
         Predictor
             Instância do estimador.
@@ -786,12 +786,12 @@ class MSTL(ForecastModel):
     def _trial_to_est(self, params: dict[str, Any]) -> dict[str, Any]:
         """Converte os hiperparâmetros do trial em parâmetros do estimador.
 
-        Parameters
+        Parâmetros
         ----------
         params: dict
             Hiperparâmetros do trial.
 
-        Returns
+        Retorna
         -------
         dict
             Hiperparâmetros do estimador.
@@ -804,7 +804,7 @@ class MSTL(ForecastModel):
     def _get_distributions(self) -> Mapping[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
             Distribuições de hiperparâmetros.
@@ -817,7 +817,7 @@ class MSTL(ForecastModel):
             "robust": Cat([True, False]),
         }
 
-        # StatsForecastMSTL has stl_kwargs, that takes a dict of hyperparameters
+        # StatsForecastMSTL tem stl_kwargs, que aceita um dict de hiperparâmetros
         for p in self._est_params.get("stl_kwargs", {}):
             dist.pop(p)
 
@@ -836,13 +836,13 @@ class NaiveForecaster(ForecastModel):
 
     - [NaiveForecaster][naiveforecasterclass] para tarefas de previsão.
 
-    See Also
+    Veja também
     --------
     experionml.models:ExponentialSmoothing
     experionml.models:Dummy
     experionml.models:PolynomialTrend
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLForecaster
@@ -868,12 +868,12 @@ class NaiveForecaster(ForecastModel):
     def _get_est(self, params: dict[str, Any]) -> Predictor:
         """Obtém o estimador do modelo com os parâmetros desempacotados.
 
-        Parameters
+        Parâmetros
         ----------
         params: dict
             Hiperparâmetros para o estimador.
 
-        Returns
+        Retorna
         -------
         Predictor
             Instância do estimador.
@@ -885,7 +885,7 @@ class NaiveForecaster(ForecastModel):
     def _get_distributions() -> dict[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
             Distribuições de hiperparâmetros.
@@ -906,13 +906,13 @@ class PolynomialTrend(ForecastModel):
 
     - [PolynomialTrendForecaster][] para tarefas de previsão.
 
-    See Also
+    Veja também
     --------
     experionml.models:ARIMA
     experionml.models:ETS
     experionml.models:NaiveForecaster
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLForecaster
@@ -941,7 +941,7 @@ class PolynomialTrend(ForecastModel):
     def _get_distributions() -> dict[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
             Distribuições de hiperparâmetros.
@@ -965,13 +965,13 @@ class Prophet(ForecastModel):
 
     - [Prophet][prophetclass] para tarefas de previsão.
 
-    See Also
+    Veja também
     --------
     experionml.models:DynamicFactor
     experionml.models:MSTL
     experionml.models:VARMAX
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLForecaster
@@ -997,12 +997,12 @@ class Prophet(ForecastModel):
     def _get_est(self, params: dict[str, Any]) -> Predictor:
         """Obtém o estimador do modelo com os parâmetros desempacotados.
 
-        Parameters
+        Parâmetros
         ----------
         params: dict
             Hiperparâmetros para o estimador.
 
-        Returns
+        Retorna
         -------
         Predictor
             Instância do estimador.
@@ -1031,7 +1031,7 @@ class Prophet(ForecastModel):
     def _get_distributions() -> dict[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
             Distribuições de hiperparâmetros.
@@ -1073,13 +1073,13 @@ class SARIMAX(ForecastModel):
                     `#!python experionml.run("sarimax", n_trials=5,
                     ht_params={"catch": (Exception,)})`.
 
-    See Also
+    Veja também
     --------
     experionml.models:ARIMA
     experionml.models:AutoARIMA
     experionml.models:VARMAX
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLForecaster
@@ -1108,12 +1108,12 @@ class SARIMAX(ForecastModel):
     def _trial_to_est(self, params: dict[str, Any]) -> dict[str, Any]:
         """Converte os hiperparâmetros do trial em parâmetros do estimador.
 
-        Parameters
+        Parâmetros
         ----------
         params: dict
             Hiperparâmetros do trial.
 
-        Returns
+        Retorna
         -------
         dict
             Hiperparâmetros do estimador.
@@ -1121,13 +1121,13 @@ class SARIMAX(ForecastModel):
         """
         params = super()._trial_to_est(params)
 
-        # Convert params to hyperparameters 'order' and 'seasonal_order'
+        # Converte os parâmetros nos hiperparâmetros 'order' e 'seasonal_order'
         if all(p in params for p in self._order):
             params["order"] = [params[p] for p in self._order]
         if all(p in params for p in self._s_order) and self._config.sp.sp:
             params["seasonal_order"] = [params[p] for p in self._s_order] + [self._config.sp.sp]
 
-        # Drop order and seasonal_order params
+        # Remove os parâmetros de order e seasonal_order
         for p in self._order:
             params.pop(p, None)
         for p in self._s_order:
@@ -1138,7 +1138,7 @@ class SARIMAX(ForecastModel):
     def _get_distributions(self) -> Mapping[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
             Distribuições de hiperparâmetros.
@@ -1163,12 +1163,12 @@ class SARIMAX(ForecastModel):
             "use_exact_diffuse": Cat([True, False]),
         }
 
-        # Drop order params if specified by user
+        # Remove os parâmetros de order se especificados pelo usuário
         if "order" in self._est_params:
             for p in self._order:
                 dist.pop(p)
         if "seasonal_order" in self._est_params or not self._config.sp.get("sp"):
-            # Drop seasonal order params if specified by user or no seasonal periodicity
+            # Remove os parâmetros sazonais se especificados pelo usuário ou sem sazonalidade
             for p in self._s_order:
                 dist.pop(p)
 
@@ -1185,13 +1185,13 @@ class STL(ForecastModel):
 
     - [STLForecaster][] para tarefas de previsão.
 
-    See Also
+    Veja também
     --------
     experionml.models:Croston
     experionml.models:ETS
     experionml.models:Theta
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLForecaster
@@ -1278,13 +1278,13 @@ class TBATS(ForecastModel):
 
     - [TBATS][tbatsclass] para tarefas de previsão.
 
-    See Also
+    Veja também
     --------
     experionml.models:BATS
     experionml.models:ARIMA
     experionml.models:AutoARIMA
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLForecaster
@@ -1310,12 +1310,12 @@ class TBATS(ForecastModel):
     def _get_est(self, params: dict[str, Any]) -> Predictor:
         """Obtém o estimador do modelo com os parâmetros desempacotados.
 
-        Parameters
+        Parâmetros
         ----------
         params: dict
             Hiperparâmetros para o estimador.
 
-        Returns
+        Retorna
         -------
         Predictor
             Instância do estimador.
@@ -1327,7 +1327,7 @@ class TBATS(ForecastModel):
     def _get_distributions() -> dict[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
             Distribuições de hiperparâmetros.
@@ -1361,13 +1361,13 @@ class Theta(ForecastModel):
 
     - [ThetaForecaster][] para tarefas de previsão.
 
-    See Also
+    Veja também
     --------
     experionml.models:Croston
     experionml.models:ExponentialSmoothing
     experionml.models:PolynomialTrend
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLForecaster
@@ -1393,12 +1393,12 @@ class Theta(ForecastModel):
     def _get_est(self, params: dict[str, Any]) -> Predictor:
         """Obtém o estimador do modelo com os parâmetros desempacotados.
 
-        Parameters
+        Parâmetros
         ----------
         params: dict
             Hiperparâmetros para o estimador.
 
-        Returns
+        Retorna
         -------
         Predictor
             Instância do estimador.
@@ -1410,7 +1410,7 @@ class Theta(ForecastModel):
     def _get_distributions() -> dict[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
             Distribuições de hiperparâmetros.
@@ -1437,13 +1437,13 @@ class VAR(ForecastModel):
 
     - [VAR][varclass] para tarefas de previsão.
 
-    See Also
+    Veja também
     --------
     experionml.models:MSTL
     experionml.models:Prophet
     experionml.models:VARMAX
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLForecaster
@@ -1470,7 +1470,7 @@ class VAR(ForecastModel):
     def _get_distributions() -> dict[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
             Distribuições de hiperparâmetros.
@@ -1498,13 +1498,13 @@ class VARMAX(ForecastModel):
 
     - [VARMAX][varmaxclass] para tarefas de previsão.
 
-    See Also
+    Veja também
     --------
     experionml.models:MSTL
     experionml.models:Prophet
     experionml.models:VAR
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLForecaster
@@ -1532,12 +1532,12 @@ class VARMAX(ForecastModel):
     def _trial_to_est(self, params: dict[str, Any]) -> dict[str, Any]:
         """Converte os hiperparâmetros do trial em parâmetros do estimador.
 
-        Parameters
+        Parâmetros
         ----------
         params: dict
             Hiperparâmetros do trial.
 
-        Returns
+        Retorna
         -------
         dict
             Hiperparâmetros do estimador.
@@ -1558,12 +1558,12 @@ class VARMAX(ForecastModel):
     def _get_est(self, params: dict[str, Any]) -> Predictor:
         """Obtém o estimador do modelo com os parâmetros desempacotados.
 
-        Parameters
+        Parâmetros
         ----------
         params: dict
             Hiperparâmetros para o estimador.
 
-        Returns
+        Retorna
         -------
         Predictor
             Instância do estimador.
@@ -1574,7 +1574,7 @@ class VARMAX(ForecastModel):
     def _get_distributions(self) -> Mapping[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
             Distribuições de hiperparâmetros.

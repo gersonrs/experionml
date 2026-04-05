@@ -52,9 +52,9 @@ from experionml.utils.utils import (
 class DataPlot(BasePlot, metaclass=ABCMeta):
     """Gráficos de dados.
 
-    Plots used for understanding and interpretation of the dataset.
-    They are only accessible from experionml since the other runners should
-    be used for model training only, not for data manipulation.
+    Gráficos usados para entendimento e interpretação do conjunto de dados.
+    Eles só são acessíveis pelo ExperionML, pois os demais runners devem
+    ser usados apenas para treinamento de modelos, não para manipulação de dados.
 
     """
 
@@ -74,11 +74,11 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
     ) -> go.Figure | None:
         """Plota a função de autocorrelação.
 
-        The autocorrelation function (ACF) measures the correlation
-        between a time series and lagged versions of itself. ACF can
-        help to identify the order of the moving average (MA) process
-        in a time series model. This plot is only available for
-        [forecast][time-series] tasks.
+        A função de autocorrelação (ACF) mede a correlação
+        entre uma série temporal e versões defasadas de si mesma. A ACF pode
+        ajudar a identificar a ordem do processo de média móvel (MA)
+        em um modelo de série temporal. Este gráfico está disponível apenas para
+        tarefas de [previsão][time-series].
 
         Parâmetros
         ----------
@@ -129,13 +129,13 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
         [go.Figure][] or None
             Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:DataPlot.plot_series
         experionml.plots:DataPlot.plot_decomposition
         experionml.plots:DataPlot.plot_pacf
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLForecaster
@@ -160,7 +160,7 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
             nlags = min(int(10 * np.log10(self.branch.shape[0])), self.branch.shape[0] // 2 - 1)
 
         for col in columns_c:
-            # Returns correlation array and confidence interval
+            # Retorna o array de correlação e o intervalo de confiança
             corr, conf = acf(self.branch.dataset[col], nlags=nlags, alpha=0.05)
 
             for pos in (x := np.arange(len(corr))):
@@ -251,73 +251,73 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
     ) -> go.Figure | None:
         """Plota a correlação cruzada entre duas séries temporais.
 
-        The Cross-Correlation Function (CCF) plot measures the similarity
-        between features and the target column as a function of the
-        displacement of one series relative to the other. It's similar to
-        the [acf][plot_acf] plot, where the correlation is plotted against
-        lagged versions of itself. The transparent band represents the 95%
-        confidence interval. This plot is only available for
-        [forecast][time-series] tasks.
+        A função de correlação cruzada (CCF) mede a similaridade
+        entre as features e a coluna alvo em função do deslocamento
+        de uma série em relação à outra. É similar ao gráfico
+        [acf][plot_acf], onde a correlação é plotada em relação às
+        versões defasadas de si mesma. A faixa transparente representa
+        o intervalo de confiança de 95%. Este gráfico está disponível
+        apenas para tarefas de [previsão][time-series].
 
-        Parameters
+        Parâmetros
         ----------
         columns: int, str, segment, sequence or dataframe, default=0
-            Columns to plot the periodogram from. If None, it selects
-            all numerical features.
+            Colunas para plotar a CCF. Se None, seleciona
+            todas as features numéricas.
 
         target: int or str, default=0
-            Target column against which to calculate the correlations.
-            Only for [multivariate][] tasks.
+            Coluna alvo contra a qual calcular as correlações.
+            Apenas para tarefas [multivariadas][].
 
         nlags: int or None, default=None
-            Number of lags to return autocorrelation for. If None, it
-            uses `min(10 * np.log10(len(y)), len(y) // 2 - 1)`. The
-            returned value includes lag 0 (i.e., 1), so the size of the
-            vector is `(nlags + 1,)`.
+            Número de defasagens para as quais retornar a autocorrelação.
+            Se None, usa `min(10 * np.log10(len(y)), len(y) // 2 - 1)`. O
+            valor retornado inclui a defasagem 0 (ou seja, 1), então o tamanho
+            do vetor é `(nlags + 1,)`.
 
         plot_interval: bool, default=False
-            Whether to plot the 95% confidence interval.
+            Se deve plotar o intervalo de confiança de 95%.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="upper right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple or None, default=None
-            Figure's size in pixels, format as (x, y). If None, it
-            adapts the size to the number of lags shown.
+            Tamanho da figura em pixels, no formato (x, y). Se None,
+            adapta o tamanho ao número de defasagens exibidas.
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:DataPlot.plot_series
         experionml.plots:DataPlot.plot_decomposition
         experionml.plots:DataPlot.plot_periodogram
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLForecaster
@@ -332,8 +332,8 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
         """
         if self.branch.dataset.shape[1] < 2:
             raise ValueError(
-                "The plot_ccf method requires at least two columns in the dataset, got 1. "
-                "Read more about the use of exogenous variables in the user guide."
+                "O método plot_ccf requer pelo menos duas colunas no conjunto de dados, encontrou 1. "
+                "Leia mais sobre o uso de variáveis exógenas no guia do usuário."
             )
 
         columns_c = self.branch._get_columns(columns, only_numerical=True)
@@ -437,54 +437,54 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
     ) -> go.Figure | None:
         """Plota a razão de variância explicada por componente.
 
-        Kept components are colored and discarded components are
-        transparent. This plot is available only when feature selection
-        was applied with strategy="pca".
+        Os componentes mantidos são coloridos e os descartados são
+        transparentes. Este gráfico está disponível apenas quando a
+        seleção de features foi aplicada com strategy="pca".
 
-        Parameters
+        Parâmetros
         ----------
         show: int or None, default=None
-            Number of components to show. None to show all.
+            Número de componentes a exibir. None para exibir todos.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="lower right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple or None, default=None
-            Figure's size in pixels, format as (x, y). If None, it
-            adapts the size to the number of components shown.
+            Tamanho da figura em pixels, no formato (x, y). Se None,
+            adapta o tamanho ao número de componentes exibidos.
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:DataPlot.plot_pca
         experionml.plots:DataPlot.plot_rfecv
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -500,12 +500,12 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
         """
         if not hasattr(self, "pca_"):
             raise PermissionError(
-                "The plot_pca method is only available for instances "
-                "that ran feature selection using the 'pca' strategy, "
-                "e.g., experionml.feature_selection(strategy='pca')."
+                "O método plot_pca está disponível apenas para instâncias "
+                "que executaram a seleção de features com a estratégia 'pca', "
+                "por exemplo: experionml.feature_selection(strategy='pca')."
             )
 
-        # Get the variance ratio per component
+        # Obtém a razão de variância por componente
         variance = np.array(self.pca_.explained_variance_ratio_)
 
         show_c = self._get_show(show, len(variance))
@@ -513,7 +513,7 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
         fig = self._get_figure()
         xaxis, yaxis = BasePlot._fig.get_axes()
 
-        # Create a color scheme: first normal and then fully transparent
+        # Cria um esquema de cores: primeiro normal e depois totalmente transparente
         color = BasePlot._fig.get_elem("components")
         opacity = [0.2] * self.pca_._comps + [0] * (len(variance) - self.pca_._comps)
 
@@ -561,54 +561,54 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
     ) -> go.Figure | None:
         """Plota uma matriz de correlação.
 
-        Displays a heatmap showing the correlation between columns in
-        the dataset. The colors red, blue and white stand for positive,
-        negative, and no correlation respectively.
+        Exibe um mapa de calor mostrando a correlação entre colunas do
+        conjunto de dados. As cores vermelho, azul e branco representam
+        correlação positiva, negativa e nula, respectivamente.
 
-        Parameters
+        Parâmetros
         ----------
         columns: segment, sequence, dataframe or None, default=None
-            Columns to plot. If None, plot all columns in the dataset.
-            Selected categorical columns are ignored.
+            Colunas a plotar. Se None, plota todas as colunas do conjunto
+            de dados. Colunas categóricas selecionadas são ignoradas.
 
         method: str, default="pearson"
-            Method of correlation. Choose from: pearson, kendall or
+            Método de correlação. Escolha entre: pearson, kendall ou
             spearman.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Sem efeito. Implementado para continuidade da API.
 
         figsize: tuple, default=(800, 700)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:DataPlot.plot_distribution
         experionml.plots:DataPlot.plot_qq
         experionml.plots:DataPlot.plot_relationships
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -623,11 +623,11 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
         """
         columns_c = self.branch._get_columns(columns, only_numerical=True)
 
-        # Compute the correlation matrix
+        # Calcula a matriz de correlação
         corr = self.branch.dataset[columns_c].corr(method=method)
 
-        # Generate a mask for the lower triangle
-        # k=1 means keep outermost diagonal line
+        # Gera uma máscara para o triângulo inferior
+        # k=1 significa manter a linha diagonal mais externa
         mask = np.zeros_like(corr, dtype=bool)
         mask[np.triu_indices_from(mask, k=1)] = True
 
@@ -686,52 +686,52 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
     ) -> go.Figure | None:
         """Visualiza as divisões dos dados.
 
-        Plots the train/test/holdout splits. The x-axis shows the
-        number of rows, where every point corresponds to the n-th
-        sample.  Additionally, class labels and [groups][metadata]
-        are plotted when relevant.
+        Plota as divisões treino/teste/holdout. O eixo x mostra o
+        número de linhas, onde cada ponto corresponde à n-ésima
+        amostra. Adicionalmente, rótulos de classe e [grupos][metadata]
+        são plotados quando relevantes.
 
-        Parameters
+        Parâmetros
         ----------
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="upper right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_cv_splits
         experionml.plots:DataPlot.plot_decomposition
         experionml.plots:DataPlot.plot_relationships
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier, ExperionMLForecaster
@@ -862,57 +862,57 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
     ) -> go.Figure | None:
         """Plota a tendência, sazonalidade e resíduos de uma série temporal.
 
-        This plot is only available for [forecast][time-series] tasks.
+        Este gráfico está disponível apenas para tarefas de [previsão][time-series].
 
         !!! tip
-            Use experionml's [decompose][experionmlforecaster-decompose] method to
-            remove trend and seasonality from the data.
+            Use o método [decompose][experionmlforecaster-decompose] do ExperionML
+            para remover tendência e sazonalidade dos dados.
 
-        Parameters
+        Parâmetros
         ----------
         columns: int, str, segment, sequence, dataframe or None, default=None
-            [Selection of columns][row-and-column-selection] to plot.
-            If None, the target column is selected.
+            [Seleção de colunas][row-and-column-selection] para plotar.
+            Se None, a coluna alvo é selecionada.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="upper left"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple, default=(900, 900)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:DataPlot.plot_acf
         experionml.plots:DataPlot.plot_pacf
         experionml.plots:DataPlot.plot_series
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLForecaster
@@ -937,7 +937,7 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
         xaxis4, yaxis4 = BasePlot._fig.get_axes(y=(0.0, 0.24))
 
         for col in columns_c:
-            # Returns correlation array and confidence interval
+            # Retorna o array de correlação e o intervalo de confiança
             decompose = seasonal_decompose(
                 x=self.branch.dataset[col],
                 model=self.sp.get("seasonal_model", "additive"),
@@ -992,75 +992,75 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
     ) -> go.Figure | None:
         """Plota as distribuições das colunas.
 
-        - For numerical columns, plot the probability density
-          distribution. Additionally, it's possible to plot any of
-          `scipy.stats` distributions fitted to the column.
-        - For categorical columns, plot the class distribution.
-          Only one categorical column can be plotted at the same time.
+        - Para colunas numéricas, plota a distribuição de densidade de
+          probabilidade. Adicionalmente, é possível plotar qualquer
+          distribuição de `scipy.stats` ajustada à coluna.
+        - Para colunas categóricas, plota a distribuição de classes.
+          Apenas uma coluna categórica pode ser plotada por vez.
 
         !!! tip
-            Use experionml's [distributions][experionmlclassifier-distributions]
-            method to check which distribution fits the column best.
+            Use o método [distributions][experionmlclassifier-distributions] do
+            ExperionML para verificar qual distribuição melhor se ajusta à coluna.
 
-        Parameters
+        Parâmetros
         ----------
         columns: int, str, slice or sequence, default=0
-            Columns to plot. It's only possible to plot one categorical
-            column. If more than one categorical column is selected,
-            all categorical columns are ignored.
+            Colunas a plotar. Só é possível plotar uma coluna categórica.
+            Se mais de uma coluna categórica for selecionada,
+            todas as colunas categóricas são ignoradas.
 
         distributions: str, sequence or None, default="kde"
-            Distributions to fit. Only for numerical columns.
+            Distribuições a ajustar. Apenas para colunas numéricas.
 
-            - If None: No distribution is fit.
-            - If "kde": Fit a [Gaussian kde distribution][kde].
-            - Else: Name of a `scipy.stats` distribution.
+            - Se None: Nenhuma distribuição é ajustada.
+            - Se "kde": Ajusta uma [distribuição Gaussian kde][kde].
+            - Caso contrário: Nome de uma distribuição de `scipy.stats`.
 
         show: int or None, default=None
-            Number of classes (ordered by number of occurrences) to
-            show in the plot. If None, it shows all classes. Only for
-            categorical columns.
+            Número de classes (ordenadas por número de ocorrências) a
+            exibir no gráfico. Se None, exibe todas as classes. Apenas
+            para colunas categóricas.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None: No title is shown.
-            - If str: Text for the title.
-            - If dict: [title configuration][parameters].
+            - Se None: Nenhum título é exibido.
+            - Se str: Texto do título.
+            - Se dict: [configuração do título][parameters].
 
         legend: str, dict or None, default="upper right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple or None, default=None
-            Figure's size in pixels, format as (x, y). If None, it
-            adapts the size to the plot's type.
+            Tamanho da figura em pixels, no formato (x, y). Se None,
+            adapta o tamanho ao tipo do gráfico.
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:DataPlot.plot_correlation
         experionml.plots:DataPlot.plot_qq
         experionml.plots:DataPlot.plot_relationships
 
-        Examples
+        Exemplos
         --------
         ```pycon
         import numpy as np
@@ -1143,12 +1143,12 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
                     num=200,
                 )
 
-                # Drop missing values for compatibility with scipy.stats
+                # Remove valores ausentes para compatibilidade com scipy.stats
                 values = replace_missing(self.branch.dataset[col], self.missing).dropna()
                 values = values.to_numpy(dtype=float)
 
                 if distributions is not None:
-                    # Get a line for each distribution
+                    # Obtém uma linha para cada distribuição
                     for dist in lst(distributions):
                         if dist == "kde":
                             y = stats.gaussian_kde(values)(x)
@@ -1194,71 +1194,71 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
     ) -> go.Figure | None:
         """Plota a transformada de Fourier de uma série temporal.
 
-        A Fast Fourier Transformer (FFT) plot visualizes the frequency
-        domain representation of a signal by transforming it from the
-        time domain to the frequency domain using the FFT algorithm.
-        The x-axis shows the frequencies, normalized to the
-        [Nyquist frequency][nyquist], and the y-axis shows the power
-        spectral density or squared amplitude per frequency unit on a
-        logarithmic scale. This plot is only available for
-        [forecast][time-series] tasks.
+        Um gráfico de Transformada Rápida de Fourier (FFT) visualiza a
+        representação no domínio da frequência de um sinal, transformando-o
+        do domínio temporal para o domínio da frequência usando o algoritmo
+        FFT. O eixo x mostra as frequências, normalizadas para a
+        [frequência de Nyquist][nyquist], e o eixo y mostra a densidade
+        espectral de potência ou amplitude quadrática por unidade de
+        frequência em escala logarítmica. Este gráfico está disponível
+        apenas para tarefas de [previsão][time-series].
 
         !!! tip
-            - If the plot peaks at f~0, it can indicate the wandering
-              behavior characteristic of a [random walk][random_walk]
-              that needs to be differentiated. It could also be indicative
-              of a stationary [ARMA][] process with a high positive phi
-              value.
-            - Peaking at a frequency and its multiples is indicative of
-              seasonality. The lowest frequency in this case is called
-              the fundamental frequency, and the inverse of this
-              frequency is the seasonal period of the data.
+            - Se o gráfico apresentar pico em f~0, pode indicar o
+              comportamento errante característico de um
+              [passeio aleatório][random_walk] que precisa ser diferenciado.
+              Também pode ser indicativo de um processo estacionário
+              [ARMA][] com alto valor positivo de phi.
+            - Pico em uma frequência e seus múltiplos é indicativo de
+              sazonalidade. A menor frequência nesse caso é chamada de
+              frequência fundamental, e o inverso dessa frequência é o
+              período sazonal dos dados.
 
-        Parameters
+        Parâmetros
         ----------
         columns: int, str, segment, sequence, dataframe or None, default=None
-            Columns to plot the periodogram from. If None, it selects
-            the target column.
+            Colunas para plotar o periodograma. Se None, seleciona
+            a coluna alvo.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="upper right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:DataPlot.plot_series
         experionml.plots:DataPlot.plot_decomposition
         experionml.plots:DataPlot.plot_periodogram
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLForecaster
@@ -1285,7 +1285,7 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
             freq = np.fft.fftfreq(len(psd))
 
             self._draw_line(
-                x=freq[freq >= 0],  # Only draw >0 since the fft is mirrored along x=0
+                x=freq[freq >= 0],  # Desenha apenas >0 pois a FFT é espelhada em torno de x=0
                 y=psd[freq >= 0],
                 parent=col,
                 mode="lines+markers",
@@ -1323,68 +1323,68 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
     ) -> go.Figure | None:
         """Plota as frequências de n-gramas.
 
-        The text for the plot is extracted from the column named
-        `corpus`. If there is no column with that name, an exception
-        is raised. If the documents are not tokenized, the words are
-        separated by spaces.
+        O texto para o gráfico é extraído da coluna chamada
+        `corpus`. Se não houver coluna com esse nome, uma exceção
+        é lançada. Se os documentos não estiverem tokenizados, as palavras são
+        separadas por espaços.
 
         !!! tip
-            Use experionml's [tokenize][experionmlclassifier-tokenize] method to
-            separate the words creating n-grams based on their frequency
-            in the corpus.
+            Use o método [tokenize][experionmlclassifier-tokenize] do experionml para
+            separar as palavras criando n-gramas com base em sua frequência
+            no corpus.
 
-        Parameters
+        Parâmetros
         ----------
         ngram: str or int, default="bigram"
-            Number of contiguous words to search for (size of n-gram).
-            Choose from: word (1), bigram (2), trigram (3), quadgram (4).
+            Número de palavras contíguas a procurar (tamanho do n-grama).
+            Escolha entre: word (1), bigram (2), trigram (3), quadgram (4).
 
         rows: hashable, segment, sequence or dataframe, default="dataset"
-            [Selection of rows][row-and-column-selection] in the corpus
-            to include in the search.
+            [Seleção de linhas][row-and-column-selection] no corpus
+            a incluir na busca.
 
         show: int or None, default=10
-            Number of n-grams (ordered by number of occurrences) to
-            show in the plot. If none, show all n-grams (up to 200).
+            Número de n-gramas (ordenados por número de ocorrências) a
+            exibir no gráfico. Se none, exibe todos os n-gramas (até 200).
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto para o título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="lower right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters] para
+            uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: Nenhuma legenda é exibida.
+            - Se str: Posição para exibir a legenda.
+            - Se dict: Configuração da legenda.
 
         figsize: tuple or None, default=None
-            Figure's size in pixels, format as (x, y). If None, it
-            adapts the size to the number of n-grams shown.
+            Tamanho da figura em pixels, no formato (x, y). Se None,
+            ajusta o tamanho ao número de n-gramas exibidos.
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomenclatura
+            automática. O tipo de arquivo depende do nome fornecido
+            (.html, .png, .pdf, etc...). Se `filename` não tiver tipo de arquivo,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Retornado apenas se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:DataPlot.plot_wordcloud
 
-        Examples
+        Exemplos
         --------
         ```pycon
         import numpy as np
@@ -1410,15 +1410,15 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
         def get_text(column: pd.Series) -> pd.Series:
             """Obtém o corpus completo como sequência de tokens.
 
-            Parameters
+            Parâmetros
             ----------
             column: series
-                Column containing the corpus.
+                Coluna contendo o corpus.
 
-            Returns
+            Retorna
             -------
             series
-                Corpus of tokens.
+                Corpus de tokens.
 
             """
             if isinstance(column.iloc[0], str):
@@ -1496,88 +1496,88 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
     ) -> go.Figure | None:
         """Plota a função de autocorrelação parcial.
 
-        The partial autocorrelation function (PACF) measures the
-        correlation between a time series and lagged versions of
-        itself, after removing the effects of shorter lagged values.
-        In other words, it represents the correlation between two
-        variables while controlling for the influence of other
-        variables. PACF can help to identify the order of the
-        autoregressive (AR) process in a time series model. This
-        plot is only available for [forecast][time-series] tasks.
+        A função de autocorrelação parcial (PACF) mede a
+        correlação entre uma série temporal e versões defasadas de
+        si mesma, após remover os efeitos de valores com defasagens menores.
+        Em outras palavras, representa a correlação entre duas
+        variáveis controlando a influência de outras variáveis.
+        O PACF pode ajudar a identificar a ordem do processo
+        autorregressivo (AR) em um modelo de série temporal. Este
+        gráfico está disponível apenas para tarefas de [previsão][time-series].
 
-        Parameters
+        Parâmetros
         ----------
         columns: int, str, segment, sequence, dataframe or None, default=None
-            Columns to plot the pacf from. If None, it selects the
-            target column.
+            Colunas para plotar o pacf. Se None, seleciona a
+            coluna alvo.
 
         nlags: int or None, default=None
-            Number of lags to return autocorrelation for. If None, it
-            uses `min(10 * np.log10(len(y)), len(y) // 2 - 1)`. The
-            returned value includes lag 0 (i.e., 1), so the size of the
-            vector is `(nlags + 1,)`.
+            Número de defasagens para retornar a autocorrelação. Se None,
+            usa `min(10 * np.log10(len(y)), len(y) // 2 - 1)`. O
+            valor retornado inclui a defasagem 0 (i.e., 1), portanto o tamanho do
+            vetor é `(nlags + 1,)`.
 
         method : str, default="ywadjusted"
-            Specifies which method to use for the calculations.
+            Especifica qual método usar para os cálculos.
 
-            - "yw" or "ywadjusted": Yule-Walker with sample-size
-              adjustment in denominator for acovf.
-            - "ywm" or "ywmle": Yule-Walker without an adjustment.
-            - "ols": Regression of time series on lags of it and on
-              constant.
-            - "ols-inefficient": Regression of time series on lags using
-              a single common sample to estimate all pacf coefficients.
-            - "ols-adjusted": Regression of time series on lags with a
-              bias adjustment.
-            - "ld" or "ldadjusted": Levinson-Durbin recursion with bias
-              correction.
-            - "ldb" or "ldbiased": Levinson-Durbin recursion without bias
-              correction.
-            - "burg": Burg"s partial autocorrelation estimator.
+            - "yw" ou "ywadjusted": Yule-Walker com ajuste pelo tamanho da
+              amostra no denominador para acovf.
+            - "ywm" ou "ywmle": Yule-Walker sem ajuste.
+            - "ols": Regressão da série temporal sobre suas defasagens e uma
+              constante.
+            - "ols-inefficient": Regressão da série temporal sobre defasagens usando
+              uma única amostra comum para estimar todos os coeficientes pacf.
+            - "ols-adjusted": Regressão da série temporal sobre defasagens com
+              ajuste de viés.
+            - "ld" ou "ldadjusted": Recursão de Levinson-Durbin com
+              correção de viés.
+            - "ldb" ou "ldbiased": Recursão de Levinson-Durbin sem
+              correção de viés.
+            - "burg": Estimador de autocorrelação parcial de Burg.
 
         plot_interval: bool, default=True
-            Whether to plot the 95% confidence interval.
+            Se deve plotar o intervalo de confiança de 95%.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto para o título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="upper right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters] para
+            uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: Nenhuma legenda é exibida.
+            - Se str: Posição para exibir a legenda.
+            - Se dict: Configuração da legenda.
 
         figsize: tuple or None, default=None
-            Figure's size in pixels, format as (x, y). If None, it
-            adapts the size to the number of lags shown.
+            Tamanho da figura em pixels, no formato (x, y). Se None,
+            ajusta o tamanho ao número de defasagens exibidas.
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomenclatura
+            automática. O tipo de arquivo depende do nome fornecido
+            (.html, .png, .pdf, etc...). Se `filename` não tiver tipo de arquivo,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Retornado apenas se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:DataPlot.plot_acf
         experionml.plots:DataPlot.plot_decomposition
         experionml.plots:DataPlot.plot_series
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLForecaster
@@ -1602,7 +1602,7 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
             nlags = min(int(10 * np.log10(self.branch.shape[0])), self.branch.shape[0] // 2 - 1)
 
         for col in columns_c:
-            # Returns correlation array and confidence interval
+            # Retorna o array de correlação e o intervalo de confiança
             corr, conf = pacf(self.branch.dataset[col], nlags=nlags, method=method, alpha=0.05)
 
             for pos in (x := np.arange(len(corr))):
@@ -1688,48 +1688,48 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
     ) -> go.Figure | None:
         """Plota a razão de variância explicada em função do número de componentes.
 
-        If the underlying estimator is [PCA][] (for dense datasets),
-        all possible components are plotted. If the underlying estimator
-        is [TruncatedSVD][] (for sparse datasets), it only shows the
-        selected components. The star marks the number of components
-        selected by the user. This plot is available only when feature
-        selection was applied with strategy="pca".
+        Se o estimador subjacente for [PCA][] (para conjuntos de dados densos),
+        todos os componentes possíveis são plotados. Se o estimador subjacente
+        for [TruncatedSVD][] (para conjuntos de dados esparsos), apenas os
+        componentes selecionados são exibidos. A estrela marca o número de componentes
+        selecionados pelo usuário. Este gráfico está disponível apenas quando a
+        seleção de features foi aplicada com strategy="pca".
 
-        Parameters
+        Parâmetros
         ----------
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto para o título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomenclatura
+            automática. O tipo de arquivo depende do nome fornecido
+            (.html, .png, .pdf, etc...). Se `filename` não tiver tipo de arquivo,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Retornado apenas se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:DataPlot.plot_components
         experionml.plots:DataPlot.plot_rfecv
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -1745,12 +1745,12 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
         """
         if not hasattr(self, "pca_"):
             raise PermissionError(
-                "The plot_components method is only available for instances "
-                "that ran feature selection using the 'pca' strategy, "
-                "e.g., experionml.feature_selection(strategy='pca')."
+                "O método plot_components está disponível apenas para instâncias "
+                "que executaram seleção de features usando a estratégia 'pca', "
+                "ex.: experionml.feature_selection(strategy='pca')."
             )
 
-        # Create star symbol at selected number of components
+        # Cria o símbolo de estrela no número de componentes selecionados
         symbols = ["circle"] * self.pca_.n_features_in_
         symbols[self.pca_._comps - 1] = "star"
         sizes = [self.marker_size] * self.pca_.n_features_in_
@@ -1811,72 +1811,71 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
     ) -> go.Figure | None:
         """Plota a densidade espectral de uma série temporal.
 
-        A periodogram plot is used to visualize the frequency content
-        of a time series signal. It's particularly useful in time
-        series analysis for identifying dominant frequencies, periodic
-        patterns, and overall spectral characteristics of the data.
-        The x-axis shows the frequencies, normalized to the
-        [Nyquist frequency][nyquist], and the y-axis shows the power
-        spectral density or squared amplitude per frequency unit on a
-        logarithmic scale. This plot is only available for
-        [forecast][time-series] tasks.
+        Um gráfico de periodograma é usado para visualizar o conteúdo de frequência
+        de um sinal de série temporal. É particularmente útil na análise de
+        séries temporais para identificar frequências dominantes, padrões
+        periódicos e características espectrais gerais dos dados.
+        O eixo x mostra as frequências, normalizadas pela
+        [frequência de Nyquist][nyquist], e o eixo y mostra a densidade
+        espectral de potência ou amplitude ao quadrado por unidade de frequência
+        em escala logarítmica. Este gráfico está disponível apenas para
+        tarefas de [previsão][time-series].
 
         !!! tip
-            - If the plot peaks at f~0, it can indicate the wandering
-              behavior characteristic of a [random walk][random_walk]
-              that needs to be differentiated. It could also be indicative
-              of a stationary [ARMA][] process with a high positive phi
-              value.
-            - Peaking at a frequency and its multiples is indicative of
-              seasonality. The lowest frequency in this case is called
-              the fundamental frequency, and the inverse of this
-              frequency is the seasonal period of the data.
+            - Se o gráfico apresentar pico em f~0, pode indicar o comportamento
+              errante característico de um [passeio aleatório][random_walk]
+              que precisa ser diferenciado. Também pode ser indicativo
+              de um processo [ARMA][] estacionário com valor phi positivo alto.
+            - Pico em uma frequência e seus múltiplos é indicativo de
+              sazonalidade. A frequência mais baixa nesse caso é chamada
+              de frequência fundamental, e o inverso dessa
+              frequência é o período sazonal dos dados.
 
-        Parameters
+        Parâmetros
         ----------
         columns: int, str, segment, sequence, dataframe or None, default=None
-            Columns to plot the periodogram from. If None, it selects
-            the target column.
+            Colunas para plotar o periodograma. Se None, seleciona
+            a coluna alvo.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto para o título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="upper right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters] para
+            uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: Nenhuma legenda é exibida.
+            - Se str: Posição para exibir a legenda.
+            - Se dict: Configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomenclatura
+            automática. O tipo de arquivo depende do nome fornecido
+            (.html, .png, .pdf, etc...). Se `filename` não tiver tipo de arquivo,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Retornado apenas se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:DataPlot.plot_series
         experionml.plots:DataPlot.plot_decomposition
         experionml.plots:DataPlot.plot_fft
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLForecaster
@@ -1938,57 +1937,57 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
     ) -> go.Figure | None:
         """Plota um gráfico quantil-quantil.
 
-        Columns are distinguished by color and the distributions are
-        distinguished by marker type. Missing values are ignored.
+        As colunas são distinguidas por cor e as distribuições são
+        distinguidas pelo tipo de marcador. Valores ausentes são ignorados.
 
-        Parameters
+        Parâmetros
         ----------
         columns: int, str, segment, sequence or dataframe, default=0
-            Columns to plot. Selected categorical columns are ignored.
+            Colunas para plotar. Colunas categóricas selecionadas são ignoradas.
 
         distributions: str or sequence, default="norm"
-            Names of the `scipy.stats` distributions to fit to the
-            columns.
+            Nomes das distribuições `scipy.stats` para ajustar às
+            colunas.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto para o título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="lower right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters] para
+            uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: Nenhuma legenda é exibida.
+            - Se str: Posição para exibir a legenda.
+            - Se dict: Configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomenclatura
+            automática. O tipo de arquivo depende do nome fornecido
+            (.html, .png, .pdf, etc...). Se `filename` não tiver tipo de arquivo,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Retornado apenas se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:DataPlot.plot_correlation
         experionml.plots:DataPlot.plot_distribution
         experionml.plots:DataPlot.plot_relationships
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -2009,7 +2008,7 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
 
         percentiles = np.linspace(0, 100, 101)
         for col in columns_c:
-            # Drop missing values for compatibility with scipy.stats
+            # Remove valores ausentes para compatibilidade com scipy.stats
             values = replace_missing(self.branch.dataset[col], self.missing).dropna()
             values = values.to_numpy(dtype=float)
 
@@ -2056,51 +2055,51 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
     ) -> go.Figure | None:
         """Plota relações pareadas em um conjunto de dados.
 
-        Creates a grid of axes such that each numerical column appears
-        once on the x-axes and once on the y-axes. The bottom triangle
-        contains scatter plots (max 250 random samples), the diagonal
-        plots contain column distributions, and the upper triangle
-        contains contour histograms for all samples in the columns.
+        Cria uma grade de eixos de forma que cada coluna numérica apareça
+        uma vez nos eixos x e uma vez nos eixos y. O triângulo inferior
+        contém gráficos de dispersão (no máximo 250 amostras aleatórias), a diagonal
+        contém distribuições das colunas e o triângulo superior
+        contém histogramas de contorno para todas as amostras das colunas.
 
-        Parameters
+        Parâmetros
         ----------
         columns: segment, sequence or dataframe, default=(0, 1, 2)
-            Columns to plot. Selected categorical columns are ignored.
+            Colunas para plotar. Colunas categóricas selecionadas são ignoradas.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto para o título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
         figsize: tuple, default=(900, 900)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomenclatura
+            automática. O tipo de arquivo depende do nome fornecido
+            (.html, .png, .pdf, etc...). Se `filename` não tiver tipo de arquivo,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Retornado apenas se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:DataPlot.plot_correlation
         experionml.plots:DataPlot.plot_distribution
         experionml.plots:DataPlot.plot_qq
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -2115,7 +2114,7 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
         """
         columns_c = self.branch._get_columns(columns, only_numerical=True)
 
-        # Use max 250 samples to not clutter the plot
+        # Usa no máximo 250 amostras para não poluir o gráfico
         sample = lambda col: self.branch.dataset[col].sample(
             n=min(len(self.branch.dataset), 250), random_state=self.random_state
         )
@@ -2125,13 +2124,13 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
         for i in range(len(columns_c) ** 2):
             x, y = i // len(columns_c), i % len(columns_c)
 
-            # Calculate the distance between subplots
+            # Calcula a distância entre os subgráficos
             offset = divide(0.0125, (len(columns_c) - 1))
 
-            # Calculate the size of the subplot
+            # Calcula o tamanho do subgráfico
             size = (1 - ((offset * 2) * (len(columns_c) - 1))) / len(columns_c)
 
-            # Determine the position for the axes
+            # Determina a posição dos eixos
             x_pos = y * (size + 2 * offset)
             y_pos = (len(columns_c) - x - 1) * (size + 2 * offset)
 
@@ -2213,53 +2212,53 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
     ) -> go.Figure | None:
         """Plota os resultados do RFECV.
 
-        Plot the scores obtained by the estimator fitted on every
-        subset of the dataset. Only available when feature selection
-        was applied with strategy="rfecv".
+        Plota as pontuações obtidas pelo estimador ajustado em cada
+        subconjunto do dataset. Disponível apenas quando a seleção de
+        features foi aplicada com strategy="rfecv".
 
-        Parameters
+        Parâmetros
         ----------
         plot_interval: bool, default=True
-            Whether to plot the 1-sigma confidence interval.
+            Se deve plotar o intervalo de confiança de 1 sigma.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto para o título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="upper right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters] para
+            uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: Nenhuma legenda é exibida.
+            - Se str: Posição para exibir a legenda.
+            - Se dict: Configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomenclatura
+            automática. O tipo de arquivo depende do nome fornecido
+            (.html, .png, .pdf, etc...). Se `filename` não tiver tipo de arquivo,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Retornado apenas se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:DataPlot.plot_components
         experionml.plots:DataPlot.plot_pca
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -2275,19 +2274,19 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
         """
         if not hasattr(self, "rfecv_"):
             raise PermissionError(
-                "The plot_rfecv method is only available for instances "
-                "that ran feature selection using the 'rfecv' strategy, "
-                "e.g., experionml.feature_selection(strategy='rfecv')."
+                "O método plot_rfecv está disponível apenas para instâncias "
+                "que executaram seleção de features usando a estratégia 'rfecv', "
+                "ex.: experionml.feature_selection(strategy='rfecv')."
             )
 
-        try:  # Define the y-label for the plot
+        try:  # Define o rótulo do eixo y para o gráfico
             ylabel = self.rfecv_.get_params()["scoring"].name
         except AttributeError:
             ylabel = "accuracy" if is_classifier(self.rfecv_.estimator_) else "r2"
 
         x = np.arange(self.rfecv_.min_features_to_select, self.rfecv_.n_features_in_ + 1)
 
-        # Create star symbol at selected number of features
+        # Cria o símbolo de estrela no número de features selecionadas
         sizes = [6] * len(x)
         sizes[self.rfecv_.n_features_ - self.rfecv_.min_features_to_select] = 12
         symbols = ["circle"] * len(x)
@@ -2377,61 +2376,61 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
     ) -> go.Figure | None:
         """Plota uma série de dados.
 
-        This plot is only available for [forecast][time-series] tasks.
+        Este gráfico está disponível apenas para tarefas de [previsão][time-series].
 
-        Parameters
+        Parâmetros
         ----------
         rows: str, sequence or dict, default=("train", "test")
-            Selection of rows to plot.
+            Seleção de linhas para plotar.
 
-            - If str: Name of the data set to plot.
-            - If sequence: Names of the data sets to plot.
-            - If dict: Names of the sets with corresponding
-              [selection of rows][row-and-column-selection] as values.
+            - Se str: Nome do conjunto de dados para plotar.
+            - Se sequence: Nomes dos conjuntos de dados para plotar.
+            - Se dict: Nomes dos conjuntos com a
+              [seleção de linhas][row-and-column-selection] correspondente como valores.
 
         columns: int, str, segment, sequence, dataframe or None, default=None
-            [Columns][row-and-column-selection] to plot. If None, all
-            target columns are selected.
+            [Colunas][row-and-column-selection] para plotar. Se None, todas
+            as colunas alvo são selecionadas.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto para o título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="upper left"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters] para
+            uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: Nenhuma legenda é exibida.
+            - Se str: Posição para exibir a legenda.
+            - Se dict: Configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomenclatura
+            automática. O tipo de arquivo depende do nome fornecido
+            (.html, .png, .pdf, etc...). Se `filename` não tiver tipo de arquivo,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Retornado apenas se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:DataPlot.plot_distribution
         experionml.plots:DataPlot.plot_relationships
         experionml.plots:DataPlot.plot_qq
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLForecaster
@@ -2496,52 +2495,52 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
     ) -> go.Figure | None:
         """Plota uma nuvem de palavras a partir do corpus.
 
-        The text for the plot is extracted from the column named
-        `corpus`. If there is no column with that name, an exception
-        is raised.
+        O texto para o gráfico é extraído da coluna chamada
+        `corpus`. Se não houver coluna com esse nome, uma exceção
+        é lançada.
 
-        Parameters
+        Parâmetros
         ----------
         rows: hashable, segment, sequence or dataframe, default="dataset"
-            [Selection of rows][row-and-column-selection] in the corpus
-            to include in the wordcloud.
+            [Seleção de linhas][row-and-column-selection] no corpus
+            a incluir na nuvem de palavras.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto para o título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomenclatura
+            automática. O tipo de arquivo depende do nome fornecido
+            (.html, .png, .pdf, etc...). Se `filename` não tiver tipo de arquivo,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
         **kwargs
-            Additional keyword arguments for the [Wordcloud][] object.
+            Argumentos de palavra-chave adicionais para o objeto [Wordcloud][].
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Retornado apenas se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:DataPlot.plot_ngrams
         experionml.plots:PredictionPlot.plot_pipeline
 
-        Examples
+        Exemplos
         --------
         ```pycon
         import numpy as np

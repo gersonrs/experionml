@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 from collections.abc import Iterator
@@ -21,13 +20,31 @@ from sktime.forecasting.base import BaseForecaster
 from typing_extensions import Self
 
 from experionml.utils.types import (
-    Bool, EngineDataOptions, EngineTuple, Estimator, FHConstructor, Float,
-    Pandas, Scalar, Sequence, Verbose, XConstructor, XReturn, YConstructor,
+    Bool,
+    EngineDataOptions,
+    EngineTuple,
+    Estimator,
+    FHConstructor,
+    Float,
+    Pandas,
+    Scalar,
+    Sequence,
+    Verbose,
+    XConstructor,
+    XReturn,
+    YConstructor,
     YReturn,
 )
 from experionml.utils.utils import (
-    NotFittedError, adjust, check_is_fitted, fit_one, fit_transform_one, to_df,
-    to_tabular, transform_one, variable_return,
+    NotFittedError,
+    adjust,
+    check_is_fitted,
+    fit_one,
+    fit_transform_one,
+    to_df,
+    to_tabular,
+    transform_one,
+    variable_return,
 )
 
 
@@ -39,82 +56,82 @@ T = TypeVar("T")
 
 
 class Pipeline(SkPipeline):
-    """Pipeline of transforms with a final estimator.
+    """Pipeline de transformações com um estimador final.
 
-    Sequentially apply a list of transforms and a final estimator.
-    Intermediate steps of the pipeline must be transformsers, that
-    is, they must implement `fit` and `transform` methods. The final
-    estimator only needs to implement `fit`. The transformers in the
-    pipeline can be cached using the `memory` parameter.
+    Aplica sequencialmente uma lista de transformações e um estimador final.
+    As etapas intermediárias do pipeline devem ser transformadores, ou
+    seja, devem implementar os métodos `fit` e `transform`. O estimador
+    final precisa apenas implementar `fit`. Os transformadores do
+    pipeline podem ser armazenados em cache usando o parâmetro `memory`.
 
-    A step's estimator may be replaced entirely by setting the
-    parameter with its name to another estimator, or a transformer
-    removed by setting it to `passthrough` or `None`.
+    O estimador de uma etapa pode ser completamente substituído definindo
+    o parâmetro com seu nome para outro estimador, ou um transformador
+    pode ser removido definindo-o como `passthrough` ou `None`.
 
-    Read more in sklearn's the [user guide][pipelinedocs].
+    Leia mais no [guia do usuário][pipelinedocs] do sklearn.
 
     !!! info
-        This class behaves similarly to sklearn's [pipeline][skpipeline],
-        and additionally:
+        Esta classe se comporta de forma semelhante ao [pipeline][skpipeline]
+        do sklearn, e adicionalmente:
 
-        - Can initialize with an empty pipeline.
-        - Always returns 'pandas' objects.
-        - Accepts transformers that drop rows.
-        - Accepts transformers that only are fitted on a subset of the
-          provided dataset.
-        - Accepts transformers that apply only on the target column.
-        - Uses transformers that are only applied on the training set
-          to fit the pipeline, not to make predictions on new data.
-        - The instance is considered fitted at initialization if all
-          the underlying transformers/estimator in the pipeline are.
-        - It returns attributes from the final estimator if they are
-          not of the Pipeline.
-        - The last estimator is also cached.
-        - Supports time series models following sktime's API.
+        - Pode ser inicializada com um pipeline vazio.
+        - Sempre retorna objetos 'pandas'.
+        - Aceita transformadores que eliminam linhas.
+        - Aceita transformadores que são ajustados apenas em um subconjunto
+          do conjunto de dados fornecido.
+        - Aceita transformadores que se aplicam apenas à coluna alvo.
+        - Usa transformadores aplicados apenas no conjunto de treinamento
+          para ajustar o pipeline, não para fazer previsões em novos dados.
+        - A instância é considerada ajustada na inicialização se todos os
+          transformadores/estimadores subjacentes do pipeline estiverem.
+        - Retorna atributos do estimador final se não forem do Pipeline.
+        - O último estimador também é armazenado em cache.
+        - Suporta modelos de séries temporais seguindo a API do sktime.
 
     !!! warning
-        This Pipeline only works with estimators whose parameters
-        for fit, transform, predict, etc... are named `X` and/or `y`.
+        Este Pipeline só funciona com estimadores cujos parâmetros
+        para fit, transform, predict, etc... são nomeados `X` e/ou `y`.
 
-    Parameters
+    Parâmetros
     ----------
     steps: list of tuple
-        List of (name, transform) tuples (implementing `fit`/`transform`)
-        that are chained in sequential order.
+        Lista de tuplas (nome, transformador) (implementando `fit`/`transform`)
+        encadeadas em ordem sequencial.
 
     memory: str, [Memory][joblibmemory] or None, default=None
-        Used to cache the fitted transformers of the pipeline. Enabling
-        caching triggers a clone of the transformers before fitting.
-        Therefore, the transformer instance given to the pipeline cannot
-        be inspected directly. Use the attribute `named_steps` or `steps`
-        to inspect estimators within the pipeline. Caching the
-        transformers is advantageous when fitting is time-consuming.
+        Usado para armazenar em cache os transformadores ajustados do pipeline.
+        Ativar o cache aciona um clone dos transformadores antes do ajuste.
+        Portanto, a instância do transformador fornecida ao pipeline não pode
+        ser inspecionada diretamente. Use o atributo `named_steps` ou `steps`
+        para inspecionar os estimadores no pipeline. O cache dos
+        transformadores é vantajoso quando o ajuste consome muito tempo.
 
     verbose: int or None, default=0
-        Verbosity level of the transformers in the pipeline. If None,
-        it leaves them to their original verbosity. If >0, the time
-        elapsed while fitting each step is printed. Note this is not
-        the same as sklearn's `verbose` parameter. Use the pipeline's
-        verbose attribute to modify that one (defaults to False).
+        Nível de verbosidade dos transformadores no pipeline. Se None,
+        mantém a verbosidade original. Se >0, o tempo decorrido durante
+        o ajuste de cada etapa é impresso. Observe que isso não é o
+        mesmo que o parâmetro `verbose` do sklearn. Use o atributo verbose
+        do pipeline para modificar aquele (padrão False).
 
-    Attributes
+    Atributos
     ----------
     named_steps: [Bunch][]
-        Dictionary-like object, with the following attributes. Read-only
-        attribute to access any step parameter by user given name. Keys
-        are step names and values are steps parameters.
+        Objeto semelhante a dicionário com os seguintes atributos. Atributo
+        somente leitura para acessar qualquer parâmetro de etapa pelo nome
+        fornecido pelo usuário. As chaves são os nomes das etapas e os
+        valores são os parâmetros das etapas.
 
     classes_: np.ndarray of shape (n_classes,)
-        The class' labels. Only exist if the last step of the pipeline
-        is a classifier.
+        Rótulos das classes. Existem apenas se a última etapa do pipeline
+        for um classificador.
 
     feature_names_in_: np.ndarray
-        Names of features seen during first step `fit` method.
+        Nomes das features observadas durante o método `fit` da primeira etapa.
 
     n_features_in_: int
-        Number of features seen during first step `fit` method.
+        Número de features observadas durante o método `fit` da primeira etapa.
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -122,18 +139,18 @@ class Pipeline(SkPipeline):
 
     X, y = load_breast_cancer(return_X_y=True, as_frame=True)
 
-    # Initialize experionml
+    # Inicializa o experionml
     experionml = ExperionMLClassifier(X, y, verbose=2)
 
-    # Apply data cleaning and feature engineering methods
+    # Aplica métodos de limpeza de dados e engenharia de features
     experionml.scale()
     experionml.balance(strategy="smote")
     experionml.feature_selection(strategy="rfe", solver="lr", n_features=22)
 
-    # Train models
+    # Treina os modelos
     experionml.run(models="LR")
 
-    # Get the pipeline object
+    # Obtém o objeto pipeline
     pipeline = experionml.lr.export_pipeline()
     print(pipeline)
     ```
@@ -151,30 +168,30 @@ class Pipeline(SkPipeline):
         self._verbose = verbose
 
     def __bool__(self):
-        """Whether the pipeline has at least one estimator."""
+        """Se o pipeline contém pelo menos um estimador."""
         return len(self.steps) > 0
 
     def __contains__(self, item: str | Any):
-        """Whether the name or estimator is in the pipeline."""
+        """Se o nome ou estimador está no pipeline."""
         if isinstance(item, str):
             return item in self.named_steps
         else:
             return item in self.named_steps.values()
 
     def __getattr__(self, item: str):
-        """Get the attribute from the final estimator."""
+        """Obtém o atributo do estimador final."""
         try:
             return getattr(self._final_estimator, item)
         except (AttributeError, IndexError):
             raise AttributeError(f"'Pipeline' object has no attribute '{item}'.") from None
 
     def __sklearn_is_fitted__(self):
-        """Whether the pipeline has been fitted."""
+        """Se o pipeline foi ajustado."""
         try:
-            # check if the last step of the pipeline is fitted
-            # we only check the last step since if the last step is fit, it
-            # means the previous steps should also be fit. This is faster than
-            # checking if every step of the pipeline is fit.
+            # verifica se a última etapa do pipeline foi ajustada
+            # verificamos apenas a última etapa pois se ela estiver ajustada,
+            # significa que as etapas anteriores também deveriam estar. Isso é
+            # mais rápido do que verificar se cada etapa do pipeline está ajustada.
             check_is_fitted(self.steps[-1][1])
             return True
         except (NotFittedError, IndexError):
@@ -182,12 +199,12 @@ class Pipeline(SkPipeline):
 
     @property
     def memory(self) -> Memory:
-        """Get the internal memory object."""
+        """Obtém o objeto de memória interno."""
         return self._memory
 
     @memory.setter
     def memory(self, value: str | Memory | None):
-        """Create a new internal memory object."""
+        """Cria um novo objeto de memória interno."""
         self._memory = check_memory(value)
         self._mem_fit = self._memory.cache(fit_one)
         self._mem_fit_transform = self._memory.cache(fit_transform_one)
@@ -195,23 +212,23 @@ class Pipeline(SkPipeline):
 
     @property
     def _final_estimator(self) -> Literal["passthrough"] | Estimator | None:
-        """Return the last estimator in the pipeline.
+        """Retorna o último estimador no pipeline.
 
-        If the pipeline is empty, return None. If the estimator is
-        None, return "passthrough".
+        Se o pipeline estiver vazio, retorna None. Se o estimador for
+        None, retorna "passthrough".
 
         """
         try:
             estimator = self.steps[-1][1]
             return "passthrough" if estimator is None else estimator
         except (ValueError, AttributeError, TypeError, IndexError):
-            # This condition happens when the pipeline is empty or a call
-            # to a method is first calling `_available_if` and `fit` did
-            # not validate `steps` yet.
+            # Esta condição ocorre quando o pipeline está vazio ou uma chamada
+            # a um método está chamando `_available_if` primeiro e `fit` ainda
+            # não validou `steps`.
             return None
 
     def _can_transform(self) -> bool:
-        """Check if the pipeline can use the transform method."""
+        """Verifica se o pipeline pode usar o método transform."""
         return (
             self._final_estimator is None
             or self._final_estimator == "passthrough"
@@ -219,7 +236,7 @@ class Pipeline(SkPipeline):
         )
 
     def _can_inverse_transform(self) -> bool:
-        """Check if the pipeline can use the transform method."""
+        """Verifica se o pipeline pode usar o método inverse_transform."""
         return all(
             est is None or est == "passthrough" or hasattr(est, "inverse_transform")
             for _, _, est in self._iter()
@@ -235,20 +252,20 @@ class Pipeline(SkPipeline):
     def _convert(self, obj: pd.Series) -> YReturn: ...
 
     def _convert(self, obj: Pandas | None) -> YReturn | None:
-        """Convert data to the type set in the data engine.
+        """Converte os dados para o tipo definido no motor de dados.
 
-        Parameters
+        Parâmetros
         ----------
         obj: pd.Series, pd.DataFrame or None
-            Object to convert. If None, return as is.
+            Objeto a ser convertido. Se None, retorna como está.
 
-        Returns
+        Retorna
         -------
         object
-            Converted data.
+            Dados convertidos.
 
         """
-        # Only apply transformations when the engine is defined
+        # Aplica transformações apenas quando o motor está definido
         if hasattr(self, "_engine") and isinstance(obj, pd.Series | pd.DataFrame):
             return self._engine.data_engine.convert(obj)
         else:
@@ -261,33 +278,33 @@ class Pipeline(SkPipeline):
         filter_passthrough: Bool = True,
         filter_train_only: Bool = True,
     ) -> Iterator[tuple[int, str, Estimator]]:
-        """Generate (idx, name, estimator) tuples from self.steps.
+        """Gera tuplas (idx, nome, estimador) a partir de self.steps.
 
-        By default, estimators that are only applied on the training
-        set are filtered out for predictions.
+        Por padrão, estimadores que são aplicados apenas no conjunto de
+        treinamento são filtrados para previsões.
 
-        Parameters
+        Parâmetros
         ----------
         with_final: bool, default=True
-            Whether to include the final estimator.
+            Se deve incluir o estimador final.
 
         filter_passthrough: bool, default=True
-            Whether to exclude `passthrough` elements.
+            Se deve excluir elementos `passthrough`.
 
         filter_train_only: bool, default=True
-            Whether to exclude estimators that should only be used for
-            training (have `_train_only=True` attribute).
+            Se deve excluir estimadores que devem ser usados apenas para
+            treinamento (com atributo `_train_only=True`).
 
-        Yields
+        Produz
         ------
         int
-            Index position in the pipeline.
+            Posição do índice no pipeline.
 
         str
-            Name of the estimator.
+            Nome do estimador.
 
         Estimator
-            Transformer or predictor instance.
+            Instância do transformador ou preditor.
 
         """
         stop = len(self.steps)
@@ -295,9 +312,8 @@ class Pipeline(SkPipeline):
             stop -= 1
 
         for idx, (name, trans) in enumerate(islice(self.steps, 0, stop)):
-            if (
-                (not filter_passthrough or (trans is not None and trans != "passthrough"))
-                and (not filter_train_only or not getattr(trans, "_train_only", False))
+            if (not filter_passthrough or (trans is not None and trans != "passthrough")) and (
+                not filter_train_only or not getattr(trans, "_train_only", False)
             ):
                 yield idx, name, trans
 
@@ -307,27 +323,27 @@ class Pipeline(SkPipeline):
         y: YConstructor | None = None,
         routed_params: dict[str, Bunch] | None = None,
     ) -> tuple[pd.DataFrame | None, Pandas | None]:
-        """Get data transformed through the pipeline.
+        """Obtém os dados transformados pelo pipeline.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like or None, default=None
-            Feature set with shape=(n_samples, n_features). If None,
-            `X` is ignored. None if the pipeline only uses y.
+            Conjunto de features com shape=(n_samples, n_features). Se None,
+            `X` é ignorado. None se o pipeline usa apenas y.
 
         y: sequence, dataframe-like or None, default=None
-            Target column(s) corresponding to `X`.
+            Coluna(s) alvo correspondente(s) a `X`.
 
         routed_params: dict or None, default=None
-            Metadata parameters routed for the fit method.
+            Parâmetros de metadados roteados para o método fit.
 
-        Returns
+        Retorna
         -------
         dataframe or None
-            Transformed feature set.
+            Conjunto de features transformado.
 
         series, dataframe or None
-            Transformed target column.
+            Coluna alvo transformada.
 
         """
         self.steps: list[tuple[str, Estimator]] = list(self.steps)
@@ -337,22 +353,22 @@ class Pipeline(SkPipeline):
         yt = to_tabular(y, index=getattr(Xt, "index", None))
 
         for step, name, transformer in self._iter(
-                with_final=False, filter_passthrough=False, filter_train_only=False
+            with_final=False, filter_passthrough=False, filter_train_only=False
         ):
             if transformer is None or transformer == "passthrough":
                 with _print_elapsed_time("Pipeline", self._log_message(step)):
                     continue
 
-            # Don't clone when caching is disabled to preserve backward compatibility
+            # Não clona quando o cache está desativado para preservar compatibilidade retroativa
             if self.memory.location is None:
                 cloned = transformer
             else:
                 cloned = clone(transformer)
 
             with adjust(cloned, verbose=self._verbose):
-                # Fit or load the current estimator from cache
-                # Type ignore because routed_params is never None but
-                # the signature of _fit needs to comply with sklearn's
+                # Ajusta ou carrega o estimador atual do cache
+                # Type ignore porque routed_params nunca é None, mas
+                # a assinatura de _fit precisa estar em conformidade com o sklearn
                 Xt, yt, fitted_transformer = self._mem_fit_transform(
                     transformer=cloned,
                     X=Xt,
@@ -361,31 +377,31 @@ class Pipeline(SkPipeline):
                     **routed_params[name].fit_transform,  # type: ignore[index]
                 )
 
-            # Replace the estimator of the step with the fitted
-            # estimator (necessary when loading from cache)
+            # Substitui o estimador da etapa pelo estimador ajustado
+            # (necessário ao carregar do cache)
             self.steps[step] = (name, fitted_transformer)
 
         return Xt, yt
 
     def get_metadata_routing(self):
-        """Get metadata routing of this object.
+        """Obtém o roteamento de metadados deste objeto.
 
-        Check [sklearn's documentation][metadatarouting] on how the
-        routing mechanism works.
+        Consulte a [documentação do sklearn][metadatarouting] sobre como
+        o mecanismo de roteamento funciona.
 
-        Returns
+        Retorna
         -------
         MetadataRouter
-            A [MetadataRouter][] encapsulating routing information.
+            Um [MetadataRouter][] encapsulando informações de roteamento.
 
         """
         router = MetadataRouter(owner=self.__class__.__name__)
 
-        # First, we add all steps except the last one
+        # Primeiro, adicionamos todas as etapas exceto a última
         for _, name, trans in self._iter(with_final=False, filter_train_only=False):
             method_mapping = MethodMapping()
-            # fit, fit_predict, and fit_transform call fit_transform if it
-            # exists, or else fit and transform
+            # fit, fit_predict e fit_transform chamam fit_transform se existir,
+            # caso contrário chamam fit e transform
             if hasattr(trans, "fit_transform"):
                 (
                     method_mapping.add(caller="fit", callee="fit_transform")
@@ -415,11 +431,11 @@ class Pipeline(SkPipeline):
 
             router.add(method_mapping=method_mapping, **{name: trans})
 
-        # Then we add the last step
+        # Em seguida, adicionamos a última etapa
         if len(self.steps) > 0:
             final_name, final_est = self.steps[-1]
             if final_est is not None and final_est != "passthrough":
-                # then we add the last step
+                # então adicionamos a última etapa
                 method_mapping = MethodMapping()
                 if hasattr(final_est, "fit_transform"):
                     method_mapping.add(caller="fit_transform", callee="fit_transform")
@@ -449,30 +465,30 @@ class Pipeline(SkPipeline):
         y: YConstructor | None = None,
         **params,
     ) -> Self:
-        """Fit the pipeline.
+        """Ajusta o pipeline.
 
-        Fit all the transformers one after the other and sequentially
-        transform the data. Finally, fit the transformed data using the
-        final estimator.
+        Ajusta todos os transformadores um após o outro e transforma
+        sequencialmente os dados. Por fim, ajusta os dados transformados
+        usando o estimador final.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like or None, default=None
-            Feature set with shape=(n_samples, n_features). If None,
-            `X` is ignored.
+            Conjunto de features com shape=(n_samples, n_features). Se None,
+            `X` é ignorado.
 
         y: sequence, dataframe-like or None, default=None
-            Target column(s) corresponding to `X`.
+            Coluna(s) alvo correspondente(s) a `X`.
 
         **params
-            Parameters requested and accepted by steps. Each step must
-            have requested certain metadata for these parameters to be
-            forwarded to them.
+            Parâmetros solicitados e aceitos pelas etapas. Cada etapa deve
+            ter solicitado certos metadados para que esses parâmetros sejam
+            encaminhados a elas.
 
-        Returns
+        Retorna
         -------
         self
-            Pipeline with fitted steps.
+            Pipeline com etapas ajustadas.
 
         """
         routed_params = self._check_method_params(method="fit", props=params)
@@ -497,37 +513,36 @@ class Pipeline(SkPipeline):
         y: YConstructor | None = None,
         **params,
     ) -> YReturn | tuple[XReturn, YReturn]:
-        """Fit the pipeline and transform the data.
+        """Ajusta o pipeline e transforma os dados.
 
-        Call `fit` followed by `transform` on each transformer in the
-        pipeline. The transformed data are finally passed to the final
-        estimator that calls the `transform` method. Only valid if the
-        final estimator implements `transform`. This also works when the
-        final estimator is `None`, in which case all prior
-        transformations are applied.
+        Chama `fit` seguido de `transform` em cada transformador do
+        pipeline. Os dados transformados são finalmente passados ao
+        estimador final que chama o método `transform`. Válido apenas se
+        o estimador final implementar `transform`. Também funciona quando
+        o estimador final é `None`, caso em que todas as transformações
+        anteriores são aplicadas.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like or None, default=None
-            Feature set with shape=(n_samples, n_features). If None,
-            `X` is ignored. None
-            if the estimator only uses y.
+            Conjunto de features com shape=(n_samples, n_features). Se None,
+            `X` é ignorado. None se o estimador usa apenas y.
 
         y: sequence, dataframe-like or None, default=None
-            Target column(s) corresponding to `X`.
+            Coluna(s) alvo correspondente(s) a `X`.
 
         **params
-            Parameters requested and accepted by steps. Each step must
-            have requested certain metadata for these parameters to be
-            forwarded to them.
+            Parâmetros solicitados e aceitos pelas etapas. Cada etapa deve
+            ter solicitado certos metadados para que esses parâmetros sejam
+            encaminhados a elas.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Transformed feature set. Only returned if provided.
+            Conjunto de features transformado. Retornado apenas se fornecido.
 
         series or dataframe
-            Transformed target column. Only returned if provided.
+            Coluna alvo transformada. Retornada apenas se fornecida.
 
         """
         routed_params = self._check_method_params(method="fit_transform", props=params)
@@ -556,44 +571,44 @@ class Pipeline(SkPipeline):
         filter_train_only: Bool = True,
         **params,
     ) -> YReturn | tuple[XReturn, YReturn]:
-        """Transform the data.
+        """Transforma os dados.
 
-        Call `transform` on each transformer in the pipeline. The
-        transformed data are finally passed to the final estimator
-        that calls the `transform` method. Only valid if the final
-        estimator implements `transform`. This also works when the
-        final estimator is `None`, in which case all prior
-        transformations are applied.
+        Chama `transform` em cada transformador do pipeline. Os dados
+        transformados são finalmente passados ao estimador final que
+        chama o método `transform`. Válido apenas se o estimador final
+        implementar `transform`. Também funciona quando o estimador
+        final é `None`, caso em que todas as transformações anteriores
+        são aplicadas.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like or None, default=None
-            Feature set with shape=(n_samples, n_features). If None,
-            `X` is ignored. None if the pipeline only uses y.
+            Conjunto de features com shape=(n_samples, n_features). Se None,
+            `X` é ignorado. None se o pipeline usa apenas y.
 
         y: sequence, dataframe-like or None, default=None
-            Target column(s) corresponding to `X`.
+            Coluna(s) alvo correspondente(s) a `X`.
 
         filter_train_only: bool, default=True
-            Whether to exclude transformers that should only be used
-            on the training set.
+            Se deve excluir transformadores que devem ser usados apenas
+            no conjunto de treinamento.
 
         **params
-            Parameters requested and accepted by steps. Each step must
-            have requested certain metadata for these parameters to be
-            forwarded to them.
+            Parâmetros solicitados e aceitos pelas etapas. Cada etapa deve
+            ter solicitado certos metadados para que esses parâmetros sejam
+            encaminhados a elas.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Transformed feature set. Only returned if provided.
+            Conjunto de features transformado. Retornado apenas se fornecido.
 
         series or dataframe
-            Transformed target column. Only returned if provided.
+            Coluna alvo transformada. Retornada apenas se fornecida.
 
         """
         if X is None and y is None:
-            raise ValueError("X and y cannot be both None.")
+            raise ValueError("X e y não podem ser ambos None.")
 
         Xt = to_df(X)
         yt = to_tabular(y, index=getattr(Xt, "index", None))
@@ -621,40 +636,40 @@ class Pipeline(SkPipeline):
         filter_train_only: Bool = True,
         **params,
     ) -> YReturn | tuple[XReturn, YReturn]:
-        """Inverse transform for each step in a reverse order.
+        """Transformação inversa para cada etapa em ordem reversa.
 
-        All estimators in the pipeline must implement the
-        `inverse_transform` method.
+        Todos os estimadores no pipeline devem implementar o método
+        `inverse_transform`.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like or None, default=None
-            Feature set with shape=(n_samples, n_features). If None,
-            `X` is ignored. None if the pipeline only uses y.
+            Conjunto de features com shape=(n_samples, n_features). Se None,
+            `X` é ignorado. None se o pipeline usa apenas y.
 
         y: sequence, dataframe-like or None, default=None
-            Target column(s) corresponding to `X`.
+            Coluna(s) alvo correspondente(s) a `X`.
 
         filter_train_only: bool, default=True
-            Whether to exclude transformers that should only be used
-            on the training set.
+            Se deve excluir transformadores que devem ser usados apenas
+            no conjunto de treinamento.
 
         **params
-            Parameters requested and accepted by steps. Each step must
-            have requested certain metadata for these parameters to be
-            forwarded to them.
+            Parâmetros solicitados e aceitos pelas etapas. Cada etapa deve
+            ter solicitado certos metadados para que esses parâmetros sejam
+            encaminhados a elas.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Transformed feature set. Only returned if provided.
+            Conjunto de features transformado. Retornado apenas se fornecido.
 
         series or dataframe
-            Transformed target column. Only returned if provided.
+            Coluna alvo transformada. Retornada apenas se fornecida.
 
         """
         if X is None and y is None:
-            raise ValueError("X and y cannot be both None.")
+            raise ValueError("X e y não podem ser ambos None.")
 
         Xt = to_df(X)
         yt = to_tabular(y, index=getattr(Xt, "index", None))
@@ -677,25 +692,25 @@ class Pipeline(SkPipeline):
 
     @available_if(_final_estimator_has("decision_function"))
     def decision_function(self, X: XConstructor, **params) -> np.ndarray:
-        """Transform, then decision_function of the final estimator.
+        """Transforma e depois aplica decision_function do estimador final.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de features com shape=(n_samples, n_features).
 
         **params
-            Parameters requested and accepted by steps. Each step must
-            have requested certain metadata for these parameters to be
-            forwarded to them.
+            Parâmetros solicitados e aceitos pelas etapas. Cada etapa deve
+            ter solicitado certos metadados para que esses parâmetros sejam
+            encaminhados a elas.
 
-        Returns
+        Retorna
         -------
         np.ndarray
-            Predicted confidence scores with shape=(n_samples,) for
-            binary classification tasks (log likelihood ratio of the
-            positive class) or shape=(n_samples, n_classes) for
-            multiclass classification tasks.
+            Escores de confiança previstos com shape=(n_samples,) para
+            tarefas de classificação binária (razão de verossimilhança
+            logarítmica da classe positiva) ou shape=(n_samples, n_classes)
+            para tarefas de classificação multiclasse.
 
         """
         Xt = to_df(X)
@@ -723,36 +738,35 @@ class Pipeline(SkPipeline):
         fh: FHConstructor | None = None,
         **params,
     ) -> np.ndarray | Pandas:
-        """Transform, then predict of the final estimator.
+        """Transforma e depois aplica predict do estimador final.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like or None, default=None
-            Feature set with shape=(n_samples, n_features). Can only
-            be `None` for [forecast][time-series] tasks.
+            Conjunto de features com shape=(n_samples, n_features). Pode ser
+            `None` apenas para tarefas de [previsão][time-series].
 
         fh: int, sequence or [ForecastingHorizon][] or None, default=None
-            The forecasting horizon encoding the time stamps to
-            forecast at. Only for [forecast][time-series] tasks.
+            O horizonte de previsão codificando os timestamps nos quais
+            realizar as previsões. Apenas para tarefas de [previsão][time-series].
 
         **params
-            Parameters requested and accepted by steps. Each step must
-            have requested certain metadata for these parameters to be
-            forwarded to them. Note that while this may be used to
-            return uncertainties from some models with `return_std` or
-            `return_cov`, uncertainties that are generated by the
-            transformations in the pipeline are not propagated to the
-            final estimator.
+            Parâmetros solicitados e aceitos pelas etapas. Cada etapa deve
+            ter solicitado certos metadados para que esses parâmetros sejam
+            encaminhados a elas. Observe que, embora isso possa ser usado para
+            retornar incertezas de alguns modelos com `return_std` ou
+            `return_cov`, as incertezas geradas pelas transformações no
+            pipeline não são propagadas ao estimador final.
 
-        Returns
+        Retorna
         -------
         np.ndarray, series or dataframe
-            Predictions with shape=(n_samples,) or shape=(n_samples,
-            n_targets) for [multioutput tasks][].
+            Previsões com shape=(n_samples,) ou shape=(n_samples,
+            n_targets) para [tarefas multi-saída][].
 
         """
         if X is None and fh is None:
-            raise ValueError("X and fh cannot be both None.")
+            raise ValueError("X e fh não podem ser ambos None.")
 
         Xt = to_df(X)
 
@@ -764,7 +778,7 @@ class Pipeline(SkPipeline):
 
         if isinstance(self._final_estimator, BaseForecaster):
             if fh is None:
-                raise ValueError("The fh parameter cannot be None for forecasting estimators.")
+                raise ValueError("O parâmetro fh não pode ser None para estimadores de previsão.")
 
             return self.steps[-1][1].predict(fh=fh, X=Xt)
         else:
@@ -778,24 +792,24 @@ class Pipeline(SkPipeline):
         *,
         coverage: Float | Sequence[Float] = 0.9,
     ) -> pd.DataFrame:
-        """Transform, then predict_quantiles of the final estimator.
+        """Transforma e depois aplica predict_interval do estimador final.
 
-        Parameters
+        Parâmetros
         ----------
         fh: int, sequence or [ForecastingHorizon][]
-            The forecasting horizon encoding the time stamps to
-            forecast at.
+            O horizonte de previsão codificando os timestamps nos quais
+            realizar as previsões.
 
         X: dataframe-like or None, default=None
-            Exogenous time series corresponding to `fh`.
+            Série temporal exógena correspondente a `fh`.
 
         coverage: float or sequence, default=0.9
-            Nominal coverage(s) of predictive interval(s).
+            Cobertura(s) nominal(is) do(s) intervalo(s) preditivo(s).
 
-        Returns
+        Retorna
         -------
         dataframe
-            Computed interval forecasts.
+            Previsões de intervalo calculadas.
 
         """
         Xt = to_df(X)
@@ -808,23 +822,23 @@ class Pipeline(SkPipeline):
 
     @available_if(_final_estimator_has("predict_log_proba"))
     def predict_log_proba(self, X: XConstructor, **params) -> np.ndarray:
-        """Transform, then predict_log_proba of the final estimator.
+        """Transforma e depois aplica predict_log_proba do estimador final.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de features com shape=(n_samples, n_features).
 
         **params
-            Parameters requested and accepted by steps. Each step must
-            have requested certain metadata for these parameters to be
-            forwarded to them.
+            Parâmetros solicitados e aceitos pelas etapas. Cada etapa deve
+            ter solicitado certos metadados para que esses parâmetros sejam
+            encaminhados a elas.
 
-        Returns
+        Retorna
         -------
         list or np.ndarray
-            Predicted class log-probabilities with shape=(n_samples,
-            n_classes) or a list of arrays for [multioutput tasks][].
+            Log-probabilidades previstas com shape=(n_samples,
+            n_classes) ou lista de arrays para [tarefas multi-saída][].
 
         """
         Xt = to_df(X)
@@ -848,40 +862,40 @@ class Pipeline(SkPipeline):
         marginal: Bool = True,
         **params,
     ) -> list[np.ndarray] | np.ndarray | Normal:
-        """Transform, then predict_proba of the final estimator.
+        """Transforma e depois aplica predict_proba do estimador final.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like or None, default=None
-            Feature set with shape=(n_samples, n_features). Can only
-            be `None` for [forecast][time-series] tasks.
+            Conjunto de features com shape=(n_samples, n_features). Pode ser
+            `None` apenas para tarefas de [previsão][time-series].
 
         fh: int, sequence, [ForecastingHorizon][] or None, default=None
-            The forecasting horizon encoding the time stamps to
-            forecast at. Only for [forecast][time-series] tasks.
+            O horizonte de previsão codificando os timestamps nos quais
+            realizar as previsões. Apenas para tarefas de [previsão][time-series].
 
         marginal: bool, default=True
-            Whether returned distribution is marginal by time index.
-            Only for [forecast][time-series] tasks.
+            Se a distribuição retornada é marginal por índice de tempo.
+            Apenas para tarefas de [previsão][time-series].
 
         **params
-            Parameters requested and accepted by steps. Each step must
-            have requested certain metadata for these parameters to be
-            forwarded to them.
+            Parâmetros solicitados e aceitos pelas etapas. Cada etapa deve
+            ter solicitado certos metadados para que esses parâmetros sejam
+            encaminhados a elas.
 
-        Returns
+        Retorna
         -------
         list, np.ndarray or sktime.proba.[Normal][]
 
-            - For classification tasks: Predicted class probabilities
-              with shape=(n_samples, n_classes).
-            - For [multioutput tasks][]: A list of arrays with
+            - Para tarefas de classificação: probabilidades previstas com
               shape=(n_samples, n_classes).
-            - For [forecast][time-series] tasks: Distribution object.
+            - Para [tarefas multi-saída][]: lista de arrays com
+              shape=(n_samples, n_classes).
+            - Para tarefas de [previsão][time-series]: objeto de distribuição.
 
         """
         if X is None and fh is None:
-            raise ValueError("X and fh cannot be both None.")
+            raise ValueError("X e fh não podem ser ambos None.")
 
         Xt = to_df(X)
 
@@ -893,7 +907,7 @@ class Pipeline(SkPipeline):
 
         if isinstance(self._final_estimator, BaseForecaster):
             if fh is None:
-                raise ValueError("The fh parameter cannot be None for forecasting estimators.")
+                raise ValueError("O parâmetro fh não pode ser None para estimadores de previsão.")
 
             return self.steps[-1][1].predict_proba(fh=fh, X=Xt, marginal=marginal)
         else:
@@ -909,25 +923,25 @@ class Pipeline(SkPipeline):
         *,
         alpha: Float | Sequence[Float] = (0.05, 0.95),
     ) -> Pandas:
-        """Transform, then predict_quantiles of the final estimator.
+        """Transforma e depois aplica predict_quantiles do estimador final.
 
-        Parameters
+        Parâmetros
         ----------
         fh: int, sequence or [ForecastingHorizon][]
-            The forecasting horizon encoding the time stamps to
-            forecast at.
+            O horizonte de previsão codificando os timestamps nos quais
+            realizar as previsões.
 
         X: dataframe-like or None, default=None
-            Exogenous time series corresponding to `fh`.
+            Série temporal exógena correspondente a `fh`.
 
         alpha: float or sequence, default=(0.05, 0.95)
-            A probability or list of, at which quantile forecasts are
-            computed.
+            Uma probabilidade ou lista delas em que as previsões de quantil
+            são calculadas.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Computed quantile forecasts.
+            Previsões de quantil calculadas.
 
         """
         Xt = to_df(X)
@@ -944,21 +958,21 @@ class Pipeline(SkPipeline):
         y: YConstructor,
         X: XConstructor | None = None,
     ) -> Pandas:
-        """Transform, then predict_residuals of the final estimator.
+        """Transforma e depois aplica predict_residuals do estimador final.
 
-        Parameters
+        Parâmetros
         ----------
         y: sequence or dataframe
-            Ground truth observations.
+            Observações reais.
 
         X: dataframe-like or None, default=None
-            Exogenous time series corresponding to `y`.
+            Série temporal exógena correspondente a `y`.
 
-        Returns
+        Retorna
         -------
         series or dataframe
-            Residuals with shape=(n_samples,) or shape=(n_samples,
-            n_targets) for [multivariate][] tasks.
+            Resíduos com shape=(n_samples,) ou shape=(n_samples,
+            n_targets) para tarefas [multivariadas][].
 
         """
         Xt = to_df(X)
@@ -978,25 +992,25 @@ class Pipeline(SkPipeline):
         *,
         cov: Bool = False,
     ) -> pd.DataFrame:
-        """Transform, then predict_var of the final estimator.
+        """Transforma e depois aplica predict_var do estimador final.
 
-        Parameters
+        Parâmetros
         ----------
         fh: int, sequence or [ForecastingHorizon][]
-            The forecasting horizon encoding the time stamps to
-            forecast at.
+            O horizonte de previsão codificando os timestamps nos quais
+            realizar as previsões.
 
         X: dataframe-like or None, default=None
-            Exogenous time series corresponding to `fh`.
+            Série temporal exógena correspondente a `fh`.
 
         cov: bool, default=False
-            Whether to compute covariance matrix forecast or marginal
-            variance forecasts.
+            Se deve calcular a previsão da matriz de covariância ou as
+            previsões de variância marginal.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Computed variance forecasts.
+            Previsões de variância calculadas.
 
         """
         Xt = to_df(X)
@@ -1008,21 +1022,21 @@ class Pipeline(SkPipeline):
         return self.steps[-1][1].predict_var(fh=fh, X=Xt, cov=cov)
 
     def set_output(self, *, transform: EngineDataOptions | None = None) -> Self:
-        """Set output container.
+        """Define o contêiner de saída.
 
-        See sklearn's [user guide][set_output] on how to use the
-        `set_output` API. See [here][data-engines] a description
-        of the choices.
+        Consulte o [guia do usuário][set_output] do sklearn sobre como usar
+        a API `set_output`. Veja [aqui][data-engines] uma descrição
+        das opções.
 
-        Parameters
+        Parâmetros
         ----------
         transform: str or None, default=None
-            Configure the output of the `transform`, `fit_transform`,
-            and `inverse_transform` method. If None, the configuration
-            is not changed. Choose from:
+            Configura a saída dos métodos `transform`, `fit_transform`
+            e `inverse_transform`. Se None, a configuração não é
+            alterada. Escolha entre:
 
             - "numpy"
-            - "pandas" (default)
+            - "pandas" (padrão)
             - "pandas-pyarrow"
             - "polars"
             - "polars-lazy"
@@ -1032,10 +1046,10 @@ class Pipeline(SkPipeline):
             - "pyspark"
             - "pyspark-pandas"
 
-        Returns
+        Retorna
         -------
         Self
-            Estimator instance.
+            Instância do estimador.
 
         """
         if transform is not None:
@@ -1053,39 +1067,39 @@ class Pipeline(SkPipeline):
         sample_weight: Sequence[Scalar] | None = None,
         **params,
     ) -> Float:
-        """Transform, then score of the final estimator.
+        """Transforma e depois aplica score do estimador final.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like or None, default=None
-            Feature set with shape=(n_samples, n_features). Can only
-            be `None` for [forecast][time-series] tasks.
+            Conjunto de features com shape=(n_samples, n_features). Pode ser
+            `None` apenas para tarefas de [previsão][time-series].
 
         y: sequence, dataframe-like or None, default=None
-            Target values corresponding to `X`.
+            Valores alvo correspondentes a `X`.
 
         fh: int, sequence, [ForecastingHorizon][] or None, default=None
-            The forecasting horizon encoding the time stamps to score.
+            O horizonte de previsão codificando os timestamps a pontuar.
 
         sample_weight: sequence or None, default=None
-            Sample weights corresponding to `y` passed to the `score`
-            method of the final estimator. If None, no sampling weight
-            is performed. Only for non-forecast tasks.
+            Pesos de amostra correspondentes a `y` passados ao método `score`
+            do estimador final. Se None, nenhuma ponderagem é realizada.
+            Apenas para tarefas que não são de previsão.
 
-        Returns
+        Retorna
         -------
         float
-            Mean accuracy, r2 or mape of self.predict(X) with respect
-            to `y` (depending on the task).
+            Acurácia média, r2 ou mape de self.predict(X) em relação a
+            `y` (dependendo da tarefa).
 
         """
         if X is None and y is None:
-            raise ValueError("X and y cannot be both None.")
+            raise ValueError("X e y não podem ser ambos None.")
 
         Xt = to_df(X)
         yt = to_tabular(y, index=getattr(Xt, "index", None))
 
-        # Drop sample weights if sktime estimator
+        # Descarta pesos de amostra se for estimador sktime
         if not isinstance(self._final_estimator, BaseForecaster):
             params["sample_weight"] = sample_weight
 

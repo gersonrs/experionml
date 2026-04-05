@@ -582,13 +582,13 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
             Use os métodos [plot_acf][] e [plot_acf][] para inspecionar
             visualmente quaisquer correlações defasadas significativas.
 
-        Parameters
+        Parâmetros
         ----------
         columns: int, str, segment, sequence, dataframe or None, default=None
             [Seleção de colunas][row-and-column-selection] nas quais os
             testes serão executados. Se None, usa a coluna-alvo.
 
-        Returns
+        Retorna
         -------
         pd.DataFrame
             Resultados estatísticos com níveis de multiíndice:
@@ -650,7 +650,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
             Use o método [plot_distribution][] para visualizar a
             distribuição de uma coluna.
 
-        Parameters
+        Parâmetros
         ----------
         distributions: str, sequence or None, default=None
             Nomes das distribuições em `scipy.stats` para as quais as
@@ -661,7 +661,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
             [Seleção de colunas][row-and-column-selection] nas quais o
             teste será executado. Se None, seleciona todas as colunas numéricas.
 
-        Returns
+        Retorna
         -------
         pd.DataFrame
             Resultados estatísticos com níveis de multiíndice:
@@ -732,7 +732,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
         !!! warning
             Este método pode ser lento em conjuntos de dados grandes.
 
-        Parameters
+        Parâmetros
         ----------
         rows: str, sequence or dict, default="dataset"
                         Seleção de linhas sobre as quais o relatório será calculado.
@@ -802,7 +802,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
         são ignorados os transformadores que exigem o outro parâmetro.
         Isso pode ser útil para transformar apenas a coluna-alvo.
 
-        Parameters
+        Parâmetros
         ----------
                 X: conjunto de atributos transformado com shape=(n_samples, n_features).
                         Se None, `X` é ignorado pelos transformadores.
@@ -821,7 +821,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
                         Nível de verbosidade dos transformadores no pipeline. Se
                         None, usa a verbosidade do pipeline.
 
-        Returns
+        Retorna
         -------
         dataframe
             Conjunto de atributos original. Só é retornado se fornecido.
@@ -847,7 +847,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
             A branch atual da instância carregada é a mesma branch que
             estava ativa no momento em que ela foi salva.
 
-        Parameters
+        Parâmetros
         ----------
         filename: str or Path
             Nome do arquivo ou [pathlib.Path][] do arquivo pickle.
@@ -880,7 +880,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
                             multioutput.
                         - Se dataframe: Colunas-alvo para tarefas multioutput.
 
-        Returns
+        Retorna
         -------
         experionml
             Instância experionml desserializada.
@@ -961,7 +961,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
         Exclui todas as branches e modelos. O conjunto de dados também
         é restaurado para o estado logo após a inicialização.
 
-        Parameters
+        Parâmetros
         ----------
         hard: bool, default=False
             Se True, limpa completamente o cache.
@@ -981,7 +981,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
     ):
         """Salva os dados da branch atual em um arquivo `.csv`.
 
-        Parameters
+        Parâmetros
         ----------
         filename: str or Path, default="auto"
             Nome do arquivo ou [pathlib.Path][] do arquivo a salvar.
@@ -1024,7 +1024,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
         Note que aplicar transformadores aos dados pode alterar os tipos
         novamente.
 
-        Parameters
+        Parâmetros
         ----------
         int2bool: bool, default=False
             Indica se colunas `int` devem ser convertidas para `bool`.
@@ -1055,12 +1055,12 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
 
             Também converte para formato esparso se `dense2sparse=True`.
 
-            Parameters
+            Parâmetros
             ----------
             new_t: DtypeObj
                 Objeto de tipo de dado para o qual converter.
 
-            Returns
+            Retorna
             -------
             pd.Series
                 Objeto com o novo tipo de dado.
@@ -1136,7 +1136,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
     def stats(self, _vb: Int = -2, /):
         """Exibe informações básicas sobre o conjunto de dados.
 
-        Parameters
+        Parâmetros
         ----------
         _vb: int, default=-2
             Parâmetro interno para sempre imprimir quando chamado pelo usuário.
@@ -1224,7 +1224,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
         ignorados os transformadores que exigem o outro parâmetro.
         Isso pode ser útil, por exemplo, para transformar apenas a coluna-alvo.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like or None, default=None
                         Conjunto de atributos com shape=(n_samples, n_features). Se None,
@@ -1244,7 +1244,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
                         Nível de verbosidade dos transformadores no pipeline. Se
                         None, usa a verbosidade do pipeline.
 
-        Returns
+        Retorna
         -------
         dataframe
             Conjunto de atributos transformado. Só é retornado se fornecido.
@@ -1274,7 +1274,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
         O parâmetro engine é o único modificado para não runners, já que os
         transformadores do ExperionML aceitam apenas a engine de estimadores.
 
-        Parameters
+        Parâmetros
         ----------
         kwargs: dict
             Argumentos nomeados especificados na chamada da função.
@@ -1285,7 +1285,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
         is_runner: bool, default=False
             Indica se os parâmetros são passados para um runner.
 
-        Returns
+        Retorna
         -------
         dict
             Propriedades convertidas.
@@ -1317,7 +1317,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
         conjunto de treino completo. Depois disso, o conjunto de dados
         é transformado e o transformador é adicionado ao pipeline do experionml.
 
-        Parameters
+        Parâmetros
         ----------
         transformer: Transformer
             Estimador a adicionar. Deve implementar um método `transform`.
@@ -1347,7 +1347,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
         **fit_params
             Argumentos nomeados adicionais para o método fit do transformador.
 
-        Returns
+        Retorna
         -------
         Transformer
             Transformador ajustado.
@@ -1533,7 +1533,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
                             significa que o transformador não deve adicionar, remover
                             ou embaralhar linhas, a menos que retorne um dataframe.
 
-        Parameters
+        Parâmetros
         ----------
         transformer: Transformer
             Estimador a adicionar ao pipeline. Deve implementar um
@@ -1612,7 +1612,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
             Use `#!python experionml.apply(lambda df: df.drop("column_name",
             axis=1))` para armazenar a remoção de colunas no pipeline.
 
-        Parameters
+        Parâmetros
         ----------
         func: callable
             Função a aplicar com assinatura `func(dataframe, **kw_args)
@@ -2318,12 +2318,12 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
         Se houve uma execução anterior, verifica se a métrica fornecida
         é a mesma.
 
-        Parameters
+        Parâmetros
         ----------
         metric: str, func, scorer, sequence or None
             Métrica fornecida para a execução.
 
-        Returns
+        Retorna
         -------
         str, func, scorer, sequence or None
             Métrica da execução.
@@ -2352,7 +2352,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
         experionml antes de lançar a exceção. Se a execução for bem-sucedida,
         atualiza todos os atributos e métodos relevantes.
 
-        Parameters
+        Parâmetros
         ----------
         trainer: Runner
             Instância responsável pelo treinamento efetivo dos modelos.

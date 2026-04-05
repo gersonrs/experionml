@@ -10,18 +10,18 @@ def create_custom_model(estimator: Predictor, **kwargs) -> BaseModel:
 
     Esta função atribui dinamicamente a classe pai.
 
-    Parameters
+    Parâmetros
     ----------
     estimator: Predictor
-        Estimator to use in the model.
+        Estimador a ser usado no modelo.
 
     kwargs
-        Additional keyword arguments passed to the model's constructor.
+        Argumentos adicionais passados ao construtor do modelo.
 
-    Returns
+    Retorna
     -------
     CustomModel
-        Custom model with the provided estimator.
+        Modelo personalizado com o estimador fornecido.
 
     """
     base = ForecastModel if kwargs["goal"] is Goal.forecast else ClassRegModel
@@ -30,7 +30,7 @@ def create_custom_model(estimator: Predictor, **kwargs) -> BaseModel:
         """Modelo com estimador fornecido pelo usuário."""
 
         def __init__(self, **kwargs):
-            # Assign the estimator and store the provided parameters
+            # Atribui o estimador e armazena os parâmetros fornecidos
             if callable(est := kwargs.pop("estimator")):
                 self._est = est
                 self._params = {}
@@ -43,7 +43,7 @@ def create_custom_model(estimator: Predictor, **kwargs) -> BaseModel:
             else:
                 from experionml.models import MODELS
 
-                # If no name is provided, use the name of the class
+                # Se nenhum nome for fornecido, usa o nome da classe
                 name = self.fullname
                 if len(n := list(filter(str.isupper, name))) >= 2 and n not in MODELS:
                     name = "".join(n)
@@ -78,15 +78,15 @@ def create_custom_model(estimator: Predictor, **kwargs) -> BaseModel:
         def _get_est(self, params: dict[str, Any]) -> Predictor:
             """Obtém o estimador do modelo com os parâmetros desempacotados.
 
-            Parameters
+            Parâmetros
             ----------
             params: dict
-                Hyperparameters for the estimator.
+                Hiperparâmetros do estimador.
 
-            Returns
+            Retorna
             -------
             Predictor
-                Estimator instance.
+                Instância do estimador.
 
             """
             return super()._get_est(self._params | params)

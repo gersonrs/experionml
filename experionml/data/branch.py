@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 from collections.abc import Hashable
@@ -16,13 +15,33 @@ from sklearn.utils.validation import check_memory
 
 from experionml.pipeline import Pipeline
 from experionml.utils.types import (
-    Bool, ColumnSelector, Int, IntLargerEqualZero, Pandas, RowSelector, Scalar,
-    TargetSelector, TargetsSelector, XConstructor, XDatasets, YConstructor,
-    YDatasets, int_t, pandas_t, segment_t,
+    Bool,
+    ColumnSelector,
+    Int,
+    IntLargerEqualZero,
+    Pandas,
+    RowSelector,
+    Scalar,
+    TargetSelector,
+    TargetsSelector,
+    XConstructor,
+    XDatasets,
+    YConstructor,
+    YDatasets,
+    int_t,
+    pandas_t,
+    segment_t,
 )
 from experionml.utils.utils import (
-    DataContainer, check_scaling, flt, get_col_names, get_cols, is_sparse, lst,
-    merge, to_tabular,
+    DataContainer,
+    check_scaling,
+    flt,
+    get_col_names,
+    get_cols,
+    is_sparse,
+    lst,
+    merge,
+    to_tabular,
 )
 
 
@@ -31,43 +50,43 @@ filterwarnings("ignore", category=BeartypeDecorHintPep585DeprecationWarning)
 
 @beartype
 class Branch:
-    """Object that contains the data.
+    """Objeto que contém os dados.
 
-    A branch contains a specific pipeline, the dataset transformed
-    through that pipeline, the models fitted on that dataset, and all
-    data and utility attributes that refer to that dataset. Branches
-    can be created and accessed through experionml's `branch` attribute.
+    Um branch contém um pipeline específico, o conjunto de dados transformado
+    por esse pipeline, os modelos ajustados nesse conjunto de dados, e todos
+    os atributos de dados e utilitários que se referem a esse conjunto. Branches
+    podem ser criados e acessados pelo atributo `branch` do experionml.
 
-    All public properties and attributes of the branch can be accessed
-    from the parent.
+    Todas as propriedades e atributos públicos do branch podem ser acessados
+    a partir do pai.
 
-    Read more in the [user guide][branches].
+    Leia mais no [guia do usuário][branches].
 
     !!! warning
-        This class should not be called directly. Branches are created
-        internally by the [ExperionMLClassifier][], [ExperionMLForecaster][] and
-        [ExperionMLRegressor][] classes.
+        Esta classe não deve ser chamada diretamente. Branches são criados
+        internamente pelas classes [ExperionMLClassifier][], [ExperionMLForecaster][] e
+        [ExperionMLRegressor][].
 
-    Parameters
+    Parâmetros
     ----------
     name: str
-        Name of the branch.
+        Nome do branch.
 
     data: DataContainer or None, default=None
-        Data for the branch.
+        Dados para o branch.
 
     holdout: pd.DataFrame or None, default=None
-        Holdout data set.
+        Conjunto de dados holdout.
 
     memory: str, [Memory][joblibmemory] or None, default=None
-        Memory object for pipeline caching and to store the data when
-        the branch is inactive.
+        Objeto de memória para cache do pipeline e para armazenar os dados quando
+        o branch está inativo.
 
-    See Also
+    Veja também
     --------
     experionml.data:BranchManager
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -75,19 +94,19 @@ class Branch:
 
     X, y = load_breast_cancer(return_X_y=True, as_frame=True)
 
-    # Initialize experionml
+    # Inicializa o experionml
     experionml = ExperionMLClassifier(X, y, verbose=2)
 
-    # Train a model
+    # Treina um modelo
     experionml.run("RF")
 
-    # Change the branch and apply feature scaling
+    # Muda o branch e aplica escalonamento de features
     experionml.branch = "scaled"
 
     experionml.scale()
     experionml.run("RF_scaled")
 
-    # Compare the models
+    # Compara os modelos
     experionml.plot_roc()
     ```
 
@@ -129,44 +148,44 @@ class Branch:
         self._pipeline = Pipeline([], memory=memory)
         self._mapping: dict[str, dict[Hashable, Scalar]] = {}
 
-        # Path to store the data
+        # Caminho para armazenar os dados
         if self.memory.location is None:
             self._location = None
         else:
             self._location = Path(self.memory.location).joinpath("joblib", "experionml")
 
     def __repr__(self) -> str:
-        """Print branch name."""
+        """Exibe o nome do branch."""
         return f"Branch({self.name})"
 
     @property
     def _data(self) -> DataContainer:
-        """Get the branch's data.
+        """Obtém os dados do branch.
 
-        Load from memory if the data container is empty. This property
-        is required to access the data for inactive branches.
+        Carrega da memória se o contêiner de dados estiver vazio. Esta propriedade
+        é necessária para acessar os dados de branches inativos.
 
         """
         if data := self.load(assign=False):
             return data
 
-        # Is AttributeError to fail __getattr__ of BaseRunner when accessing empty branch
-        raise AttributeError(f"The {self.name} branch has no dataset assigned.")
+        # AttributeError é usado para falhar __getattr__ de BaseRunner ao acessar branch vazio
+        raise AttributeError(f"O branch {self.name} não possui um conjunto de dados atribuído.")
 
     @property
     def name(self) -> str:
-        """Branch's name."""
+        """Nome do branch."""
         return self._name
 
     @name.setter
     def name(self, value: str):
-        """Assign a new branch's name."""
+        """Atribui um novo nome ao branch."""
         if not value:
-            raise ValueError("A branch can't have an empty name.")
+            raise ValueError("Um branch não pode ter um nome vazio.")
 
         self._name = value
 
-    # Data properties ============================================== >>
+    # Propriedades de dados ============================================== >>
 
     @overload
     def _check_setter(self, name: XDatasets, value: YConstructor) -> pd.DataFrame: ...
@@ -175,43 +194,43 @@ class Branch:
     def _check_setter(self, name: YDatasets, value: YConstructor) -> pd.Series: ...
 
     def _check_setter(self, name: XDatasets | YDatasets, value: YConstructor) -> Pandas:
-        """Check the data set's setter property.
+        """Verifica a propriedade setter do conjunto de dados.
 
-        Convert the property to a 'pandas' object and compare with the
-        rest of the dataset, to check if it has the right indices and
-        dimensions.
+        Converte a propriedade em um objeto 'pandas' e compara com o
+        restante do conjunto de dados, para verificar se possui os índices e
+        dimensões corretos.
 
-        Parameters
+        Parâmetros
         ----------
         name: str
-            Name of the data set to check.
+            Nome do conjunto de dados a verificar.
 
         value: sequence or dataframe-like
-            New values for the data set.
+            Novos valores para o conjunto de dados.
 
-        Returns
+        Retorna
         -------
         pd.Series or pd.DataFrame
-            Data set.
+            Conjunto de dados.
 
         """
 
         def counter(name: str, dim: str) -> str | None:
-            """Return the opposite dimension of the provided data set.
+            """Retorna a dimensão oposta do conjunto de dados fornecido.
 
-            Parameters
+            Parâmetros
             ----------
             name: str
-                Name of the data set.
+                Nome do conjunto de dados.
 
             dim: str
-                Dimension to look at. Either side or under.
+                Dimensão a verificar. Pode ser side ou under.
 
-            Returns
+            Retorna
             -------
             str or None
-                Name of the opposite dimension. Returns None when there
-                is no opposite dimension, e.g., train with dim="side".
+                Nome da dimensão oposta. Retorna None quando não há
+                dimensão oposta, ex.: train com dim="side".
 
             """
             if name == "dataset":
@@ -229,7 +248,7 @@ class Branch:
 
             return None
 
-        # Define the data attrs side and under
+        # Define os atributos de dados side e under
         if side_name := counter(name, "side"):
             side = getattr(self, side_name)
         if under_name := counter(name, "under"):
@@ -244,59 +263,59 @@ class Branch:
             columns=columns,
         )
 
-        if side_name:  # Check for equal rows
+        if side_name:  # Verifica linhas iguais
             if len(obj) != len(side):
                 raise ValueError(
-                    f"{name} and {side_name} must have the same "
-                    f"number of rows, got {len(obj)} != {len(side)}."
+                    f"{name} e {side_name} devem ter o mesmo "
+                    f"número de linhas, got {len(obj)} != {len(side)}."
                 )
             if not obj.index.equals(side.index):
                 raise ValueError(
-                    f"{name} and {side_name} must have the same "
-                    f"indices, got {obj.index} != {side.index}."
+                    f"{name} e {side_name} devem ter os mesmos "
+                    f"índices, got {obj.index} != {side.index}."
                 )
 
-        if under_name:  # Check for equal columns
+        if under_name:  # Verifica colunas iguais
             if isinstance(obj, pd.Series):
                 if obj.name != under.name:
                     raise ValueError(
-                        f"{name} and {under_name} must have the "
-                        f"same name, got {obj.name} != {under.name}."
+                        f"{name} e {under_name} devem ter o "
+                        f"mesmo nome, got {obj.name} != {under.name}."
                     )
             else:
                 if obj.shape[1] != under.shape[1]:
                     raise ValueError(
-                        f"{name} and {under_name} must have the same number "
-                        f"of columns, got {obj.shape[1]} != {under.shape[1]}."
+                        f"{name} e {under_name} devem ter o mesmo número "
+                        f"de colunas, got {obj.shape[1]} != {under.shape[1]}."
                     )
 
                 if not obj.columns.equals(under.columns):
                     raise ValueError(
-                        f"{name} and {under_name} must have the same "
-                        f"columns, got {obj.columns} != {under.columns}."
+                        f"{name} e {under_name} devem ter as mesmas "
+                        f"colunas, got {obj.columns} != {under.columns}."
                     )
 
-        # Reset holdout calculation
+        # Reinicia o cálculo do holdout
         self.__dict__.pop("holdout", None)
 
         return obj
 
     @property
     def pipeline(self) -> Pipeline:
-        """Pipeline of transformers.
+        """Pipeline de transformadores.
 
         !!! tip
-            Use the [plot_pipeline][] method to visualize the pipeline.
+            Use o método [plot_pipeline][] para visualizar o pipeline.
 
         """
         return self._pipeline
 
     @property
     def mapping(self) -> dict[str, dict[Hashable, Scalar]]:
-        """Encoded values and their respective mapped values.
+        """Valores codificados e seus respectivos valores mapeados.
 
-        The column name is the key to its mapping dictionary. Only for
-        columns mapped to a single column (e.g., Ordinal, Leave-one-out,
+        O nome da coluna é a chave para seu dicionário de mapeamento. Apenas para
+        colunas mapeadas para uma única coluna (ex.: Ordinal, Leave-one-out,
         etc...).
 
         """
@@ -304,7 +323,7 @@ class Branch:
 
     @property
     def dataset(self) -> pd.DataFrame:
-        """Complete data set."""
+        """Conjunto de dados completo."""
         return self._data.data
 
     @dataset.setter
@@ -313,7 +332,7 @@ class Branch:
 
     @property
     def train(self) -> pd.DataFrame:
-        """Training set."""
+        """Conjunto de treinamento."""
         return self._data.data.loc[self._data.train_idx]
 
     @train.setter
@@ -324,7 +343,7 @@ class Branch:
 
     @property
     def test(self) -> pd.DataFrame:
-        """Test set."""
+        """Conjunto de teste."""
         return self._data.data.loc[self._data.test_idx]
 
     @test.setter
@@ -335,7 +354,7 @@ class Branch:
 
     @cached_property
     def holdout(self) -> pd.DataFrame | None:
-        """Holdout set."""
+        """Conjunto holdout."""
         if self._holdout is not None:
             return merge(
                 *self.pipeline.transform(
@@ -348,7 +367,7 @@ class Branch:
 
     @property
     def X(self) -> pd.DataFrame:
-        """Feature set."""
+        """Conjunto de features."""
         return self._data.data[self.features]
 
     @X.setter
@@ -358,7 +377,7 @@ class Branch:
 
     @property
     def y(self) -> Pandas:
-        """Target column(s)."""
+        """Coluna(s) alvo."""
         return self._data.data[self.target]
 
     @y.setter
@@ -368,7 +387,7 @@ class Branch:
 
     @property
     def X_train(self) -> pd.DataFrame:
-        """Features of the training set."""
+        """Features do conjunto de treinamento."""
         return self.train[self.features]
 
     @X_train.setter
@@ -378,7 +397,7 @@ class Branch:
 
     @property
     def y_train(self) -> Pandas:
-        """Target column(s) of the training set."""
+        """Coluna(s) alvo do conjunto de treinamento."""
         return self.train[self.target]
 
     @y_train.setter
@@ -388,7 +407,7 @@ class Branch:
 
     @property
     def X_test(self) -> pd.DataFrame:
-        """Features of the test set."""
+        """Features do conjunto de teste."""
         return self.test[self.features]
 
     @X_test.setter
@@ -398,7 +417,7 @@ class Branch:
 
     @property
     def y_test(self) -> Pandas:
-        """Target column(s) of the test set."""
+        """Coluna(s) alvo do conjunto de teste."""
         return self.test[self.target]
 
     @y_test.setter
@@ -408,53 +427,53 @@ class Branch:
 
     @property
     def shape(self) -> tuple[Int, Int]:
-        """Shape of the dataset (n_rows, n_columns)."""
+        """Forma do conjunto de dados (n_linhas, n_colunas)."""
         return self.dataset.shape
 
     @property
     def columns(self) -> pd.Index:
-        """Name of all the columns."""
+        """Nome de todas as colunas."""
         return self.dataset.columns
 
     @property
     def n_columns(self) -> int:
-        """Number of columns."""
+        """Número de colunas."""
         return len(self.columns)
 
     @property
     def features(self) -> pd.Index:
-        """Name of the features."""
-        return self.columns[:-self._data.n_targets]
+        """Nome das features."""
+        return self.columns[: -self._data.n_targets]
 
     @property
     def n_features(self) -> int:
-        """Number of features."""
+        """Número de features."""
         return len(self.features)
 
     @property
     def target(self) -> str | list[str]:
-        """Name of the target column(s)."""
-        return flt(list(self.columns[-self._data.n_targets:]))
+        """Nome da(s) coluna(s) alvo."""
+        return flt(list(self.columns[-self._data.n_targets :]))
 
     @property
     def _all(self) -> pd.DataFrame:
         """Dataset + holdout.
 
-        Note that calling this property triggers the holdout set
-        calculation.
+        Note que chamar esta propriedade dispara o cálculo do conjunto
+        holdout.
 
         """
         return pd.concat([self.dataset, self.holdout])
 
-    # Utility methods ============================================== >>
+    # Métodos utilitários ============================================== >>
 
     def _get_shared_attrs(self) -> list[str]:
-        """Get the attributes that can be accessed from a runner.
+        """Obtém os atributos que podem ser acessados a partir de um runner.
 
-        Returns
+        Retorna
         -------
         list of str
-            Instance attributes.
+            Atributos da instância.
 
         """
         instance_vars = [x for x in vars(self) if not x.startswith("_") and x.endswith("_")]
@@ -482,34 +501,34 @@ class Branch:
         *,
         return_X_y: Bool = False,
     ) -> pd.DataFrame | tuple[pd.DataFrame, Pandas]:
-        """Get a subset of the rows.
+        """Obtém um subconjunto das linhas.
 
-        Rows can be selected by name, index, data set or regex pattern.
-        If a string is provided, use `+` to select multiple rows and `!`
-        to exclude them. Rows cannot be included and excluded in the
-        same call.
+        Linhas podem ser selecionadas por nome, índice, conjunto de dados ou padrão regex.
+        Se uma string for fornecida, use `+` para selecionar múltiplas linhas e `!`
+        para excluí-las. Linhas não podem ser incluídas e excluídas na
+        mesma chamada.
 
         !!! note
-            This call activates the holdout calculation for this branch.
+            Esta chamada ativa o cálculo do holdout para este branch.
 
-        Parameters
+        Parâmetros
         ----------
         rows: hashable, segment, sequence or dataframe
-            Rows to select.
+            Linhas a selecionar.
 
         return_X_y: bool, default=False
-            Whether to return X and y separately or concatenated.
+            Se deve retornar X e y separadamente ou concatenados.
 
-        Returns
+        Retorna
         -------
         pd.DataFrame
-            Subset of rows.
+            Subconjunto das linhas.
 
         pd.Series or pd.Dataframe
-            Subset of target column. Only returned if return_X_y=True.
+            Subconjunto da coluna alvo. Retornado apenas se return_X_y=True.
 
         """
-        _all = self._all  # Avoid multiple calls -> could be costly
+        _all = self._all  # Evita múltiplas chamadas -> pode ser custoso
 
         inc: list[Hashable] = []
         exc: list[Hashable] = []
@@ -528,8 +547,8 @@ class Branch:
                         inc.append(_all.index[int(row)])
                     else:
                         raise IndexError(
-                            f"Invalid value for the rows parameter. Value {rows} "
-                            f"is out of range for data with {len(_all)} rows."
+                            f"Valor inválido para o parâmetro rows. O valor {rows} "
+                            f"está fora do intervalo para dados com {len(_all)} linhas."
                         )
                 elif isinstance(row, str):
                     for r in row.split("+"):
@@ -538,30 +557,30 @@ class Branch:
                             array = exc
                             r = r[1:]
 
-                        # Find match on data set
+                        # Encontra correspondência no conjunto de dados
                         if r.lower() in ("dataset", "train", "test", "holdout"):
                             try:
                                 array.extend(getattr(self, r.lower()).index)
                             except AttributeError:
                                 raise ValueError(
-                                    "Invalid value for the rows parameter. No holdout "
-                                    "data set was declared when initializing experionml."
+                                    "Valor inválido para o parâmetro rows. Nenhum conjunto "
+                                    "de dados holdout foi declarado ao inicializar o experionml."
                                 ) from None
                         elif (matches := _all.index.str.fullmatch(r)).sum() > 0:
                             array.extend(_all.index[matches])
 
         if len(inc) + len(exc) == 0:
             raise ValueError(
-                "Invalid value for the rows parameter, got "
-                f"{rows}. No rows were selected."
+                "Valor inválido para o parâmetro rows, got "
+                f"{rows}. Nenhuma linha foi selecionada."
             )
         elif inc and exc:
             raise ValueError(
-                "Invalid value for the rows parameter. You can either "
-                "include or exclude rows, not combinations of these."
+                "Valor inválido para o parâmetro rows. Você pode "
+                "incluir ou excluir linhas, mas não combinações dos dois."
             )
         elif exc:
-            # If rows were excluded with `!`, select all but those
+            # Se linhas foram excluídas com `!`, seleciona todas exceto essas
             inc = list(_all.index[~_all.index.isin(exc)])
 
         rows_c = _all.loc[inc]
@@ -578,34 +597,34 @@ class Branch:
         include_target: Bool = True,
         only_numerical: Bool = False,
     ) -> list[str]:
-        """Get a subset of the columns.
+        """Obtém um subconjunto das colunas.
 
-        Columns can be selected by name, index, dtype or regex pattern.
-        If a string is provided, use `+` to select multiple columns and
-        `!` to exclude them. Columns cannot be included and excluded in
-        the same call.
+        Colunas podem ser selecionadas por nome, índice, dtype ou padrão regex.
+        Se uma string for fornecida, use `+` para selecionar múltiplas colunas e
+        `!` para excluí-las. Colunas não podem ser incluídas e excluídas na
+        mesma chamada.
 
-        Parameters
+        Parâmetros
         ----------
         columns: ColumnSelector or None, default=None
-            Columns to select. If None, return all columns in the
-            dataset, bearing the other parameters.
+            Colunas a selecionar. Se None, retorna todas as colunas do
+            conjunto de dados, respeitando os outros parâmetros.
 
         include_target: bool, default=True
-            Whether to include the target column in the dataset to
-            select from.
+            Se deve incluir a coluna alvo no conjunto de dados de
+            seleção.
 
         only_numerical: bool, default=False
-            Whether to select only numerical columns when
+            Se deve selecionar apenas colunas numéricas quando
             `columns=None`.
 
-        Returns
+        Retorna
         -------
         list of str
-            Names of the included columns.
+            Nomes das colunas incluídas.
 
         """
-        # Select dataframe from which to get the columns
+        # Seleciona o dataframe do qual obter as colunas
         df = self.dataset if include_target else self.X
 
         inc: list[str] = []
@@ -626,8 +645,8 @@ class Branch:
                         inc.append(df.columns[int(col)])
                     else:
                         raise IndexError(
-                            f"Invalid column selection. Value {col} is out "
-                            f"of range for data with {df.shape[1]} columns."
+                            f"Seleção de coluna inválida. O valor {col} está fora "
+                            f"do intervalo para dados com {df.shape[1]} colunas."
                         )
                 elif isinstance(col, str):
                     for c in col.split("+"):
@@ -636,34 +655,34 @@ class Branch:
                             array = exc
                             c = c[1:]
 
-                        # Find columns using regex matches
+                        # Encontra colunas usando correspondências de regex
                         if (matches := df.columns.str.fullmatch(c)).sum() > 0:
                             array.extend(df.columns[matches])
                         else:
-                            # Find columns by type
+                            # Encontra colunas por tipo
                             try:
                                 array.extend(df.select_dtypes(c).columns)  # type: ignore[call-overload]
                             except TypeError:
                                 raise ValueError(
-                                    "Invalid column selection. Could "
-                                    f"not find any column that matches {c}."
+                                    "Seleção de coluna inválida. Não foi "
+                                    f"possível encontrar nenhuma coluna que corresponda a {c}."
                                 ) from None
 
         if len(inc) + len(exc) == 0:
             raise ValueError(
-                f"Invalid column selection, got {columns}. "
-                f"At least one column has to be selected."
+                f"Seleção de coluna inválida, got {columns}. "
+                f"Pelo menos uma coluna deve ser selecionada."
             )
         elif inc and exc:
             raise ValueError(
-                "Invalid column selection. You can either include "
-                "or exclude columns, not combinations of these."
+                "Seleção de coluna inválida. Você pode incluir "
+                "ou excluir colunas, mas não combinações dos dois."
             )
         elif exc:
-            # If columns were excluded with `!`, select all but those
+            # Se colunas foram excluídas com `!`, seleciona todas exceto essas
             inc = list(df.columns[~df.columns.isin(exc)])
 
-        return list(dict.fromkeys(inc))  # Avoid duplicates
+        return list(dict.fromkeys(inc))  # Evita duplicatas
 
     @overload
     def _get_target(
@@ -687,54 +706,54 @@ class Branch:
         *,
         only_columns: Bool = False,
     ) -> str | tuple[int, int]:
-        """Get a target column and/or class in target column.
+        """Obtém uma coluna alvo e/ou classe na coluna alvo.
 
-        Parameters
+        Parâmetros
         ----------
         target: int, str or tuple
-            Target column or class to retrieve. For multioutput tasks,
-            use a tuple of the form (column, class) to select a class
-            in a specific target column.
+            Coluna alvo ou classe a recuperar. Para tarefas multioutput,
+            use uma tupla no formato (coluna, classe) para selecionar uma classe
+            em uma coluna alvo específica.
 
         only_columns: bool, default=False
-            Whether to only look at target columns or also to target
-            classes (for multilabel and multiclass-multioutput tasks).
+            Se deve verificar apenas colunas alvo ou também as classes alvo
+            (para tarefas multilabel e multiclass-multioutput).
 
-        Returns
+        Retorna
         -------
         str or tuple
-            Name of the selected target column (if only_columns=True)
-            or tuple of the form (column, class).
+            Nome da coluna alvo selecionada (se only_columns=True)
+            ou tupla no formato (coluna, classe).
 
         """
 
         def get_column(target: TargetSelector) -> str:
-            """Get the target column.
+            """Obtém a coluna alvo.
 
-            Parameters
+            Parâmetros
             ----------
             target: int or str
-                Name or position of the target column.
+                Nome ou posição da coluna alvo.
 
-            Returns
+            Retorna
             -------
             str
-                Target column.
+                Coluna alvo.
 
             """
             if isinstance(target, str):
                 if target not in self.target:
                     raise ValueError(
-                        "Invalid value for the target parameter. Value "
-                        f"{target} is not one of the target columns."
+                        "Valor inválido para o parâmetro target. O valor "
+                        f"{target} não é uma das colunas alvo."
                     )
                 else:
                     return target
             else:
                 if not 0 <= target < len(self.target):
                     raise ValueError(
-                        "Invalid value for the target parameter. There are "
-                        f"{len(self.target)} target columns, got {target}."
+                        "Valor inválido para o parâmetro target. Há "
+                        f"{len(self.target)} colunas alvo, got {target}."
                     )
                 else:
                     return lst(self.target)[target]
@@ -743,20 +762,20 @@ class Branch:
             target: TargetSelector,
             column: IntLargerEqualZero = 0,
         ) -> int:
-            """Get the class in the target column.
+            """Obtém a classe na coluna alvo.
 
-            Parameters
+            Parâmetros
             ----------
             target: int or str
-                Name or position of the target column.
+                Nome ou posição da coluna alvo.
 
             column: int, default=0
-                Column to get the class from. For multioutput tasks.
+                Coluna da qual obter a classe. Para tarefas multioutput.
 
-            Returns
+            Retorna
             -------
             int
-                Class' index.
+                Índice da classe.
 
             """
             if isinstance(target, str):
@@ -764,15 +783,15 @@ class Branch:
                     return int(self.mapping[lst(self.target)[column]][target])
                 except (TypeError, KeyError):
                     raise ValueError(
-                        f"Invalid value for the target parameter. Value {target} "
-                        "not found in the mapping of the target column."
+                        f"Valor inválido para o parâmetro target. O valor {target} "
+                        "não foi encontrado no mapeamento da coluna alvo."
                     ) from None
             else:
                 n_classes = get_cols(self.y)[column].nunique(dropna=False)
                 if not 0 <= target < n_classes:
                     raise ValueError(
-                        "Invalid value for the target parameter. "
-                        f"There are {n_classes} classes, got {target}."
+                        "Valor inválido para o parâmetro target. "
+                        f"Há {n_classes} classes, got {target}."
                     )
                 else:
                     return int(target)
@@ -792,26 +811,26 @@ class Branch:
                 return column, get_class(target[1], column)
             else:
                 raise ValueError(
-                    "Invalid value for the target parameter. "
-                    f"Expected a tuple of length 2, got len={len(target)}."
+                    "Valor inválido para o parâmetro target. "
+                    f"Esperada uma tupla de comprimento 2, got len={len(target)}."
                 )
         else:
             return 0, get_class(target)
 
     def load(self, *, assign: Bool = True) -> DataContainer | None:
-        """Load the branch's data from memory.
+        """Carrega os dados do branch da memória.
 
-        This method is used to restore the data of inactive branches.
+        Este método é usado para restaurar os dados de branches inativos.
 
-        Parameters
+        Parâmetros
         ----------
         assign: bool, default=True
-            Whether to assign the loaded data to `self`.
+            Se deve atribuir os dados carregados ao `self`.
 
-        Returns
+        Retorna
         -------
         DataContainer or None
-            Own data information. Returns None if no data is set.
+            Informações dos próprios dados. Retorna None se nenhum dado estiver definido.
 
         """
         if self._container is None and self._location:
@@ -819,7 +838,9 @@ class Branch:
                 with open(self._location.joinpath(f"{self}.pkl"), "rb") as file:
                     data = pickle.load(file)
             except FileNotFoundError:
-                raise FileNotFoundError(f"Branch {self.name} has no data stored.") from None
+                raise FileNotFoundError(
+                    f"O branch {self.name} não possui dados armazenados."
+                ) from None
 
             if assign:
                 self._container = data
@@ -829,20 +850,20 @@ class Branch:
         return self._container
 
     def store(self, *, assign: Bool = True):
-        """Store the branch's data as a pickle in memory.
+        """Armazena os dados do branch como um pickle na memória.
 
-        After storage, the data is deleted, and the branch is no longer
-        usable until [load][self-load] is called. This method is used
-        to store the data for inactive branches.
+        Após o armazenamento, os dados são excluídos e o branch não é mais
+        utilizável até que [load][self-load] seja chamado. Este método é usado
+        para armazenar os dados de branches inativos.
 
         !!! note
-            This method is skipped silently for branches with no memory
-            allocation.
+            Este método é ignorado silenciosamente para branches sem alocação
+            de memória.
 
-        Parameters
+        Parâmetros
         ----------
         assign: bool, default=True
-            Whether to assign `None` to the data in `self`.
+            Se deve atribuir `None` aos dados em `self`.
 
         """
         if self._container is not None and self._location:
@@ -850,25 +871,23 @@ class Branch:
                 with open(self._location.joinpath(f"{self}.pkl"), "wb") as file:
                     pickle.dump(self._container, file)
             except FileNotFoundError:
-                raise FileNotFoundError(
-                    f"The {self._location} directory does not exist."
-                ) from None
+                raise FileNotFoundError(f"O diretório {self._location} não existe.") from None
 
             if assign:
                 self._container = None
 
     def check_scaling(self) -> bool:
-        """Whether the feature set is scaled.
+        """Verifica se o conjunto de features está escalonado.
 
-        A data set is considered scaled when it has mean~0 and std~1,
-        or when there is a scaler in the pipeline. Categorical and
-        binary columns (only zeros and ones) are excluded from the
-        calculation. [Sparse datasets][] always return False.
+        Um conjunto de dados é considerado escalonado quando possui média~0 e desvio~1,
+        ou quando há um escalonador no pipeline. Colunas categóricas e
+        binárias (apenas zeros e uns) são excluídas do
+        cálculo. [Sparse datasets][] sempre retornam False.
 
-        Returns
+        Retorna
         -------
         bool
-            Whether the feature set is scaled.
+            Se o conjunto de features está escalonado.
 
         """
         if any("scaler" in name.lower() for name in self.pipeline.named_steps):
@@ -877,9 +896,9 @@ class Branch:
         if is_sparse(self.X):
             return False
 
-        df = self.X.loc[:, (~self.X.isin([0, 1])).any(axis=0)]  # Remove binary columns
+        df = self.X.loc[:, (~self.X.isin([0, 1])).any(axis=0)]  # Remove colunas binárias
 
-        if df.empty:  # All columns are binary -> no scaling needed
+        if df.empty:  # Todas as colunas são binárias -> escalonamento não necessário
             return True
         else:
             return check_scaling(df)

@@ -12,15 +12,15 @@ def create_stacking_model(**kwargs) -> BaseModel:
 
     Esta função atribui dinamicamente a classe pai.
 
-    Parameters
+    Parâmetros
     ----------
     kwargs
-        Additional keyword arguments passed to the model's constructor.
+        Argumentos adicionais passados ao construtor do modelo.
 
-    Returns
+    Retorna
     -------
     Stacking
-        Ensemble model.
+        Modelo ensemble.
 
     """
     base = ForecastModel if kwargs["goal"] is Goal.forecast else ClassRegModel
@@ -28,13 +28,13 @@ def create_stacking_model(**kwargs) -> BaseModel:
     class Stacking(base):  # type: ignore[valid-type]
         """Ensemble de stacking.
 
-        Parameters
+        Parâmetros
         ----------
         models: list of Model
-            Models from which to build the ensemble.
+            Modelos a partir dos quais construir o ensemble.
 
         **kwargs
-            Additional keyword arguments for BaseModel's constructor.
+            Argumentos adicionais para o construtor de BaseModel.
 
         """
 
@@ -60,19 +60,19 @@ def create_stacking_model(**kwargs) -> BaseModel:
         def _get_est(self, params: dict[str, Any]) -> Predictor:
             """Obtém o estimador do modelo com os parâmetros desempacotados.
 
-            Parameters
+            Parâmetros
             ----------
             params: dict
-                Hyperparameters for the estimator.
+                Hiperparâmetros do estimador.
 
-            Returns
+            Retorna
             -------
             Predictor
-                Estimator instance.
+                Instância do estimador.
 
             """
-            # We use _est_class with get_params instead of just a dict
-            # to also fix the parameters of the models in the ensemble
+            # Usamos _est_class com get_params em vez de um dict simples
+            # para também fixar os parâmetros dos modelos no ensemble
             estimator = self._est_class(
                 **{
                     "estimators" if not self.task.is_forecast else "forecasters": [
@@ -82,8 +82,8 @@ def create_stacking_model(**kwargs) -> BaseModel:
                 }
             )
 
-            # Drop the model names from params since those
-            # are not direct parameters of the ensemble
+            # Remove os nomes dos modelos dos params, pois não são
+            # parâmetros diretos do ensemble
             default = {
                 k: v
                 for k, v in estimator.get_params().items()
@@ -100,15 +100,15 @@ def create_voting_model(**kwargs) -> BaseModel:
 
     Esta função atribui dinamicamente a classe pai.
 
-    Parameters
+    Parâmetros
     ----------
     kwargs
-        Additional keyword arguments passed to the model's constructor.
+        Argumentos adicionais passados ao construtor do modelo.
 
-    Returns
+    Retorna
     -------
-    Stacking
-        Ensemble model.
+    Voting
+        Modelo ensemble.
 
     """
     base = ForecastModel if kwargs["goal"] is Goal.forecast else ClassRegModel
@@ -116,13 +116,13 @@ def create_voting_model(**kwargs) -> BaseModel:
     class Voting(base):  # type: ignore[valid-type]
         """Ensemble de votação.
 
-        Parameters
+        Parâmetros
         ----------
         models: list of Model
-            Models from which to build the ensemble.
+            Modelos a partir dos quais construir o ensemble.
 
         **kwargs
-            Additional keyword arguments for BaseModel's constructor.
+            Argumentos adicionais para o construtor de BaseModel.
 
         """
 
@@ -148,19 +148,19 @@ def create_voting_model(**kwargs) -> BaseModel:
         def _get_est(self, params: dict[str, Any]) -> Predictor:
             """Obtém o estimador do modelo com os parâmetros desempacotados.
 
-            Parameters
+            Parâmetros
             ----------
             params: dict
-                Hyperparameters for the estimator.
+                Hiperparâmetros do estimador.
 
-            Returns
+            Retorna
             -------
             Predictor
-                Estimator instance.
+                Instância do estimador.
 
             """
-            # We use _est_class with get_params instead of just a dict
-            # to also fix the parameters of the models in the ensemble
+            # Usamos _est_class com get_params em vez de um dict simples
+            # para também fixar os parâmetros dos modelos no ensemble
             estimator = self._est_class(
                 **{
                     "estimators" if not self.task.is_forecast else "forecasters": [
@@ -170,8 +170,8 @@ def create_voting_model(**kwargs) -> BaseModel:
                 }
             )
 
-            # Drop the model names from params since those
-            # are not direct parameters of the ensemble
+            # Remove os nomes dos modelos dos params, pois não são
+            # parâmetros diretos do ensemble
             default = {
                 k: v
                 for k, v in estimator.get_params().items()

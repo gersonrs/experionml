@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import re
@@ -15,11 +14,24 @@ from typing_extensions import Self
 
 from experionml.data_cleaning import TransformerMixin
 from experionml.utils.types import (
-    Bool, Engine, FloatLargerZero, Sequence, VectorizerStarts, Verbose,
-    XConstructor, XReturn, YConstructor, bool_t,
+    Bool,
+    Engine,
+    FloatLargerZero,
+    Sequence,
+    VectorizerStarts,
+    Verbose,
+    XConstructor,
+    XReturn,
+    YConstructor,
+    bool_t,
 )
 from experionml.utils.utils import (
-    check_is_fitted, check_nltk_module, get_corpus, is_sparse, merge, to_df,
+    check_is_fitted,
+    check_nltk_module,
+    get_corpus,
+    is_sparse,
+    merge,
+    to_df,
 )
 
 
@@ -29,82 +41,81 @@ if TYPE_CHECKING:
 
 @beartype
 class TextCleaner(TransformerMixin, OneToOneFeatureMixin):
-    r"""Applies standard text cleaning to the corpus.
+    r"""Aplica limpeza de texto padrão ao corpus.
 
-    Transformations include normalizing characters and dropping
-    noise from the text (emails, HTML tags, URLs, etc...). The
-    transformations are applied on the column named `corpus`, in
-    the same order the parameters are presented. If there is no
-    column with that name, an exception is raised.
+    As transformações incluem normalização de caracteres e remoção
+    de ruídos do texto (e-mails, tags HTML, URLs, etc...). As
+    transformações são aplicadas na coluna chamada `corpus`, na
+    mesma ordem em que os parâmetros são apresentados. Se não houver
+    uma coluna com esse nome, uma exceção é lançada.
 
-    This class can be accessed from experionml through the [textclean]
-    [experionmlclassifier-textclean] method. Read more in the [user guide]
+    Esta classe pode ser acessada no experionml através do método [textclean]
+    [experionmlclassifier-textclean]. Leia mais no [guia do usuário]
     [text-cleaning].
 
-    Parameters
+    Parâmetros
     ----------
     decode: bool, default=True
-        Whether to decode unicode characters to their ascii
-        representations.
+        Se deve decodificar caracteres unicode para suas representações ascii.
 
     lower_case: bool, default=True
-        Whether to convert all characters to lower case.
+        Se deve converter todos os caracteres para minúsculas.
 
     drop_email: bool, default=True
-        Whether to drop email addresses from the text.
+        Se deve remover endereços de e-mail do texto.
 
     regex_email: str, default=None
-        Regex used to search for email addresses. If None, it uses
+        Regex usado para buscar endereços de e-mail. Se None, usa
         `r"[\w.-]+@[\w-]+\.[\w.-]+"`.
 
     drop_url: bool, default=True
-        Whether to drop URL links from the text.
+        Se deve remover links de URL do texto.
 
     regex_url: str, default=None
-        Regex used to search for URLs. If None, it uses
+        Regex usado para buscar URLs. Se None, usa
         `r"https?://\S+|www\.\S+"`.
 
     drop_html: bool, default=True
-        Whether to drop HTML tags from the text. This option is
-        particularly useful if the data was scraped from a website.
+        Se deve remover tags HTML do texto. Esta opção é
+        particularmente útil se os dados foram extraídos de um site.
 
     regex_html: str, default=None
-        Regex used to search for html tags. If None, it uses
+        Regex usado para buscar tags HTML. Se None, usa
         `r"<.*?>"`.
 
     drop_emoji: bool, default=True
-        Whether to drop emojis from the text.
+        Se deve remover emojis do texto.
 
     regex_emoji: str, default=None
-        Regex used to search for emojis. If None, it uses
+        Regex usado para buscar emojis. Se None, usa
         `r":[a-z_]+:"`.
 
     drop_number: bool, default=True
-        Whether to drop numbers from the text.
+        Se deve remover números do texto.
 
     regex_number: str, default=None
-        Regex used to search for numbers. If None, it uses
-        `r"\b\d+\b".` Note that numbers adjacent to letters are
-        not removed.
+        Regex usado para buscar números. Se None, usa
+        `r"\b\d+\b".` Note que números adjacentes a letras não
+        são removidos.
 
     drop_punctuation: bool, default=True
-        Whether to drop punctuations from the text. Characters
-        considered punctuation are `!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~`.
+        Se deve remover pontuações do texto. Os caracteres
+        considerados pontuação são `!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~`.
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não imprimir nada.
+        - 1 para imprimir informações básicas.
+        - 2 para imprimir informações detalhadas.
 
-    See Also
+    Veja também
     --------
     experionml.nlp:TextNormalizer
     experionml.nlp:Tokenizer
     experionml.nlp:Vectorizer
 
-    Examples
+    Exemplos
     --------
     === "experionml"
         ```pycon
@@ -184,37 +195,37 @@ class TextCleaner(TransformerMixin, OneToOneFeatureMixin):
         self.drop_punctuation = drop_punctuation
 
     def transform(self, X: XConstructor, y: YConstructor | None = None) -> XReturn:
-        """Apply the transformations to the data.
+        """Aplica as transformações aos dados.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features). If X is
-            not a dataframe, it should be composed of a single feature
-            containing the text documents.
+            Conjunto de features com shape=(n_samples, n_features). Se X não
+            for um dataframe, deve ser composto por uma única feature
+            contendo os documentos de texto.
 
         y: sequence, dataframe-like or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Transformed corpus.
+            Corpus transformado.
 
         """
 
         def to_ascii(elem: str) -> str:
-            """Convert unicode string to ascii.
+            """Converte string unicode para ascii.
 
-            Parameters
+            Parâmetros
             ----------
             elem: str
-                Elements of the corpus.
+                Elementos do corpus.
 
-            Returns
+            Retorna
             -------
             str
-                ASCII string.
+                String ASCII.
 
             """
             try:
@@ -223,15 +234,15 @@ class TextCleaner(TransformerMixin, OneToOneFeatureMixin):
                 norm = unicodedata.normalize("NFKD", elem)
                 return "".join([c for c in norm if not unicodedata.combining(c)])
             else:
-                return elem  # Return unchanged if encoding was successful
+                return elem  # Retorna sem alterações se a codificação foi bem-sucedida
 
         def drop_regex(regex: str):
-            """Find and remove a regex expression from the corpus.
+            """Encontra e remove uma expressão regex do corpus.
 
-            Parameters
+            Parâmetros
             ----------
             regex: str
-                Regex pattern to replace.
+                Padrão regex a ser substituído.
 
             """
             if isinstance(Xt[corpus].iloc[0], str):
@@ -242,17 +253,17 @@ class TextCleaner(TransformerMixin, OneToOneFeatureMixin):
         Xt = to_df(X, columns=getattr(self, "feature_names_in_", None))
         corpus = get_corpus(Xt)
 
-        self._log("Cleaning the corpus...", 1)
+        self._log("Limpando o corpus...", 1)
 
         if self.decode:
             if isinstance(Xt[corpus].iloc[0], str):
                 Xt[corpus] = Xt[corpus].apply(lambda x: to_ascii(x))
             else:
                 Xt[corpus] = Xt[corpus].apply(lambda doc: [to_ascii(str(w)) for w in doc])
-        self._log(" --> Decoding unicode characters to ascii.", 2)
+        self._log(" --> Decodificando caracteres unicode para ascii.", 2)
 
         if self.lower_case:
-            self._log(" --> Converting text to lower case.", 2)
+            self._log(" --> Convertendo texto para minúsculas.", 2)
             if isinstance(Xt[corpus].iloc[0], str):
                 Xt[corpus] = Xt[corpus].str.lower()
             else:
@@ -262,47 +273,47 @@ class TextCleaner(TransformerMixin, OneToOneFeatureMixin):
             if not self.regex_email:
                 self.regex_email = r"[\w.-]+@[\w-]+\.[\w.-]+"
 
-            self._log(" --> Dropping emails from documents.", 2)
+            self._log(" --> Removendo e-mails dos documentos.", 2)
             drop_regex(self.regex_email)
 
         if self.drop_url:
             if not self.regex_url:
                 self.regex_url = r"https?://\S+|www\.\S+"
 
-            self._log(" --> Dropping URL links from documents.", 2)
+            self._log(" --> Removendo links de URL dos documentos.", 2)
             drop_regex(self.regex_url)
 
         if self.drop_html:
             if not self.regex_html:
                 self.regex_html = r"<.*?>"
 
-            self._log(" --> Dropping HTML tags from documents.", 2)
+            self._log(" --> Removendo tags HTML dos documentos.", 2)
             drop_regex(self.regex_html)
 
         if self.drop_emoji:
             if not self.regex_emoji:
                 self.regex_emoji = r":[a-z_]+:"
 
-            self._log(" --> Dropping emojis from documents.", 2)
+            self._log(" --> Removendo emojis dos documentos.", 2)
             drop_regex(self.regex_emoji)
 
         if self.drop_number:
             if not self.regex_number:
                 self.regex_number = r"\b\d+\b"
 
-            self._log(" --> Dropping numbers from documents.", 2)
+            self._log(" --> Removendo números dos documentos.", 2)
             drop_regex(self.regex_number)
 
         if self.drop_punctuation:
-            self._log(" --> Dropping punctuation from the text.", 2)
-            trans_table = str.maketrans("", "", punctuation)  # Translation table
+            self._log(" --> Removendo pontuação do texto.", 2)
+            trans_table = str.maketrans("", "", punctuation)  # Tabela de tradução
             if isinstance(Xt[corpus].iloc[0], str):
                 func = lambda doc: doc.translate(trans_table)
             else:
                 func = lambda doc: [str(w).translate(trans_table) for w in doc]
             Xt[corpus] = Xt[corpus].apply(func)
 
-        # Drop empty tokens from every document
+        # Remove tokens vazios de cada documento
         if not isinstance(Xt[corpus].iloc[0], str):
             Xt[corpus] = Xt[corpus].apply(lambda doc: [w for w in doc if w])
 
@@ -311,62 +322,62 @@ class TextCleaner(TransformerMixin, OneToOneFeatureMixin):
 
 @beartype
 class TextNormalizer(TransformerMixin, OneToOneFeatureMixin):
-    """Normalize the corpus.
+    """Normaliza o corpus.
 
-    Convert words to a more uniform standard. The transformations
-    are applied on the column named `corpus`, in the same order the
-    parameters are presented. If there is no column with that name,
-    an exception is raised. If the provided documents are strings,
-    words are separated by spaces.
+    Converte palavras para um padrão mais uniforme. As transformações
+    são aplicadas na coluna chamada `corpus`, na mesma ordem em que os
+    parâmetros são apresentados. Se não houver uma coluna com esse nome,
+    uma exceção é lançada. Se os documentos fornecidos forem strings,
+    as palavras são separadas por espaços.
 
-    This class can be accessed from experionml through the [textnormalize]
-    [experionmlclassifier-textnormalize] method. Read more in the [user guide]
+    Esta classe pode ser acessada no experionml através do método [textnormalize]
+    [experionmlclassifier-textnormalize]. Leia mais no [guia do usuário]
     [text-normalization].
 
-    Parameters
+    Parâmetros
     ----------
     stopwords: bool or str, default=True
-        Whether to remove a predefined dictionary of stopwords.
+        Se deve remover um dicionário predefinido de stopwords.
 
-        - If False: Don't remove any predefined stopwords.
-        - If True: Drop predefined english stopwords from the text.
-        - If str: Language from `nltk.corpus.stopwords.words`.
+        - If False: Não remover nenhuma stopword predefinida.
+        - If True: Remover stopwords em inglês predefinidas do texto.
+        - If str: Idioma de `nltk.corpus.stopwords.words`.
 
     custom_stopwords: sequence or None, default=None
-        Custom stopwords to remove from the text.
+        Stopwords personalizadas a serem removidas do texto.
 
     stem: bool or str, default=False
-        Whether to apply stemming using [SnowballStemmer][].
+        Se deve aplicar stemming usando [SnowballStemmer][].
 
-        - If False: Don't apply stemming.
-        - If True: Apply stemmer based on the english language.
-        - If str: Language from `SnowballStemmer.languages`.
+        - If False: Não aplicar stemming.
+        - If True: Aplicar stemmer baseado no idioma inglês.
+        - If str: Idioma de `SnowballStemmer.languages`.
 
     lemmatize: bool, default=True
-        Whether to apply lemmatization using WordNetLemmatizer.
+        Se deve aplicar lematização usando WordNetLemmatizer.
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não imprimir nada.
+        - 1 para imprimir informações básicas.
+        - 2 para imprimir informações detalhadas.
 
-    Attributes
+    Atributos
     ----------
     feature_names_in_: np.ndarray
-        Names of features seen during `fit`.
+        Nomes das features vistos durante o `fit`.
 
     n_features_in_: int
-        Number of features seen during `fit`.
+        Número de features vistos durante o `fit`.
 
-    See Also
+    Veja também
     --------
     experionml.nlp:TextCleaner
     experionml.nlp:Tokenizer
     experionml.nlp:Vectorizer
 
-    Examples
+    Exemplos
     --------
     === "experionml"
         ```pycon
@@ -435,37 +446,37 @@ class TextNormalizer(TransformerMixin, OneToOneFeatureMixin):
         self.lemmatize = lemmatize
 
     def transform(self, X: XConstructor, y: YConstructor | None = None) -> XReturn:
-        """Normalize the text.
+        """Normaliza o texto.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features). If X is
-            not a dataframe, it should be composed of a single feature
-            containing the text documents.
+            Conjunto de features com shape=(n_samples, n_features). Se X não
+            for um dataframe, deve ser composto por uma única feature
+            contendo os documentos de texto.
 
         y: sequence, dataframe-like or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Transformed corpus.
+            Corpus transformado.
 
         """
 
         def pos(tag: str) -> wordnet.ADJ | wordnet.ADV | wordnet.VERB | wordnet.NOUN:
-            """Get part of speech from a tag.
+            """Obtém a classe gramatical a partir de uma tag.
 
-            Parameters
+            Parâmetros
             ----------
             tag: str
-                Wordnet tag corresponding to a word.
+                Tag wordnet correspondente a uma palavra.
 
-            Returns
+            Retorna
             -------
             ADJ, ADV, VERB or NOUN
-                Part of speech of word.
+                Classe gramatical da palavra.
 
             """
             if tag in ("JJ", "JJR", "JJS"):
@@ -484,9 +495,9 @@ class TextNormalizer(TransformerMixin, OneToOneFeatureMixin):
         Xt = to_df(X, columns=getattr(self, "feature_names_in_", None))
         corpus = get_corpus(Xt)
 
-        self._log("Normalizing the corpus...", 1)
+        self._log("Normalizando o corpus...", 1)
 
-        # If the corpus is not tokenized, separate by space
+        # Se o corpus não estiver tokenizado, separar por espaço
         if isinstance(Xt[corpus].iloc[0], str):
             Xt[corpus] = Xt[corpus].apply(lambda row: row.split())
 
@@ -495,16 +506,16 @@ class TextNormalizer(TransformerMixin, OneToOneFeatureMixin):
             if isinstance(self.stopwords, bool_t):
                 self.stopwords = "english"
 
-            # Get stopwords from the NLTK library
+            # Obtém stopwords da biblioteca NLTK
             check_nltk_module("corpora/stopwords", quiet=self.verbose < 2)
             stop_words = set(stopwords.words(self.stopwords.lower()))
 
-        # Join predefined with customs stopwords
+        # Une stopwords predefinidas com personalizadas
         if self.custom_stopwords is not None:
             stop_words = stop_words | set(self.custom_stopwords)
 
         if stop_words:
-            self._log(" --> Dropping stopwords.", 2)
+            self._log(" --> Removendo stopwords.", 2)
             f = lambda row: [word for word in row if word not in stop_words]
             Xt[corpus] = Xt[corpus].apply(f)
 
@@ -512,12 +523,12 @@ class TextNormalizer(TransformerMixin, OneToOneFeatureMixin):
             if isinstance(self.stem, bool_t):
                 self.stem = "english"
 
-            self._log(" --> Applying stemming.", 2)
+            self._log(" --> Aplicando stemming.", 2)
             ss = SnowballStemmer(language=self.stem.lower())
             Xt[corpus] = Xt[corpus].apply(lambda row: [ss.stem(word) for word in row])
 
         if self.lemmatize:
-            self._log(" --> Applying lemmatization.", 2)
+            self._log(" --> Aplicando lematização.", 2)
             check_nltk_module("corpora/wordnet", quiet=self.verbose < 2)
             check_nltk_module("taggers/averaged_perceptron_tagger", quiet=self.verbose < 2)
             check_nltk_module("corpora/omw-1.4", quiet=self.verbose < 2)
@@ -531,72 +542,72 @@ class TextNormalizer(TransformerMixin, OneToOneFeatureMixin):
 
 @beartype
 class Tokenizer(TransformerMixin, OneToOneFeatureMixin):
-    """Tokenize the corpus.
+    """Tokeniza o corpus.
 
-    Convert documents into sequences of words. Additionally,
-    create n-grams (represented by words united with underscores,
-    e.g., "New_York") based on their frequency in the corpus. The
-    transformations are applied on the column named `corpus`. If
-    there is no column with that name, an exception is raised.
+    Converte documentos em sequências de palavras. Adicionalmente,
+    cria n-gramas (representados por palavras unidas com sublinhados,
+    por ex., "New_York") com base na sua frequência no corpus. As
+    transformações são aplicadas na coluna chamada `corpus`. Se
+    não houver uma coluna com esse nome, uma exceção é lançada.
 
-    This class can be accessed from experionml through the [tokenize]
-    [experionmlclassifier-tokenize] method. Read more in the [user guide]
+    Esta classe pode ser acessada no experionml através do método [tokenize]
+    [experionmlclassifier-tokenize]. Leia mais no [guia do usuário]
     [tokenization].
 
-    Parameters
+    Parâmetros
     ----------
     bigram_freq: int, float or None, default=None
-        Frequency threshold for bigram creation.
+        Limiar de frequência para criação de bigramas.
 
-        - If None: Don't create any bigrams.
-        - If int: Minimum number of occurrences to make a bigram.
-        - If float: Minimum frequency fraction to make a bigram.
+        - If None: Não criar nenhum bigrama.
+        - If int: Número mínimo de ocorrências para criar um bigrama.
+        - If float: Fração mínima de frequência para criar um bigrama.
 
     trigram_freq: int, float or None, default=None
-        Frequency threshold for trigram creation.
+        Limiar de frequência para criação de trigramas.
 
-        - If None: Don't create any trigrams.
-        - If int: Minimum number of occurrences to make a trigram.
-        - If float: Minimum frequency fraction to make a trigram.
+        - If None: Não criar nenhum trigrama.
+        - If int: Número mínimo de ocorrências para criar um trigrama.
+        - If float: Fração mínima de frequência para criar um trigrama.
 
     quadgram_freq: int, float or None, default=None
-        Frequency threshold for quadgram creation.
+        Limiar de frequência para criação de quadgramas.
 
-        - If None: Don't create any quadgrams.
-        - If int: Minimum number of occurrences to make a quadgram.
-        - If float: Minimum frequency fraction to make a quadgram.
+        - If None: Não criar nenhum quadgrama.
+        - If int: Número mínimo de ocorrências para criar um quadgrama.
+        - If float: Fração mínima de frequência para criar um quadgrama.
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não imprimir nada.
+        - 1 para imprimir informações básicas.
+        - 2 para imprimir informações detalhadas.
 
-    Attributes
+    Atributos
     ----------
     bigrams_: pd.DataFrame
-        Created bigrams and their frequencies.
+        Bigramas criados e suas frequências.
 
     trigrams_: pd.DataFrame
-        Created trigrams and their frequencies.
+        Trigramas criados e suas frequências.
 
     quadgrams_: pd.DataFrame
-        Created quadgrams and their frequencies.
+        Quadgramas criados e suas frequências.
 
     feature_names_in_: np.ndarray
-        Names of features seen during `fit`.
+        Nomes das features vistos durante o `fit`.
 
     n_features_in_: int
-        Number of features seen during `fit`.
+        Número de features vistos durante o `fit`.
 
-    See Also
+    Veja também
     --------
     experionml.nlp:TextCleaner
     experionml.nlp:TextNormalizer
     experionml.nlp:Vectorizer
 
-    Examples
+    Exemplos
     --------
     === "experionml"
         ```pycon
@@ -659,46 +670,46 @@ class Tokenizer(TransformerMixin, OneToOneFeatureMixin):
         self.quadgram_freq = quadgram_freq
 
     def transform(self, X: XConstructor, y: YConstructor | None = None) -> XReturn:
-        """Tokenize the text.
+        """Tokeniza o texto.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features). If X is
-            not a dataframe, it should be composed of a single feature
-            containing the text documents.
+            Conjunto de features com shape=(n_samples, n_features). Se X não
+            for um dataframe, deve ser composto por uma única feature
+            contendo os documentos de texto.
 
         y: sequence, dataframe-like or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Transformed corpus.
+            Corpus transformado.
 
         """
 
         def replace_ngrams(row: list[str], ngram: tuple[str]) -> list[str]:
-            """Replace a ngram with one word unified by underscores.
+            """Substitui um n-grama por uma palavra unificada com sublinhados.
 
-            Parameters
+            Parâmetros
             ----------
             row: list of str
-                A document in the corpus.
+                Um documento no corpus.
 
             ngram: tuple of str
-                Words in the ngram.
+                Palavras no n-grama.
 
-            Returns
+            Retorna
             -------
             str
-               Document in the corpus with unified ngrams.
+               Documento no corpus com n-gramas unificados.
 
             """
-            sep = "<&&>"  # Separator between words in a ngram.
+            sep = "<&&>"  # Separador entre palavras em um n-grama.
 
-            row_c = "&>" + sep.join(row) + "<&"  # Indicate words with separator
-            row_c = row_c.replace(  # Replace ngrams separator with underscore
+            row_c = "&>" + sep.join(row) + "<&"  # Indica palavras com separador
+            row_c = row_c.replace(  # Substitui o separador do n-grama por sublinhado
                 "&>" + sep.join(ngram) + "<&",
                 "&>" + "_".join(ngram) + "<&",
             )
@@ -711,7 +722,7 @@ class Tokenizer(TransformerMixin, OneToOneFeatureMixin):
         Xt = to_df(X, columns=getattr(self, "feature_names_in_", None))
         corpus = get_corpus(Xt)
 
-        self._log("Tokenizing the corpus...", 1)
+        self._log("Tokenizando o corpus...", 1)
 
         if isinstance(Xt[corpus].iloc[0], str):
             check_nltk_module("tokenizers/punkt", quiet=self.verbose < 2)
@@ -725,7 +736,7 @@ class Tokenizer(TransformerMixin, OneToOneFeatureMixin):
 
         for attr, finder in ngrams.items():
             if frequency := getattr(self, f"{attr[:-1]}_freq"):
-                # Search for all n-grams in the corpus
+                # Busca todos os n-gramas no corpus
                 ngram_fd = finder.from_documents(Xt[corpus]).ngram_fd
 
                 if frequency < 1:
@@ -741,91 +752,91 @@ class Tokenizer(TransformerMixin, OneToOneFeatureMixin):
                         rows.append({attr[:-1]: "_".join(ngram), "frequency": freq})
 
                 if rows:
-                    # Sort ngrams by frequency and add the dataframe as attribute
+                    # Ordena n-gramas por frequência e adiciona o dataframe como atributo
                     df = pd.DataFrame(rows).sort_values("frequency", ascending=False)
                     setattr(self, f"{attr}_", df.reset_index(drop=True))
 
-                    self._log(f" --> Creating {occur} {attr} on {counts} locations.", 2)
+                    self._log(f" --> Criando {occur} {attr} em {counts} locais.", 2)
                 else:
-                    self._log(f" --> No {attr} found in the corpus.", 2)
+                    self._log(f" --> Nenhum {attr} encontrado no corpus.", 2)
 
         return self._convert(Xt)
 
 
 @beartype
 class Vectorizer(TransformerMixin):
-    """Vectorize text data.
+    """Vetoriza dados de texto.
 
-    Transform the corpus into meaningful vectors of numbers. The
-    transformation is applied on the column named `corpus`. If
-    there is no column with that name, an exception is raised.
+    Transforma o corpus em vetores significativos de números. A
+    transformação é aplicada na coluna chamada `corpus`. Se
+    não houver uma coluna com esse nome, uma exceção é lançada.
 
-    If strategy="bow" or "tfidf", the transformed columns are named
-    after the word they are embedding with the prefix `corpus_`. If
-    strategy="hashing", the columns are named hash[N], where N stands
-    for the n-th hashed column.
+    Se strategy="bow" ou "tfidf", as colunas transformadas são nomeadas
+    de acordo com a palavra que estão incorporando com o prefixo `corpus_`. Se
+    strategy="hashing", as colunas são nomeadas hash[N], onde N representa
+    a n-ésima coluna com hash.
 
-    This class can be accessed from experionml through the [vectorize]
-    [experionmlclassifier-vectorize] method. Read more in the [user guide]
+    Esta classe pode ser acessada no experionml através do método [vectorize]
+    [experionmlclassifier-vectorize]. Leia mais no [guia do usuário]
     [vectorization].
 
-    Parameters
+    Parâmetros
     ----------
     strategy: str, default="bow"
-        Strategy with which to vectorize the text. Choose from:
+        Estratégia com a qual vetorizar o texto. Escolha entre:
 
-        - "[bow][]": Bag of Words.
+        - "[bow][]": Bag of Words (Saco de Palavras).
         - "[tfidf][]": Term Frequency - Inverse Document Frequency.
-        - "[hashing][]": Vectorize to a matrix of token occurrences.
+        - "[hashing][]": Vetorizar para uma matriz de ocorrências de tokens.
 
     return_sparse: bool, default=True
-        Whether to return the transformation output as a dataframe
-        of sparse arrays. Must be False when there are other columns
-        in X (besides `corpus`) that are non-sparse.
+        Se deve retornar a saída da transformação como um dataframe
+        de arrays esparsos. Deve ser False quando houver outras colunas
+        em X (além de `corpus`) que não sejam esparsas.
 
     device: str, default="cpu"
-        Device on which to run the estimators. Use any string that
-        follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        Dispositivo no qual executar os estimadores. Use qualquer string que
+        siga o seletor de filtro [SYCL_DEVICE_FILTER][], por ex.
+        `#!python device="gpu"` para usar a GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
     engine: str or None, default=None
-        Execution engine to use for [estimators][estimator-acceleration].
-        If None, the default value is used. Choose from:
+        Motor de execução a usar para [estimadores][estimator-acceleration].
+        Se None, o valor padrão é utilizado. Escolha entre:
 
-        - "sklearn" (default)
+        - "sklearn" (padrão)
         - "cuml"
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não imprimir nada.
+        - 1 para imprimir informações básicas.
+        - 2 para imprimir informações detalhadas.
 
     **kwargs
-        Additional keyword arguments for the `strategy` estimator.
+        Argumentos de palavra-chave adicionais para o estimador `strategy`.
 
-    Attributes
+    Atributos
     ----------
     [strategy]_: sklearn transformer
-        Estimator instance (lowercase strategy) used to vectorize the
-        corpus, e.g., `vectorizer.tfidf` for the tfidf strategy.
+        Instância do estimador (strategy em minúsculo) usado para vetorizar o
+        corpus, por ex., `vectorizer.tfidf` para a estratégia tfidf.
 
     feature_names_in_: np.ndarray
-        Names of features seen during `fit`.
+        Nomes das features vistos durante o `fit`.
 
     n_features_in_: int
-        Number of features seen during `fit`.
+        Número de features vistos durante o `fit`.
 
 
-    See Also
+    Veja também
     --------
     experionml.nlp:TextCleaner
     experionml.nlp:TextNormalizer
     experionml.nlp:Tokenizer
 
-    Examples
+    Exemplos
     --------
     === "experionml"
         ```pycon
@@ -890,41 +901,41 @@ class Vectorizer(TransformerMixin):
         self.kwargs = kwargs
 
     def _get_corpus_columns(self) -> list[str]:
-        """Get the names of the columns created by the vectorizer.
+        """Obtém os nomes das colunas criadas pelo vetorizador.
 
-        Returns
+        Retorna
         -------
         list of str
-            Column names.
+            Nomes das colunas.
 
         """
         if hasattr(self._estimator, "get_feature_names_out"):
             return [f"{self._corpus}_{w}" for w in self._estimator.get_feature_names_out()]
         elif hasattr(self._estimator, "get_feature_names"):
-            # cuML estimators have a different method name (returns a cudf.Series)
+            # Estimadores cuML têm um nome de método diferente (retorna um cudf.Series)
             return [f"{self._corpus}_{w}" for w in self._estimator.get_feature_names().to_numpy()]
         else:
             raise ValueError(
-                "The get_feature_names_out method is not available for strategy='hashing'."
+                "O método get_feature_names_out não está disponível para strategy='hashing'."
             )
 
     def fit(self, X: XConstructor, y: YConstructor | None = None) -> Self:
-        """Fit to data.
+        """Ajusta aos dados.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features). If X is
-            not a dataframe, it should be composed of a single feature
-            containing the text documents.
+            Conjunto de features com shape=(n_samples, n_features). Se X não
+            for um dataframe, deve ser composto por uma única feature
+            contendo os documentos de texto.
 
         y: sequence, dataframe-like or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
-        Returns
+        Retorna
         -------
         Self
-            Estimator instance.
+            Instância do estimador.
 
         """
         Xt = to_df(X)
@@ -933,7 +944,7 @@ class Vectorizer(TransformerMixin):
         self._check_feature_names(Xt, reset=True)
         self._check_n_features(Xt, reset=True)
 
-        # Convert a sequence of tokens to space separated string
+        # Converte uma sequência de tokens para string separada por espaços
         if not isinstance(Xt[self._corpus].iloc[0], str):
             Xt[self._corpus] = Xt[self._corpus].apply(lambda row: " ".join(row))
 
@@ -949,27 +960,27 @@ class Vectorizer(TransformerMixin):
         )
         self._estimator = estimator(**self.kwargs)
 
-        self._log("Fitting Vectorizer...", 1)
+        self._log("Ajustando Vectorizer...", 1)
         self._estimator.fit(Xt[self._corpus])
 
-        # Add the estimator as attribute to the instance
+        # Adiciona o estimador como atributo da instância
         setattr(self, f"{self.strategy}_", self._estimator)
 
         return self
 
     def get_feature_names_out(self, input_features: Sequence[str] | None = None) -> np.ndarray:
-        """Get output feature names for transformation.
+        """Obtém os nomes das features de saída para a transformação.
 
-        Parameters
+        Parâmetros
         ----------
         input_features: sequence or None, default=None
-            Only used to validate feature names with the names seen in
-            `fit`.
+            Usado apenas para validar os nomes das features com os nomes
+            vistos no `fit`.
 
-        Returns
+        Retorna
         -------
         np.ndarray
-            Transformed feature names.
+            Nomes das features transformadas.
 
         """
         check_is_fitted(self, attributes="feature_names_in_")
@@ -979,54 +990,54 @@ class Vectorizer(TransformerMixin):
         return np.array(og_columns + self._get_corpus_columns())
 
     def transform(self, X: XConstructor, y: YConstructor | None = None) -> XReturn:
-        """Vectorize the text.
+        """Vetoriza o texto.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features). If X is
-            not a dataframe, it should be composed of a single feature
-            containing the text documents.
+            Conjunto de features com shape=(n_samples, n_features). Se X não
+            for um dataframe, deve ser composto por uma única feature
+            contendo os documentos de texto.
 
         y: sequence, dataframe-like or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Transformed corpus.
+            Corpus transformado.
 
         """
         check_is_fitted(self)
 
         Xt = to_df(X, columns=self.feature_names_in_)
 
-        self._log("Vectorizing the corpus...", 1)
+        self._log("Vetorizando o corpus...", 1)
 
-        # Convert a sequence of tokens to space-separated string
+        # Converte uma sequência de tokens para string separada por espaços
         if not isinstance(Xt[self._corpus].iloc[0], str):
             Xt[self._corpus] = Xt[self._corpus].apply(lambda row: " ".join(row))
 
         matrix = self._estimator.transform(Xt[self._corpus])
-        Xt = Xt.drop(columns=self._corpus)  # Drop original corpus column
+        Xt = Xt.drop(columns=self._corpus)  # Remove coluna do corpus original
 
         if "sklearn" not in self._estimator.__class__.__module__:
-            matrix = matrix.get()  # Convert cupy sparse array back to scipy
+            matrix = matrix.get()  # Converte array esparso cupy de volta para scipy
 
         if not self.return_sparse:
-            self._log(" --> Converting the output to a full array.", 2)
+            self._log(" --> Convertendo a saída para um array completo.", 2)
             matrix = matrix.toarray()
         elif not Xt.empty and not is_sparse(Xt):
             # Raise if there are other columns that are non-sparse
             raise ValueError(
-                "Invalid value for the return_sparse parameter. The value must "
-                "must be False when X contains non-sparse columns (besides corpus)."
+                "Valor inválido para o parâmetro return_sparse. O valor deve "
+                "ser False quando X contém colunas não esparsas (além de corpus)."
             )
 
         if self.strategy != "hashing":
             columns = self._get_corpus_columns()
         else:
-            # Hashing has no words to put as column names
+            # Hashing não tem palavras para usar como nomes de colunas
             columns = [f"hash{i}" for i in range(1, matrix.shape[1] + 1)]
 
         return self._convert(merge(Xt, to_df(matrix, index=Xt.index, columns=columns)))

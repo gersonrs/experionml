@@ -19,12 +19,7 @@ from scipy import stats
 from scipy.stats.mstats import mquantiles
 from sklearn.calibration import calibration_curve
 from sklearn.inspection import partial_dependence, permutation_importance
-from sklearn.metrics import (
-    confusion_matrix,
-    det_curve,
-    precision_recall_curve,
-    roc_curve,
-)
+from sklearn.metrics import confusion_matrix, det_curve, precision_recall_curve, roc_curve
 from sklearn.utils import _safe_indexing
 from sklearn.utils.metaestimators import available_if
 from sktime.forecasting.base import ForecastingHorizon
@@ -104,10 +99,10 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             Use the [plot_results][] method to compare the model's
             scores on any metric.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         metric: int, str, sequence or None, default=None
             Metric to plot. Use a sequence or add `+` between options
@@ -115,45 +110,45 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             the pipeline is selected.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="lower right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple or None, default=None
-            Figure's size in pixels, format as (x, y). If None, it
-            adapts the size to the number of models.
+            Tamanho da figura em pixels, no formato (x, y). Se None,
+            adapta o tamanho ao número de modelos.
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_learning_curve
         experionml.plots:PredictionPlot.plot_results
         experionml.plots:PredictionPlot.plot_threshold
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -332,15 +327,15 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
         Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_lift
         experionml.plots:PredictionPlot.plot_prc
         experionml.plots:PredictionPlot.plot_roc
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -451,10 +446,10 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             Fill the `threshold` parameter with the result from the
             model's `get_best_threshold` method to optimize the results.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         rows: hashable, segment or sequence, default="test"
             [Selection of rows][row-and-column-selection] on which to
@@ -468,44 +463,44 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             to class labels. Only for binary classification tasks.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="upper right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple or None, default=None
-            Figure's size in pixels, format as (x, y). If None, it
-            adapts the size to the plot's type.
+            Tamanho da figura em pixels, no formato (x, y). Se None,
+            adapta o tamanho ao tipo do gráfico.
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_calibration
         experionml.plots:PredictionPlot.plot_threshold
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -645,53 +640,53 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             This plot is only available for models that ran cross-validation
             using the [cross_validate][adaboost-cross_validate] method.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Model to plot. If None, all models are selected. Note that
-            leaving the default option could raise an exception if there
-            are multiple models. To avoid this, call the plot directly
-            from a model, e.g., `experionml.lr.plot_cv_splits()`.
+            Modelo a plotar. Se None, todos os modelos são selecionados. Note que
+            deixar a opção padrão pode gerar uma exceção se houver múltiplos
+            modelos. Para evitar isso, chame o plot diretamente de um modelo,
+            por exemplo, `experionml.lr.plot_cv_splits()`.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="upper right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:DataPlot.plot_data_splits
         experionml.plots:DataPlot.plot_decomposition
         experionml.plots:DataPlot.plot_relationships
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier, ExperionMLForecaster
@@ -890,10 +885,10 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
         Read more about [DET][] in sklearn's documentation. Only
         available for binary classification tasks.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         rows: str, sequence or dict, default="test"
             Selection of rows on which to calculate the metric.
@@ -907,44 +902,44 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             Target column to look at. Only for [multilabel][] tasks.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="upper right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_gains
         experionml.plots:PredictionPlot.plot_roc
         experionml.plots:PredictionPlot.plot_prc
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -1015,10 +1010,10 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
         along a range of the target domain. This plot is unavailable
         for classification tasks.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         rows: str, sequence or dict, default="test"
             Selection of rows on which to calculate the metric.
@@ -1032,42 +1027,42 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             Target column to look at. Only for [multioutput tasks][].
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="lower right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_residuals
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLRegressor
@@ -1151,53 +1146,53 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
         models at every iteration of the training process. This plot is
         available only for models that allow [in-training validation][].
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         dataset: str, default="test"
             Data set for which to plot the evaluation curves. Use `+`
-            between options to select more than one. Choose from: "train",
+            between options to select more than one. Escolha entre: "train",
             "test".
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="lower right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:HyperparameterTuningPlot.plot_trials
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -1266,55 +1261,55 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
         This plot is available only for models whose estimator has
         a `scores_`, `feature_importances_` or `coef` attribute.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         show: int or None, default=None
-            Number of features (ordered by importance) to show. If
-            None, it shows all features.
+            Número de features (ordenadas por importância) a exibir. Se
+            None, exibe todas as features.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="lower right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple or None, default=None
-            Figure's size in pixels, format as (x, y). If None, it
+            Tamanho da figura em pixels, no formato (x, y). If None, it
             adapts the size to the number of features shown.
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_parshap
         experionml.plots:PredictionPlot.plot_partial_dependence
         experionml.plots:PredictionPlot.plot_permutation_importance
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -1408,10 +1403,10 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
         series; and the lower plot, that shows the prediction residuals.
         This plot is only available for [forecast][time-series] tasks.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         fh: hashable, segment, sequence, dataframe or [ForecastingHorizon][], default="dataset"
             The [forecasting horizon][row-and-column-selection] for
@@ -1427,59 +1422,57 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             Target column to look at. Only for [multivariate][] tasks.
 
         plot_insample: bool, default=False
-            Whether to draw in-sample predictions (predictions on the training
-            set). Models that do not support this feature are silently skipped.
+            Se deve desenhar previsões in-sample (previsões no conjunto de treino). Models that do not support this feature are silently skipped.
 
         plot_interval: bool, default=True
-            Whether to plot prediction intervals together with the exact
-            predicted values. Models wihtout a `predict_interval` method
-            are skipped silently.
+            Se deve plotar intervalos de previsão junto com os valores exatos
+            previstos. Modelos sem método `predict_interval` são ignorados silenciosamente.
 
         inverse: bool, default=True
-            Whether to inversely transform the output through the
-            pipeline. This doesn't affect the predictions if there are
-            no transformers in the pipeline or if the transformers have
-            no `inverse_transform` method or don't apply to `y`.
+            Se deve transformar inversamente a saída pelo pipeline. Isso não
+            afeta as previsões se não houver transformadores no pipeline
+            ou se os transformadores não tiverem método `inverse_transform`
+            ou não se aplicarem a `y`.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="upper left"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple, default=(900, 900)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:DataPlot.plot_distribution
         experionml.plots:DataPlot.plot_series
         experionml.plots:PredictionPlot.plot_errors
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLForecaster
@@ -1660,10 +1653,10 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
         This plot is available only for binary and [multilabel][]
         classification tasks.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         rows: str, sequence or dict, default="test"
             Selection of rows on which to calculate the metric.
@@ -1677,44 +1670,44 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             Target column to look at. Only for [multilabel][] tasks.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="lower right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_det
         experionml.plots:PredictionPlot.plot_lift
         experionml.plots:PredictionPlot.plot_roc
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -1783,10 +1776,10 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
         This plot is available only for models fitted using
         [train sizing][]. [Ensembles][] are ignored.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         metric: int, str, sequence or None, default=None
             Metric to plot (only for multi-metric runs). Use a sequence
@@ -1794,43 +1787,43 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             the metric used to run the pipeline is selected.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="lower right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_results
         experionml.plots:PredictionPlot.plot_successive_halving
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -1934,10 +1927,10 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
 
         Only available for binary classification tasks.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         rows: str, sequence or dict, default="test"
             Selection of rows on which to calculate the metric.
@@ -1951,44 +1944,44 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             Target column to look at. Only for [multilabel][] tasks.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="upper right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_det
         experionml.plots:PredictionPlot.plot_gains
         experionml.plots:PredictionPlot.plot_prc
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -2075,10 +2068,10 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
         `coef_` attribute, its normalized values are shown in a color
         map. This plot is not available for [forecast][time-series] tasks.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         columns: int, str, segment, sequence, dataframe or None, default=None
             [Feature set][row-and-column-selection] to plot. If None,
@@ -2091,44 +2084,44 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             class is always the positive one.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="upper left"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_feature_importance
         experionml.plots:PredictionPlot.plot_partial_dependence
         experionml.plots:PredictionPlot.plot_permutation_importance
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -2275,10 +2268,10 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
         [documentation][partial_dependence]. This plot is not available
         for multilabel nor multiclass-multioutput classification tasks.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         columns: int, str, segment, sequence or dataframe, default=(0, 1, 2)
             [Feature set][row-and-column-selection] to get the
@@ -2286,7 +2279,7 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
 
         kind: str or sequence, default="average"
             Kind of dependence to plot. Use a sequence or add `+` between
-            options to select more than one. Choose from:
+            options to select more than one. Escolha entre:
 
             - "average": Partial dependence averaged across all samples
               in the dataset.
@@ -2307,44 +2300,44 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             classification tasks).
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="lower right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_feature_importance
         experionml.plots:PredictionPlot.plot_parshap
         experionml.plots:PredictionPlot.plot_permutation_importance
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -2548,58 +2541,58 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             This method can be slow. Results are cached to fasten
             repeated calls.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         show: int or None, default=None
-            Number of features (ordered by importance) to show. If
-            None, it shows all features.
+            Número de features (ordenadas por importância) a exibir. Se
+            None, exibe todas as features.
 
         n_repeats: int, default=10
-            Number of times to permute each feature.
+            Número de vezes para permutar cada feature.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="lower right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple or None, default=None
-            Figure's size in pixels, format as (x, y). If None, it
+            Tamanho da figura em pixels, no formato (x, y). If None, it
             adapts the size to the number of features shown.
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_feature_importance
         experionml.plots:PredictionPlot.plot_partial_dependence
         experionml.plots:PredictionPlot.plot_parshap
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -2687,52 +2680,52 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             incompatible with [plotly][]. The returned plot is
             therefore a [matplotlib figure][pltfigure].
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models for which to draw the pipeline. If None, all
-            pipelines are plotted.
+            Modelos para os quais desenhar o pipeline. Se None,
+            todos os pipelines são plotados.
 
         draw_hyperparameter_tuning: bool, default=True
-            Whether to draw if the models used Hyperparameter Tuning.
+            Se deve desenhar caso os modelos usaram Ajuste de Hiperparâmetros.
 
         color_branches: bool or None, default=None
-            Whether to draw every branch in a different color. If None,
-            branches are colored when there is more than one.
+            Se deve usar uma cor diferente para cada branch. Se None,
+            as branches são coloridas quando há mais de uma.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default=None
             Do nothing. Implemented for continuity of the API.
 
         figsize: tuple or None, default=None
-            Figure's size in pixels, format as (x, y). If None, it
-            adapts the size to the pipeline drawn.
+            Tamanho da figura em pixels, no formato (x, y). Se None,
+            adapta o tamanho ao pipeline desenhado.
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as png. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como png. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [plt.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:DataPlot.plot_wordcloud
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -2997,10 +2990,10 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
         Read more about [PRC][] in sklearn's documentation. Only
         available for binary classification tasks.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         rows: str, sequence or dict, default="test"
             Selection of rows on which to calculate the metric.
@@ -3014,44 +3007,44 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             Target column to look at. Only for [multilabel][] tasks.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="lower left"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_det
         experionml.plots:PredictionPlot.plot_lift
         experionml.plots:PredictionPlot.plot_roc
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -3133,10 +3126,10 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
         This plot is available only for models with a `predict_proba`
         method in classification tasks.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         rows: hashable, segment or sequence, default="test"
             [Selection of rows][row-and-column-selection] on which to
@@ -3148,44 +3141,44 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             (column, class).
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="upper right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_confusion_matrix
         experionml.plots:PredictionPlot.plot_results
         experionml.plots:PredictionPlot.plot_threshold
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -3287,10 +3280,10 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
         non-linear model is more appropriate. This plot is unavailable
         for classification tasks.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         rows: str, sequence or dict, default="test"
             Selection of rows on which to calculate the metric.
@@ -3304,42 +3297,42 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             Target column to look at. Only for [multioutput tasks][].
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="upper left"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_errors
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLRegressor
@@ -3437,13 +3430,13 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
         Shows a barplot of the metric scores. Models are ordered based
         on their score from the top down.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         metric: int, str, sequence or None, default=None
-            Metric to plot. Choose from any of sklearn's scorers, a
+            Metric to plot. Escolha entre qualquer um dos scorers, a
             function with signature `metric(y_true, y_pred, **kwargs)`
             or a scorer object. Use a sequence or add `+` between
             options to select more than one. If None, the metric used
@@ -3456,45 +3449,45 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             is a time metric.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="lower right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple or None, default=None
-            Figure's size in pixels, format as (x, y). If None, it
-            adapts the size to the number of models.
+            Tamanho da figura em pixels, no formato (x, y). Se None,
+            adapta o tamanho ao número de modelos.
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_bootstrap
         experionml.plots:PredictionPlot.plot_probabilities
         experionml.plots:PredictionPlot.plot_threshold
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -3616,10 +3609,10 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
         Read more about [ROC][] in sklearn's documentation. Only
         available for classification tasks.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         rows: str, sequence or dict, default="test"
             Selection of rows on which to calculate the metric.
@@ -3633,44 +3626,44 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             Target column to look at. Only for [multilabel][] tasks.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="lower right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_gains
         experionml.plots:PredictionPlot.plot_lift
         experionml.plots:PredictionPlot.plot_prc
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -3740,10 +3733,10 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
         Only use with models fitted using [successive halving][].
         [Ensembles][] are ignored.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         metric: int, str, sequence or None, default=None
             Metric to plot (only for multi-metric runs). Use a sequence
@@ -3751,43 +3744,43 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             the metric used to run the pipeline is selected.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="lower right"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_learning_curve
         experionml.plots:PredictionPlot.plot_results
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -3895,13 +3888,13 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
         This plot is available only for models with a `predict_proba`
         method in a binary or [multilabel][] classification task.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
-            Models to plot. If None, all models are selected.
+            Modelos a plotar. Se None, todos os modelos são selecionados.
 
         metric: str, func, scorer, sequence or None, default=None
-            Metric to plot. Choose from any of sklearn's scorers, a
+            Metric to plot. Escolha entre qualquer um dos scorers, a
             function with signature `metric(y_true, y_pred, **kwargs)`
             or a scorer object. Use a sequence or add `+` between
             options to select more than one. If None, the metric used
@@ -3915,47 +3908,47 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
             Target column to look at. Only for [multilabel][] tasks.
 
         steps: int, default=100
-            Number of thresholds measured.
+            Número de limiares medidos.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: str, dict or None, default="lower left"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters]
+            para uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: nenhuma legenda é exibida.
+            - Se str: posição em que a legenda será exibida.
+            - Se dict: configuração da legenda.
 
         figsize: tuple, default=(900, 600)
-            Figure's size in pixels, format as (x, y).
+            Tamanho da figura em pixels, no formato (x, y).
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf etc.). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool or None, default=True
-            Whether to render the plot. If None, it returns the figure.
+            Se deve renderizar o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         [go.Figure][] or None
-            Plot object. Only returned if `display=None`.
+            Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_calibration
         experionml.plots:PredictionPlot.plot_confusion_matrix
         experionml.plots:PredictionPlot.plot_probabilities
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier

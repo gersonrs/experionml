@@ -26,44 +26,44 @@ from experionml.utils.utils import divide, rnd, to_rgb
 class BaseFigure:
     """Figura base do Plotly.
 
-    The instance stores the position of the current axes in grid,
-    as well as the models used for the plot (to track in mlflow).
+    A instância armazena a posição dos eixos atuais na grade, bem como
+    os modelos usados no gráfico (para rastreamento no mlflow).
 
-    Parameters
+    Parâmetros
     ----------
     rows: int, default=1
-        Number of subplot rows in the canvas.
+        Número de linhas de subplots no canvas.
 
     cols: int, default=1
-        Number of subplot columns in the canvas.
+        Número de colunas de subplots no canvas.
 
     sharex: bool, default=False
-        If True, hide the label and ticks from non-border subplots
-        on the x-axis.
+        Se True, oculta o rótulo e os ticks dos subplots que não estão
+        na borda do eixo x.
 
     sharey: bool, default=False
-        If True, hide the label and ticks from non-border subplots
-        on the y-axis.
+        Se True, oculta o rótulo e os ticks dos subplots que não estão
+        na borda do eixo y.
 
     hspace: float, default=0.05
-        Space between subplot rows in normalized plot coordinates.
-        The spacing is relative to the figure's size.
+        Espaço entre linhas de subplots em coordenadas normalizadas.
+        O espaçamento é relativo ao tamanho da figura.
 
     vspace: float, default=0.07
-        Space between subplot cols in normalized plot coordinates.
-        The spacing is relative to the figure's size.
+        Espaço entre colunas de subplots em coordenadas normalizadas.
+        O espaçamento é relativo ao tamanho da figura.
 
     palette: str or sequence, default="Prism"
-        Name or color sequence for the palette.
+        Nome ou sequência de cores para a paleta.
 
     is_canvas: bool, default=False
-        Whether the figure shows multiple plots.
+        Se o gráfico exibe múltiplos plots.
 
     backend: str, default="plotly"
-        Figure's backend. Choose between plotly or matplotlib.
+        Backend do gráfico. Escolha entre plotly ou matplotlib.
 
     create_figure: bool, default=True
-        Whether to create a new figure.
+        Se deve criar uma nova figura.
 
     """
 
@@ -94,7 +94,7 @@ class BaseFigure:
         if isinstance(palette, str):
             self._palette = getattr(px.colors.qualitative, palette)
         elif isinstance(palette, sequence_t):
-            # Convert color names or hex to rgb
+            # Converte nomes de cores ou hex para rgb
             self._palette = list(map(to_rgb, palette))
         self.is_canvas = is_canvas
         self.backend = backend
@@ -123,13 +123,13 @@ class BaseFigure:
     def grid(self) -> tuple[Int, Int]:
         """Posição dos eixos atuais na grade.
 
-        Returns
+        Retorna
         -------
         int
-            X-position.
+            Posição em X.
 
         int
-            Y-position.
+            Posição em Y.
 
         """
         return (self.idx - 1) // self.cols + 1, self.idx % self.cols or self.cols
@@ -138,10 +138,10 @@ class BaseFigure:
     def next_subplot(self) -> go.Figure | plt.Figure | None:
         """Avança o índice do subplot.
 
-        Returns
+        Retorna
         -------
         go.Figure, plt.Figure or None
-            Current figure. Returns None if `create_figure=False`.
+            Figura atual. Retorna None se `create_figure=False`.
 
         """
         # Check if there are too many plots in the canvas
@@ -165,23 +165,23 @@ class BaseFigure:
     ) -> str:
         """Obtém o elemento do gráfico para um nome específico.
 
-        This method is used to assign the same element (color, marker,
-        etc...) to the same columns and models in a plot.
+        Este método é usado para atribuir o mesmo elemento (cor, marcador,
+        etc.) às mesmas colunas e modelos em um plot.
 
-        Parameters
+        Parâmetros
         ----------
         name: int, float or str or None, default=None
-            Name for which to get the plot element. The name is stored in
-            the element attributes to assign the same element to all calls
-            with the same name. If None, return the first element.
+            Nome para o qual obter o elemento do plot. O nome é armazenado
+            nos atributos de elemento para atribuir o mesmo elemento a todas
+            as chamadas com o mesmo nome. Se None, retorna o primeiro elemento.
 
         element: str, default="palette"
-            Plot element to get. Choose from: palette, marker, dash, shape.
+            Elemento do plot a obter. Escolha entre: palette, marker, dash, shape.
 
-        Returns
+        Retorna
         -------
         str
-            Element code.
+            Código do elemento.
 
         """
         if name is None:
@@ -194,21 +194,21 @@ class BaseFigure:
     def showlegend(self, name: str, legend: Legend | dict[str, Any] | None) -> bool:
         """Retorna se o trace deve ser exibido na legenda.
 
-        If there's already a trace with the same name, it's not
-        necessary to show it in the plot's legend.
+        Se já houver um trace com o mesmo nome, não é necessário
+        exibi-lo novamente na legenda do plot.
 
-        Parameters
+        Parâmetros
         ----------
         name: str
-            Name of the trace.
+            Nome do trace.
 
         legend: str, dict or None
-            Legend parameter.
+            Parâmetro de legenda.
 
-        Returns
+        Retorna
         -------
         bool
-            Whether the trace should be placed in the legend.
+            Se o trace deve aparecer na legenda.
 
         """
         if name in self.groups:
@@ -225,48 +225,48 @@ class BaseFigure:
     ) -> tuple[str, str]:
         """Cria e atualiza os eixos do gráfico.
 
-        Parameters
+        Parâmetros
         ----------
         x: tuple
-            Relative x-size of the plot.
+            Tamanho relativo no eixo x do plot.
 
         y: tuple
-            Relative y-size of the plot.
+            Tamanho relativo no eixo y do plot.
 
         coloraxis: dict or None
-            Properties of the coloraxis to create. None to ignore.
+            Propriedades do coloraxis a criar. None para ignorar.
 
-        Returns
+        Retorna
         -------
         str
-            Name of the x-axis.
+            Nome do eixo x.
 
         str
-            Name of the y-axis.
+            Nome do eixo y.
 
         """
         self.axes += 1
 
-        # Calculate the distance between subplots
+        # Calcula a distância entre os subplots
         x_offset = divide(self.hspace, (self.cols - 1))
         y_offset = divide(self.vspace, (self.rows - 1))
 
-        # Calculate the size of the subplot
+        # Calcula o tamanho do subplot
         x_size = (1 - ((x_offset * 2) * (self.cols - 1))) / self.cols
         y_size = (1 - ((y_offset * 2) * (self.rows - 1))) / self.rows
 
-        # Calculate the size of the axes
+        # Calcula o tamanho dos eixos
         ax_size = (x[1] - x[0]) * x_size
         ay_size = (y[1] - y[0]) * y_size
 
-        # Determine the position for the axes
+        # Determina a posição dos eixos
         x_pos = (self.grid[1] - 1) * (x_size + 2 * x_offset) + x[0] * x_size
         y_pos = (self.rows - self.grid[0]) * (y_size + 2 * y_offset) + y[0] * y_size
 
-        # Store positions for subplot title
+        # Armazena posições para o título do subplot
         self.pos[str(self.axes)] = (x_pos + ax_size / 2, rnd(y_pos + ay_size))
 
-        # Update the figure with the new axes
+        # Atualiza a figura com os novos eixos
         self.figure.update_layout(
             {
                 f"xaxis{self.axes}": {
@@ -280,7 +280,7 @@ class BaseFigure:
             }
         )
 
-        # Place a colorbar right of the axes
+        # Coloca uma barra de cores à direita dos eixos
         if coloraxis:
             if title := coloraxis.pop("title", None):
                 coloraxis["colorbar_title"] = {
@@ -294,7 +294,7 @@ class BaseFigure:
             coloraxis["colorbar_y"] = y_pos + ay_size / 2
             coloraxis["colorbar_yanchor"] = "middle"
             coloraxis["colorbar_len"] = ay_size * 0.9
-            coloraxis["colorbar_thickness"] = ax_size * 30  # Default width in pixels
+            coloraxis["colorbar_thickness"] = ax_size * 30  # Largura padrão em pixels
             self.figure.update_layout({f"coloraxis{coloraxis.pop('axes', self.axes)}": coloraxis})
 
         xaxis = f"x{self.axes if self.axes > 1 else ''}"

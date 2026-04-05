@@ -52,7 +52,7 @@ def ExperionMLModel(
 
     Leia mais sobre modelos personalizados no [guia do usuário][custom-models].
 
-    Parameters
+    Parâmetros
     ----------
     estimator: Predictor
         Estimador personalizado. Deve implementar os métodos `fit` e `predict`.
@@ -90,13 +90,13 @@ def ExperionMLModel(
                     de iterações, por exemplo, `n_estimators` para
                     [RandomForestClassifier][].
 
-    Returns
+    Retorna
     -------
     Predictor
         Estimador com as informações fornecidas. Passe esta instância
         para o parâmetro `models` do método [run][experionmlclassifier-run].
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLRegressor, ExperionMLModel
@@ -147,10 +147,10 @@ class ExperionMLClassifier(ExperionML):
     atributos][], [treinamento de modelos][training] e [visualização][plots]
     podem ser acessadas a partir de uma instância desta classe.
 
-    Parameters
+    Parâmetros
     ----------
     *arrays: sequence of indexables
-        Dataset containing features and target. Allowed formats are:
+        Dataset containing features and target. Formatos permitidos:
 
         - X
         - X, y
@@ -209,35 +209,35 @@ class ExperionMLClassifier(ExperionML):
         training. The features are still used in the remaining methods.
 
     test_size: int or float, default=0.2
-        - If <=1: Fraction of the dataset to include in the test set.
-        - If >1: Number of rows to include in the test set.
+        - Se <=1: Fração do dataset a incluir no conjunto de teste.
+        - Se >1: Número de linhas a incluir no conjunto de teste.
 
-        This parameter is ignored if the test set is provided
-        through `arrays`.
+        Este parâmetro é ignorado se o conjunto de teste for fornecido
+        via `arrays`.
 
-        If 'groups' is provided in the `metadata` parameter, `test_size`
-        represents the proportion of groups to include in the test split
-        or the absolute number of test groups.
+        Se 'groups' for fornecido no parâmetro `metadata`, `test_size`
+        representa a proporção de grupos a incluir na divisão de teste
+        ou o número absoluto de grupos de teste.
 
     holdout_size: int, float or None, default=None
-        - If None: No holdout data set is kept apart.
-        - If <=1: Fraction of the dataset to include in the holdout set.
-        - If >1: Number of rows to include in the holdout set.
+        - Se None: Nenhum conjunto holdout é separado.
+        - Se <=1: Fração do dataset a incluir no conjunto holdout.
+        - Se >1: Número de linhas a incluir no conjunto holdout.
 
-        This parameter is ignored if the holdout set is provided
-        through `arrays`.
+        Este parâmetro é ignorado se o conjunto holdout for fornecido
+        via `arrays`.
 
     shuffle: bool, default=True
-        Whether to shuffle the dataset before splitting the data sets.
+        Se deve embaralhar o dataset antes de dividir os conjuntos de dados.
 
     stratify: int, str or None, default=-1
         Handle stratification of the target classes over the data sets.
 
-        - If None: No stratification is applied.
-        - If int: Position of the column to use for stratification.
-        - If str: Name of the column to use for stratification.
+        - Se None: Nenhuma estratificação é aplicada.
+        - Se int: Posição da coluna a usar para estratificação.
+        - Se str: Nome da coluna a usar para estratificação.
 
-        The stratification column can't contain `NaN` values.
+        A coluna de estratificação não pode conter valores `NaN`.
 
         This parameter is ignored if `shuffle=False` or if the test
         set is provided through `arrays`.
@@ -247,21 +247,21 @@ class ExperionMLClassifier(ExperionML):
         all rows.
 
         - If <=1: Fraction of the dataset to select.
-        - If >1: Exact number of rows to select. Only if `arrays` is X
+        - Se >1: Número exato de linhas a selecionar. Apenas se `arrays` for X
                  or X, y.
 
     n_jobs: int, default=1
-        Number of cores to use for parallel processing.
+        Número de núcleos a usar para processamento paralelo.
 
-        - If >0: Number of cores to use.
-        - If -1: Use all available cores.
-        - If <-1: Use number of cores - 1 + `n_jobs`.
+        - Se >0: Número de núcleos a usar.
+        - Se -1: Usa todos os núcleos disponíveis.
+        - Se <-1: Usa número de núcleos - 1 + `n_jobs`.
 
     device: str, default="cpu"
         Device on which to run the estimators. Use any string that
         follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        `#!python device="gpu"` to use the GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
     engine: str, dict or None, default=None
         Execution engine to use for [data][data-engines] and
@@ -269,7 +269,7 @@ class ExperionMLClassifier(ExperionML):
         one of the possible values to change one of the two engines,
         or a dictionary with keys `data` and `estimator`, with their
         corresponding choice as values to change both engines. If
-        None, the default values are used. Choose from:
+        None, the default values are used. Escolha entre:
 
         - "data":
 
@@ -291,8 +291,8 @@ class ExperionMLClassifier(ExperionML):
             - "cuml"
 
     backend: str, default="loky"
-        Parallelization backend. Read more in the
-        [user guide][parallel-execution]. Choose from:
+        Parallelization backend. Leia mais no
+        [guia do usuário][parallel-execution]. Escolha entre:
 
         - "loky": Single-node, process-based parallelism.
         - "multiprocessing": Legacy single-node, process-based
@@ -302,50 +302,50 @@ class ExperionMLClassifier(ExperionML):
         - "dask": Multi-node, process-based parallelism.
 
     memory: bool, str, Path or Memory, default=False
-        Enables caching for memory optimization. Read more in the
-        [user guide][memory-considerations].
+        Enables caching for memory optimization. Leia mais no
+        [guia do usuário][memory-considerations].
 
-        - If False: No caching is performed.
-        - If True: A default temp directory is used.
-        - If str: Path to the caching directory.
-        - If Path: A [pathlib.Path][] to the caching directory.
-        - If Memory: Object with the [joblib.Memory][] interface.
+        - Se False: Nenhum cache é realizado.
+        - Se True: Um diretório temporário padrão é usado.
+        - Se str: Caminho para o diretório de cache.
+        - Se Path: Um [pathlib.Path][] para o diretório de cache.
+        - Se Memory: Objeto com a interface [joblib.Memory][].
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Verbosity level of the class. Escolha entre:
 
         - 0 to not print anything.
         - 1 to print basic information.
         - 2 to print detailed information.
 
     warnings: bool or str, default=False
-        - If True: Default warning action (equal to "once").
-        - If False: Suppress all warnings (equal to "ignore").
+        - Se True: Ação padrão de aviso (equal to "once").
+        - Se False: Suprime todos os avisos (equal to "ignore").
         - If str: One of python's [warnings filters][warnings].
 
         Changing this parameter affects the `PYTHONWarnings` environment.
         ExperionML can't manage warnings that go from C/C++ code to stdout.
 
     logger: str, Logger or None, default=None
-        - If None: Logging isn't used.
-        - If str: Name of the log file. Use "auto" for automatic name.
-        - If Path: A [pathlib.Path][] to the log file.
-        - Else: Python `logging.Logger` instance.
+        - Se None: Logging não é usado.
+        - Se str: Nome do arquivo de log. Use "auto" para nome automático.
+        - Se Path: Um [pathlib.Path][] para o arquivo de log.
+        - Caso contrário: Instância de `logging.Logger` do Python.
 
     experiment: str or None, default=None
         Name of the [mlflow experiment][experiment] to use for tracking.
-        If None, no mlflow tracking is performed.
+        Se None, nenhum rastreamento mlflow é realizado.
 
     random_state: int or None, default=None
-        Seed used by the random number generator. If None, the random
-        number generator is the `RandomState` used by `np.random`.
+        Seed used by the random number generator. Se None, o gerador
+        de números aleatórios é o `RandomState` usado por `np.random`.
 
-    See Also
+    Veja também
     --------
     experionml.api:ExperionMLForecaster
     experionml.api:ExperionMLRegressor
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -432,7 +432,7 @@ class ExperionMLForecaster(ExperionML):
     atributos][], [treinamento de modelos][training] e [visualização][plots]
     podem ser acessadas a partir de uma instância desta classe.
 
-    Parameters
+    Parâmetros
     ----------
     *arrays: sequence of indexables
         Dataset containing exogenous features and time series. Allowed
@@ -511,19 +511,19 @@ class ExperionMLForecaster(ExperionML):
             - "trend_model" (optional): "additive" or "multiplicative".
 
     test_size: int or float, default=0.2
-        - If <=1: Fraction of the dataset to include in the test set.
-        - If >1: Number of rows to include in the test set.
+        - Se <=1: Fração do dataset a incluir no conjunto de teste.
+        - Se >1: Número de linhas a incluir no conjunto de teste.
 
-        This parameter is ignored if the test set is provided
-        through `arrays`.
+        Este parâmetro é ignorado se o conjunto de teste for fornecido
+        via `arrays`.
 
     holdout_size: int, float or None, default=None
-        - If None: No holdout data set is kept apart.
-        - If <=1: Fraction of the dataset to include in the holdout set.
-        - If >1: Number of rows to include in the holdout set.
+        - Se None: Nenhum conjunto holdout é separado.
+        - Se <=1: Fração do dataset a incluir no conjunto holdout.
+        - Se >1: Número de linhas a incluir no conjunto holdout.
 
-        This parameter is ignored if the holdout set is provided
-        through `arrays`.
+        Este parâmetro é ignorado se o conjunto holdout for fornecido
+        via `arrays`.
 
     n_rows: int or float, default=1
         Subsample of the dataset to use. The cut is made from the head
@@ -531,21 +531,21 @@ class ExperionMLForecaster(ExperionML):
         ascending). The default value selects all rows.
 
         - If <=1: Fraction of the dataset to select.
-        - If >1: Exact number of rows to select. Only if `arrays` is X
+        - Se >1: Número exato de linhas a selecionar. Apenas se `arrays` for X
                  or X, y.
 
     n_jobs: int, default=1
-        Number of cores to use for parallel processing.
+        Número de núcleos a usar para processamento paralelo.
 
-        - If >0: Number of cores to use.
-        - If -1: Use all available cores.
-        - If <-1: Use number of cores - 1 + `n_jobs`.
+        - Se >0: Número de núcleos a usar.
+        - Se -1: Usa todos os núcleos disponíveis.
+        - Se <-1: Usa número de núcleos - 1 + `n_jobs`.
 
     device: str, default="cpu"
         Device on which to run the estimators. Use any string that
         follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        `#!python device="gpu"` to use the GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
     engine: str, dict or None, default=None
         Execution engine to use for [data][data-engines] and
@@ -553,7 +553,7 @@ class ExperionMLForecaster(ExperionML):
         one of the possible values to change one of the two engines,
         or a dictionary with keys `data` and `estimator`, with their
         corresponding choice as values to change both engines. If
-        None, the default values are used. Choose from:
+        None, the default values are used. Escolha entre:
 
         - "data":
 
@@ -575,8 +575,8 @@ class ExperionMLForecaster(ExperionML):
             - "cuml"
 
     backend: str, default="loky"
-        Parallelization backend. Read more in the
-        [user guide][parallel-execution]. Choose from:
+        Parallelization backend. Leia mais no
+        [guia do usuário][parallel-execution]. Escolha entre:
 
         - "loky": Single-node, process-based parallelism.
         - "multiprocessing": Legacy single-node, process-based
@@ -586,50 +586,50 @@ class ExperionMLForecaster(ExperionML):
         - "dask": Multi-node, process-based parallelism.
 
     memory: bool, str, Path or Memory, default=False
-        Enables caching for memory optimization. Read more in the
-        [user guide][memory-considerations].
+        Enables caching for memory optimization. Leia mais no
+        [guia do usuário][memory-considerations].
 
-        - If False: No caching is performed.
-        - If True: A default temp directory is used.
-        - If str: Path to the caching directory.
-        - If Path: A [pathlib.Path][] to the caching directory.
-        - If Memory: Object with the [joblib.Memory][] interface.
+        - Se False: Nenhum cache é realizado.
+        - Se True: Um diretório temporário padrão é usado.
+        - Se str: Caminho para o diretório de cache.
+        - Se Path: Um [pathlib.Path][] para o diretório de cache.
+        - Se Memory: Objeto com a interface [joblib.Memory][].
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Verbosity level of the class. Escolha entre:
 
         - 0 to not print anything.
         - 1 to print basic information.
         - 2 to print detailed information.
 
     warnings: bool or str, default=False
-        - If True: Default warning action (equal to "once").
-        - If False: Suppress all warnings (equal to "ignore").
+        - Se True: Ação padrão de aviso (equal to "once").
+        - Se False: Suprime todos os avisos (equal to "ignore").
         - If str: One of python's [warnings filters][warnings].
 
         Changing this parameter affects the `PYTHONWarnings` environment.
         ExperionML can't manage warnings that go from C/C++ code to stdout.
 
     logger: str, Logger or None, default=None
-        - If None: Logging isn't used.
-        - If str: Name of the log file. Use "auto" for automatic name.
-        - If Path: A [pathlib.Path][] to the log file.
-        - Else: Python `logging.Logger` instance.
+        - Se None: Logging não é usado.
+        - Se str: Nome do arquivo de log. Use "auto" para nome automático.
+        - Se Path: Um [pathlib.Path][] para o arquivo de log.
+        - Caso contrário: Instância de `logging.Logger` do Python.
 
     experiment: str or None, default=None
         Name of the [mlflow experiment][experiment] to use for tracking.
-        If None, no mlflow tracking is performed.
+        Se None, nenhum rastreamento mlflow é realizado.
 
     random_state: int or None, default=None
-        Seed used by the random number generator. If None, the random
-        number generator is the `RandomState` used by `np.random`.
+        Seed used by the random number generator. Se None, o gerador
+        de números aleatórios é o `RandomState` usado por `np.random`.
 
-    See Also
+    Veja também
     --------
     experionml.api:ExperionMLClassifier
     experionml.api:ExperionMLRegressor
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLForecaster
@@ -711,10 +711,10 @@ class ExperionMLRegressor(ExperionML):
     atributos][], [treinamento de modelos][training] e [visualização][plots]
     podem ser acessadas a partir de uma instância desta classe.
 
-    Parameters
+    Parâmetros
     ----------
     *arrays: sequence of indexables
-        Dataset containing features and target. Allowed formats are:
+        Dataset containing features and target. Formatos permitidos:
 
         - X
         - X, y
@@ -774,47 +774,47 @@ class ExperionMLRegressor(ExperionML):
         training. The features are still used in the remaining methods.
 
     test_size: int or float, default=0.2
-        - If <=1: Fraction of the dataset to include in the test set.
-        - If >1: Number of rows to include in the test set.
+        - Se <=1: Fração do dataset a incluir no conjunto de teste.
+        - Se >1: Número de linhas a incluir no conjunto de teste.
 
-        This parameter is ignored if the test set is provided
-        through `arrays`.
+        Este parâmetro é ignorado se o conjunto de teste for fornecido
+        via `arrays`.
 
-        If 'groups' is provided in the `metadata` parameter, `test_size`
-        represents the proportion of groups to include in the test split
-        or the absolute number of test groups.
+        Se 'groups' for fornecido no parâmetro `metadata`, `test_size`
+        representa a proporção de grupos a incluir na divisão de teste
+        ou o número absoluto de grupos de teste.
 
     holdout_size: int, float or None, default=None
-        - If None: No holdout data set is kept apart.
-        - If <=1: Fraction of the dataset to include in the holdout set.
-        - If >1: Number of rows to include in the holdout set.
+        - Se None: Nenhum conjunto holdout é separado.
+        - Se <=1: Fração do dataset a incluir no conjunto holdout.
+        - Se >1: Número de linhas a incluir no conjunto holdout.
 
-        This parameter is ignored if the holdout set is provided
-        through `arrays`.
+        Este parâmetro é ignorado se o conjunto holdout for fornecido
+        via `arrays`.
 
     shuffle: bool, default=True
-        Whether to shuffle the dataset before splitting the data sets.
+        Se deve embaralhar o dataset antes de dividir os conjuntos de dados.
 
     n_rows: int or float, default=1
         Random subsample of the dataset to use. The default value selects
         all rows.
 
         - If <=1: Fraction of the dataset to select.
-        - If >1: Exact number of rows to select. Only if `arrays` is X
+        - Se >1: Número exato de linhas a selecionar. Apenas se `arrays` for X
                  or X, y.
 
     n_jobs: int, default=1
-        Number of cores to use for parallel processing.
+        Número de núcleos a usar para processamento paralelo.
 
-        - If >0: Number of cores to use.
-        - If -1: Use all available cores.
-        - If <-1: Use number of cores - 1 + `n_jobs`.
+        - Se >0: Número de núcleos a usar.
+        - Se -1: Usa todos os núcleos disponíveis.
+        - Se <-1: Usa número de núcleos - 1 + `n_jobs`.
 
     device: str, default="cpu"
         Device on which to run the estimators. Use any string that
         follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        `#!python device="gpu"` to use the GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
     engine: str, dict or None, default=None
         Execution engine to use for [data][data-engines] and
@@ -822,7 +822,7 @@ class ExperionMLRegressor(ExperionML):
         one of the possible values to change one of the two engines,
         or a dictionary with keys `data` and `estimator`, with their
         corresponding choice as values to change both engines. If
-        None, the default values are used. Choose from:
+        None, the default values are used. Escolha entre:
 
         - "data":
 
@@ -844,8 +844,8 @@ class ExperionMLRegressor(ExperionML):
             - "cuml"
 
     backend: str, default="loky"
-        Parallelization backend. Read more in the
-        [user guide][parallel-execution]. Choose from:
+        Parallelization backend. Leia mais no
+        [guia do usuário][parallel-execution]. Escolha entre:
 
         - "loky": Single-node, process-based parallelism.
         - "multiprocessing": Legacy single-node, process-based
@@ -855,50 +855,50 @@ class ExperionMLRegressor(ExperionML):
         - "dask": Multi-node, process-based parallelism.
 
     memory: bool, str, Path or Memory, default=False
-        Enables caching for memory optimization. Read more in the
-        [user guide][memory-considerations].
+        Enables caching for memory optimization. Leia mais no
+        [guia do usuário][memory-considerations].
 
-        - If False: No caching is performed.
-        - If True: A default temp directory is used.
-        - If str: Path to the caching directory.
-        - If Path: A [pathlib.Path][] to the caching directory.
-        - If Memory: Object with the [joblib.Memory][] interface.
+        - Se False: Nenhum cache é realizado.
+        - Se True: Um diretório temporário padrão é usado.
+        - Se str: Caminho para o diretório de cache.
+        - Se Path: Um [pathlib.Path][] para o diretório de cache.
+        - Se Memory: Objeto com a interface [joblib.Memory][].
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Verbosity level of the class. Escolha entre:
 
         - 0 to not print anything.
         - 1 to print basic information.
         - 2 to print detailed information.
 
     warnings: bool or str, default=False
-        - If True: Default warning action (equal to "once").
-        - If False: Suppress all warnings (equal to "ignore").
+        - Se True: Ação padrão de aviso (equal to "once").
+        - Se False: Suprime todos os avisos (equal to "ignore").
         - If str: One of python's [warnings filters][warnings].
 
         Changing this parameter affects the `PYTHONWarnings` environment.
         ExperionML can't manage warnings that go from C/C++ code to stdout.
 
     logger: str, Logger or None, default=None
-        - If None: Logging isn't used.
-        - If str: Name of the log file. Use "auto" for automatic name.
-        - If Path: A [pathlib.Path][] to the log file.
-        - Else: Python `logging.Logger` instance.
+        - Se None: Logging não é usado.
+        - Se str: Nome do arquivo de log. Use "auto" para nome automático.
+        - Se Path: Um [pathlib.Path][] para o arquivo de log.
+        - Caso contrário: Instância de `logging.Logger` do Python.
 
     experiment: str or None, default=None
         Name of the [mlflow experiment][experiment] to use for tracking.
-        If None, no mlflow tracking is performed.
+        Se None, nenhum rastreamento mlflow é realizado.
 
     random_state: int or None, default=None
-        Seed used by the random number generator. If None, the random
-        number generator is the `RandomState` used by `np.random`.
+        Seed used by the random number generator. Se None, o gerador
+        de números aleatórios é o `RandomState` usado por `np.random`.
 
-    See Also
+    Veja também
     --------
     experionml.api:ExperionMLClassifier
     experionml.api:ExperionMLForecaster
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLRegressor
@@ -906,17 +906,17 @@ class ExperionMLRegressor(ExperionML):
 
     X, y = load_diabetes(return_X_y=True, as_frame=True)
 
-    # Initialize experionml
+    # Inicializa o experionml
     experionml = ExperionMLRegressor(X, y, verbose=2)
 
-    # Apply data cleaning and feature engineering methods
+    # Aplica métodos de limpeza de dados e engenharia de atributos
     experionml.scale()
     experionml.feature_selection(strategy="rfecv", solver="xgb", n_features=12)
 
-    # Train models
+    # Treina os modelos
     experionml.run(models=["OLS", "RF", "XGB"])
 
-    # Analyze the results
+    # Analisa os resultados
     experionml.results
     ```
 

@@ -48,11 +48,7 @@ from imblearn.under_sampling import (
     TomekLinks,
 )
 from scipy.stats import zscore
-from sklearn.base import (
-    BaseEstimator,
-    OneToOneFeatureMixin,
-    _clone_parametrized,
-)
+from sklearn.base import BaseEstimator, OneToOneFeatureMixin, _clone_parametrized
 from sklearn.compose import ColumnTransformer
 from sklearn.experimental import enable_iterative_imputer  # noqa: F401
 from sklearn.impute import IterativeImputer, KNNImputer
@@ -125,13 +121,13 @@ T_Transformer = TypeVar("T_Transformer", bound=Transformer)
 class TransformerMixin(BaseEstimator, BaseTransformer):
     """Classe mixin para todos os transformadores do ExperionML.
 
-    Different from sklearn in the following ways:
+    Diferente do sklearn nas seguintes formas:
 
-    - Accounts for the transformation of y.
-    - Always add a fit method.
-    - Wraps the fit method with attributes and a data check.
-    - Wraps transforming methods a data check.
-    - Maintains internal attributes when cloned.
+    - Considera a transformação de y.
+    - Sempre adiciona um método fit.
+    - Encapsula o método fit com atributos e verificação dos dados.
+    - Encapsula os métodos de transformação com verificação dos dados.
+    - Mantém os atributos internos ao ser clonado.
 
     """
 
@@ -139,14 +135,16 @@ class TransformerMixin(BaseEstimator, BaseTransformer):
         """Remove named tuples com valores padrão da representação em string."""
         out = super().__repr__(N_CHAR_MAX)
 
-        # Remove default engine for cleaner representation
+        # Remove o engine padrão para uma representação mais limpa
         if hasattr(self, "engine") and sklearn.get_config()["print_changed_only"]:
             if self.engine.data == EngineTuple().data:
                 out = re.sub(f"'data': '{self.engine.data}'", "", out)
             if self.engine.estimator == EngineTuple().estimator:
                 out = re.sub(f", 'estimator': '{self.engine.estimator}'", "", out)
             out = re.sub("engine={}", "", out)
-            out = re.sub(r"((?<=[{(]),\s|,\s(?=[})])|,\s(?=,\s))", "", out)  # Drop comma-spaces
+            out = re.sub(
+                r"((?<=[{(]),\s|,\s(?=[})])|,\s(?=,\s))", "", out
+            )  # Remove vírgulas e espaços
 
         return out
 
@@ -168,25 +166,25 @@ class TransformerMixin(BaseEstimator, BaseTransformer):
     ) -> Self:
         """Não faz nada.
 
-        Implemented for continuity of the API.
+        Implementado para continuidade da API.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like or None, default=None
-            Feature set with shape=(n_samples, n_features). If None,
-            `X` is ignored.
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis). Se None,
+            `X` é ignorado.
 
         y: sequence, dataframe-like or None, default=None
-            Target column(s) corresponding to `X`. If None, `y` is
-            ignored.
+            Coluna(s) alvo correspondente(s) a `X`. Se None, `y` é
+            ignorado.
 
         **fit_params
-            Additional keyword arguments for the fit method.
+            Argumentos de palavra-chave adicionais para o método fit.
 
-        Returns
+        Retorna
         -------
         self
-            Estimator instance.
+            Instância do estimador.
 
         """
         Xt = to_df(X)
@@ -230,26 +228,26 @@ class TransformerMixin(BaseEstimator, BaseTransformer):
     ) -> YReturn | tuple[XReturn, YReturn]:
         """Ajusta aos dados e depois os transforma.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like or None, default=None
-            Feature set with shape=(n_samples, n_features). If None,
-            `X` is ignored.
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis). Se None,
+            `X` é ignorado.
 
         y: sequence, dataframe-like or None, default=None
-            Target column(s) corresponding to `X`. If None, `y` is
-            ignored.
+            Coluna(s) alvo correspondente(s) a `X`. Se None, `y` é
+            ignorado.
 
         **fit_params
-            Additional keyword arguments for the fit method.
+            Argumentos de palavra-chave adicionais para o método fit.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Transformed feature set. Only returned if provided.
+            Conjunto de variáveis transformado. Retornado somente se fornecido.
 
         series or dataframe
-            Transformed target column. Only returned if provided.
+            Coluna alvo transformada. Retornada somente se fornecida.
 
         """
         return self.fit(X, y, **fit_params).transform(X, y)
@@ -286,26 +284,25 @@ class TransformerMixin(BaseEstimator, BaseTransformer):
     ) -> YReturn | tuple[XReturn, YReturn]:
         """Não faz nada.
 
-        Returns the input unchanged. Implemented for continuity of the
-        API.
+        Retorna a entrada sem alterações. Implementado para continuidade da API.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like or None, default=None
-            Feature set with shape=(n_samples, n_features). If None,
-            `X` is ignored.
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis). Se None,
+            `X` é ignorado.
 
         y: sequence, dataframe-like or None, default=None
-            Target column(s) corresponding to `X`. If None, `y` is
-            ignored.
+            Coluna(s) alvo correspondente(s) a `X`. Se None, `y` é
+            ignorado.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Feature set. Only returned if provided.
+            Conjunto de variáveis. Retornado somente se fornecido.
 
         series or dataframe
-            Target column(s). Only returned if provided.
+            Coluna(s) alvo. Retornada(s) somente se fornecida(s).
 
         """
         check_is_fitted(self)
@@ -318,19 +315,19 @@ class TransformerMixin(BaseEstimator, BaseTransformer):
     def set_output(self, *, transform: EngineDataOptions | None = None) -> Self:
         """Define o contêiner de saída.
 
-        See sklearn's [user guide][set_output] on how to use the
-        `set_output` API. See [here][data-engines] a description
-        of the choices.
+        Consulte o [guia do usuário][set_output] do sklearn sobre como usar a
+        API `set_output`. Veja [aqui][data-engines] uma descrição
+        das opções disponíveis.
 
-        Parameters
+        Parâmetros
         ----------
         transform: str or None, default=None
-            Configure the output of the `transform`, `fit_transform`,
-            and `inverse_transform` method. If None, the configuration
-            is not changed. Choose from:
+            Configura a saída dos métodos `transform`, `fit_transform`
+            e `inverse_transform`. Se None, a configuração não é alterada.
+            Escolha entre:
 
             - "numpy"
-            - "pandas" (default)
+            - "pandas" (padrão)
             - "pandas-pyarrow"
             - "polars"
             - "polars-lazy"
@@ -340,10 +337,10 @@ class TransformerMixin(BaseEstimator, BaseTransformer):
             - "pyspark"
             - "pyspark-pandas"
 
-        Returns
+        Retorna
         -------
         Self
-            Estimator instance.
+            Instância do estimador.
 
         """
         if not hasattr(self, "_engine"):
@@ -359,73 +356,73 @@ class TransformerMixin(BaseEstimator, BaseTransformer):
 class Balancer(TransformerMixin, OneToOneFeatureMixin):
     """Balanceia o número de amostras por classe na coluna alvo.
 
-    When oversampling, the newly created samples have an increasing
-    integer index for numerical indices, and an index of the form
-    [estimator]_N for non-numerical indices, where N stands for the
-    N-th sample in the data set. Use only for classification tasks.
+    Ao fazer oversampling, as novas amostras criadas têm um índice inteiro
+    crescente para índices numéricos, e um índice da forma
+    [estimator]_N para índices não numéricos, onde N representa a
+    N-ésima amostra no conjunto de dados. Use apenas para tarefas de classificação.
 
-    This class can be accessed from experionml through the [balance]
-    [experionmlclassifier-balance] method. Read more in the [user guide]
+    Esta classe pode ser acessada pelo experionml através do método [balance]
+    [experionmlclassifier-balance]. Leia mais no [guia do usuário]
     [balancing-the-data].
 
     !!! warning
-         * The [clustercentroids][] estimator is unavailable because of
-           incompatibilities of the APIs.
-         * The Balancer class does not support [multioutput tasks][].
+         * O estimador [clustercentroids][] não está disponível devido a
+           incompatibilidades entre as APIs.
+         * A classe Balancer não suporta [tarefas multioutput][].
 
-    Parameters
+    Parâmetros
     ----------
     strategy: str or transformer, default="ADASYN"
-        Type of algorithm with which to balance the dataset. Choose
-        from the name of any estimator in the imbalanced-learn package
-        or provide a custom instance of such.
+        Tipo de algoritmo com o qual balancear o conjunto de dados. Escolha
+        pelo nome de qualquer estimador do pacote imbalanced-learn
+        ou forneça uma instância personalizada.
 
     n_jobs: int, default=1
-        Number of cores to use for parallel processing.
+        Número de núcleos a usar para processamento paralelo.
 
-        - If >0: Number of cores to use.
-        - If -1: Use all available cores.
-        - If <-1: Use number of cores - 1 - value.
+        - Se >0: Número de núcleos a usar.
+        - Se -1: Usar todos os núcleos disponíveis.
+        - Se <-1: Usar número de núcleos - 1 - valor.
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não exibir nada.
+        - 1 para exibir informações básicas.
+        - 2 para exibir informações detalhadas.
 
     random_state: int or None, default=None
-        Seed used by the random number generator. If None, the random
-        number generator is the `RandomState` used by `np.random`.
+        Semente usada pelo gerador de números aleatórios. Se None, o gerador
+        é o `RandomState` utilizado pelo `np.random`.
 
     **kwargs
-        Additional keyword arguments for the `strategy` estimator.
+        Argumentos de palavra-chave adicionais para o estimador `strategy`.
 
-    Attributes
+    Atributos
     ----------
     [strategy]_: imblearn estimator
-        Object (lowercase strategy) used to balance the data,
-        e.g., `balancer.adasyn_` for the default strategy.
+        Objeto (strategy em minúsculas) usado para balancear os dados,
+        ex.: `balancer.adasyn_` para a estratégia padrão.
 
     mapping_: dict
-        Target values mapped to their respective encoded integers.
+        Valores alvo mapeados para seus respectivos inteiros codificados.
 
     feature_names_in_: np.ndarray
-        Names of features seen during `fit`.
+        Nomes das variáveis observadas durante o `fit`.
 
     target_names_in_: np.ndarray
-        Names of the target column seen during `fit`.
+        Nomes da coluna alvo observados durante o `fit`.
 
     n_features_in_: int
-        Number of features seen during `fit`.
+        Número de variáveis observadas durante o `fit`.
 
-    See Also
+    Veja também
     --------
     experionml.data_cleaning:Encoder
     experionml.data_cleaning:Imputer
     experionml.data_cleaning:Pruner
 
-    Examples
+    Exemplos
     --------
     === "experionml"
         ```pycon
@@ -439,7 +436,7 @@ class Balancer(TransformerMixin, OneToOneFeatureMixin):
 
         experionml.balance(strategy="smote", verbose=2)
 
-        # Note that the number of rows has increased
+        # Observe que o número de linhas aumentou
         print(experionml.train)
         ```
 
@@ -454,7 +451,7 @@ class Balancer(TransformerMixin, OneToOneFeatureMixin):
         balancer = Balancer(strategy="smote", verbose=2)
         X, y = balancer.fit_transform(X, y)
 
-        # Note that the number of rows has increased
+        # Observe que o número de linhas aumentou
         print(X)
         ```
 
@@ -478,10 +475,10 @@ class Balancer(TransformerMixin, OneToOneFeatureMixin):
     def _log_changes(self, y: pd.Series):
         """Exibe as mudanças por classe da variável alvo.
 
-        Parameters
+        Parâmetros
         ----------
         y: pd.Series
-            Target column.
+            Coluna alvo.
 
         """
         for key, value in self.mapping_.items():
@@ -492,20 +489,20 @@ class Balancer(TransformerMixin, OneToOneFeatureMixin):
                 self._log(f" --> Adding {-diff} samples to class {key}.", 2)
 
     def fit(self, X: XConstructor, y: YConstructor) -> Self:
-        """Fit to data.
+        """Ajusta aos dados.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis).
 
         y: sequence
-            Target column corresponding to `X`.
+            Coluna alvo correspondente a `X`.
 
-        Returns
+        Retorna
         -------
         Self
-            Estimator instance.
+            Instância do estimador.
 
         """
         Xt = to_df(X)
@@ -519,7 +516,7 @@ class Balancer(TransformerMixin, OneToOneFeatureMixin):
         else:
             raise ValueError("A classe Balancer não suporta tarefas multioutput.")
 
-        # ClusterCentroids is unavailable since it has no sample_indices_
+        # ClusterCentroids não está disponível pois não possui sample_indices_
         strategies = {
             "condensednearestneighbour": CondensedNearestNeighbour,
             "editednearestneighborus": EditedNearestNeighbours,
@@ -546,22 +543,22 @@ class Balancer(TransformerMixin, OneToOneFeatureMixin):
         if isinstance(self.strategy, str):
             if self.strategy.lower() not in strategies:
                 raise ValueError(
-                    f"Invalid value for the strategy parameter, got {self.strategy}. "
-                    f"Choose from: {', '.join(strategies)}."
+                    f"Valor inválido para o parâmetro strategy, valor recebido: {self.strategy}. "
+                    f"Escolha entre: {', '.join(strategies)}."
                 )
             est_class = strategies[self.strategy.lower()]
             estimator = self._inherit(est_class(**self.kwargs), fixed=tuple(self.kwargs))
         elif not hasattr(self.strategy, "fit_resample"):
             raise TypeError(
-                "Invalid type for the strategy parameter. A "
-                "custom estimator must have a fit_resample method."
+                "Tipo inválido para o parâmetro strategy. Um "
+                "estimador personalizado deve ter o método fit_resample."
             )
         elif callable(self.strategy):
             estimator = self._inherit(self.strategy(**self.kwargs), fixed=tuple(self.kwargs))
         else:
             estimator = self.strategy
 
-        # Create dict of class counts in y
+        # Cria dicionário de contagem de classes em y
         if not hasattr(self, "mapping_"):
             self.mapping_ = {str(v): v for v in yt.sort_values().unique()}
 
@@ -569,32 +566,32 @@ class Balancer(TransformerMixin, OneToOneFeatureMixin):
         for key, value in self.mapping_.items():
             self._counts[key] = np.sum(yt == value)
 
-        # Fit only checks input and sampling strategy
+        # Fit apenas verifica a entrada e a estratégia de amostragem
         self._estimator = estimator.fit(Xt, yt)
 
-        # Add the estimator as attribute to the instance
+        # Adiciona o estimador como atributo à instância
         setattr(self, f"{estimator.__class__.__name__.lower()}_", self._estimator)
 
         return self
 
     def transform(self, X: XConstructor, y: YConstructor) -> tuple[XReturn, YReturn]:
-        """Balance the data.
+        """Balanceia os dados.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis).
 
         y: sequence
-            Target column corresponding to `X`.
+            Coluna alvo correspondente a `X`.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Balanced dataframe.
+            DataFrame balanceado.
 
         series
-            Transformed target column.
+            Coluna alvo transformada.
 
         """
         check_is_fitted(self)
@@ -605,10 +602,10 @@ class Balancer(TransformerMixin, OneToOneFeatureMixin):
         if "over_sampling" in self._estimator.__module__:
             self._log(f"Oversampling with {self._estimator.__class__.__name__}...", 1)
 
-            index = Xt.index  # Save indices for later reassignment
+            index = Xt.index  # Salva os índices para reatribuição posterior
             Xt, yt = self._estimator.fit_resample(Xt, yt)
 
-            # Create indices for the new samples
+            # Cria índices para as novas amostras
             n_idx: list[int | str]
             if index.dtype.kind in "ifu":
                 n_idx = list(range(max(index) + 1, max(index) + len(Xt) - len(index) + 1))
@@ -618,7 +615,7 @@ class Balancer(TransformerMixin, OneToOneFeatureMixin):
                     for i in range(1, len(Xt) - len(index) + 1)
                 ]
 
-            # Assign the old + new indices
+            # Atribui os índices antigos + novos
             Xt.index = pd.Index(list(index) + n_idx)
             yt.index = pd.Index(list(index) + n_idx)
 
@@ -629,7 +626,7 @@ class Balancer(TransformerMixin, OneToOneFeatureMixin):
 
             self._estimator.fit_resample(Xt, yt)
 
-            # Select chosen rows (imblearn doesn't return them in order)
+            # Seleciona as linhas escolhidas (imblearn não as retorna em ordem)
             samples = np.asarray(sorted(self._estimator.sample_indices_))
             Xt, yt = Xt.iloc[samples], yt.iloc[samples]
 
@@ -641,17 +638,17 @@ class Balancer(TransformerMixin, OneToOneFeatureMixin):
             index = Xt.index
             X_new, y_new = self._estimator.fit_resample(Xt, yt)
 
-            # Select rows kept by the undersampler
+            # Seleciona as linhas mantidas pelo undersampler
             if self._estimator.__class__.__name__ == "SMOTEENN":
                 samples = np.asarray(sorted(self._estimator.enn_.sample_indices_))
             elif self._estimator.__class__.__name__ == "SMOTETomek":
                 samples = np.asarray(sorted(self._estimator.tomek_.sample_indices_))
 
-            # Select the remaining samples from the old dataframe
+            # Seleciona as amostras restantes do dataframe original
             o_samples = [s for s in samples if s < len(Xt)]
             Xt, yt = Xt.iloc[o_samples], yt.iloc[o_samples]  # type: ignore[call-overload]
 
-            # Create indices for the new samples
+            # Cria índices para as novas amostras
             if index.dtype.kind in "ifu":
                 n_idx = list(range(max(index) + 1, max(index) + len(X_new) - len(Xt) + 1))
             else:
@@ -660,23 +657,23 @@ class Balancer(TransformerMixin, OneToOneFeatureMixin):
                     for i in range(1, len(X_new) - len(Xt) + 1)
                 ]
 
-            # Select the new samples and assign the new indices
+            # Seleciona as novas amostras e atribui os novos índices
             X_new = X_new.iloc[-len(X_new) + len(o_samples) :]
             X_new.index = pd.Index(n_idx)
             y_new = y_new.iloc[-len(y_new) + len(o_samples) :]
             y_new.index = pd.Index(n_idx)
 
-            # First, output the samples created
+            # Primeiro, exibe as amostras criadas
             for key, value in self.mapping_.items():
                 if (diff := np.sum(y_new == value)) > 0:
                     self._log(f" --> Adding {diff} samples to class: {key}.", 2)
 
-            # Then, output the samples dropped
+            # Depois, exibe as amostras removidas
             for key, value in self.mapping_.items():
                 if (diff := self._counts[key] - np.sum(yt == value)) > 0:
                     self._log(f" --> Removing {diff} samples from class: {key}.", 2)
 
-            # Add the new samples to the old dataframe
+            # Adiciona as novas amostras ao dataframe original
             Xt, yt = pd.concat([Xt, X_new]), pd.concat([yt, y_new])
 
         return self._convert(Xt), self._convert(yt)
@@ -686,100 +683,100 @@ class Balancer(TransformerMixin, OneToOneFeatureMixin):
 class Cleaner(TransformerMixin):
     """Aplica etapas padrão de limpeza de dados a um conjunto de dados.
 
-    Use the parameters to choose which transformations to perform.
-    The available steps are:
+    Use os parâmetros para escolher quais transformações realizar.
+    As etapas disponíveis são:
 
-    - Convert dtypes to the best possible types.
-    - Drop columns with specific data types.
-    - Remove characters from column names.
-    - Strip categorical features from spaces.
-    - Drop duplicate rows.
-    - Drop rows with missing values in the target column.
-    - Encode the target column.
+    - Converter dtypes para os melhores tipos possíveis.
+    - Remover colunas com tipos de dados específicos.
+    - Remover caracteres dos nomes das colunas.
+    - Remover espaços de colunas categóricas.
+    - Remover linhas duplicadas.
+    - Remover linhas com valores ausentes na coluna alvo.
+    - Codificar a coluna alvo.
 
-    This class can be accessed from experionml through the [clean]
-    [experionmlclassifier-clean] method. Read more in the [user guide]
+    Esta classe pode ser acessada pelo experionml através do método [clean]
+    [experionmlclassifier-clean]. Leia mais no [guia do usuário]
     [standard-data-cleaning].
 
-    Parameters
+    Parâmetros
     ----------
     convert_dtypes: bool, default=True
-        Convert the column's data types to the best possible types
-        that support `pd.NA`.
+        Converte os tipos de dados das colunas para os melhores tipos possíveis
+        que suportam `pd.NA`.
 
     drop_dtypes: str, sequence or None, default=None
-        Columns with these data types are dropped from the dataset.
+        Colunas com esses tipos de dados são removidas do conjunto de dados.
 
     drop_chars: str or None, default=None
-        Remove the specified regex pattern from column names, e.g.
-        `[^A-Za-z0-9]+` to remove all non-alphanumerical characters.
+        Remove o padrão regex especificado dos nomes das colunas, ex.:
+        `[^A-Za-z0-9]+` para remover todos os caracteres não alfanuméricos.
 
     strip_categorical: bool, default=True
-        Whether to strip spaces from categorical columns.
+        Se deve remover espaços das colunas categóricas.
 
     drop_duplicates: bool, default=False
-        Whether to drop duplicate rows. Only the first occurrence of
-        every duplicated row is kept.
+        Se deve remover linhas duplicadas. Apenas a primeira ocorrência de
+        cada linha duplicada é mantida.
 
     drop_missing_target: bool, default=True
-        Whether to drop rows with missing values in the target column.
-        This transformation is ignored if `y` is not provided.
+        Se deve remover linhas com valores ausentes na coluna alvo.
+        Esta transformação é ignorada se `y` não for fornecido.
 
     encode_target: bool, default=True
-        Whether to encode the target column(s). This includes
-        converting categorical columns to numerical, and binarizing
-        [multilabel][] columns. This transformation is ignored if `y`
-        is not provided.
+        Se deve codificar a(s) coluna(s) alvo. Isso inclui
+        converter colunas categóricas para numérico e binarizar
+        colunas [multilabel][]. Esta transformação é ignorada se `y`
+        não for fornecido.
 
     device: str, default="cpu"
-        Device on which to run the estimators. Use any string that
-        follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        Dispositivo no qual executar os estimadores. Use qualquer string que
+        siga o seletor de filtro [SYCL_DEVICE_FILTER][], ex.:
+        `#!python device="gpu"` para usar a GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
     engine: str or None, default=None
-        Execution engine to use for [estimators][estimator-acceleration].
-        If None, the default value is used. Choose from:
+        Engine de execução para [estimadores][estimator-acceleration].
+        Se None, o valor padrão é usado. Escolha entre:
 
-        - "sklearn" (default)
+        - "sklearn" (padrão)
         - "cuml"
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não exibir nada.
+        - 1 para exibir informações básicas.
+        - 2 para exibir informações detalhadas.
 
-    Attributes
+    Atributos
     ----------
     missing_: list
-        Values that are considered "missing". Default values are: None,
+        Valores considerados "ausentes". Os valores padrão são: None,
         NaN, NA, NaT, +inf, -inf, "", "?", "NA", "nan", "NaN", "NaT",
-        "none", "None", "inf", "-inf". Note that None, NaN, NA, +inf and
-        -inf are always considered missing since they are incompatible
-        with sklearn estimators.
+        "none", "None", "inf", "-inf". Note que None, NaN, NA, +inf e
+        -inf são sempre considerados ausentes pois são incompatíveis
+        com estimadores sklearn.
 
     mapping_: dict
-        Target values mapped to their respective encoded integers. Only
-        available if encode_target=True.
+        Valores alvo mapeados para seus respectivos inteiros codificados. Apenas
+        disponível se encode_target=True.
 
     feature_names_in_: np.ndarray
-        Names of features seen during `fit`.
+        Nomes das variáveis observadas durante o `fit`.
 
     target_names_in_: np.ndarray
-        Names of the target column(s) seen during `fit`.
+        Nomes da(s) coluna(s) alvo observados durante o `fit`.
 
     n_features_in_: int
-        Number of features seen during `fit`.
+        Número de variáveis observadas durante o `fit`.
 
-    See Also
+    Veja também
     --------
     experionml.data_cleaning:Encoder
     experionml.data_cleaning:Discretizer
     experionml.data_cleaning:Scaler
 
-    Examples
+    Exemplos
     --------
     === "experionml"
         ```pycon
@@ -836,21 +833,21 @@ class Cleaner(TransformerMixin):
         self.encode_target = encode_target
 
     def fit(self, X: XConstructor | None = None, y: YConstructor | None = None) -> Self:
-        """Fit to data.
+        """Ajusta aos dados.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like or None, default=None
-            Feature set with shape=(n_samples, n_features). If None,
-            `X` is ignored.
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis). Se None,
+            `X` é ignorado.
 
         y: sequence, dataframe-like or None, default=None
-            Target column(s) corresponding to `X`.
+            Coluna(s) alvo correspondente(s) a `X`.
 
-        Returns
+        Retorna
         -------
         Self
-            Estimator instance.
+            Instância do estimador.
 
         """
         Xt = to_df(X)
@@ -886,7 +883,7 @@ class Cleaner(TransformerMixin):
 
             if self.encode_target:
                 for col in get_cols(yt):
-                    if isinstance(col.iloc[0], sequence_t):  # Multilabel
+                    if isinstance(col.iloc[0], sequence_t):  # Multilabel (múltiplos rótulos)
                         MultiLabelBinarizer = self._get_est_class(
                             name="MultiLabelBinarizer",
                             module="preprocessing",
@@ -902,18 +899,18 @@ class Cleaner(TransformerMixin):
         return self
 
     def get_feature_names_out(self, input_features: Sequence[str] | None = None) -> np.ndarray:
-        """Get output feature names for transformation.
+        """Retorna os nomes das variáveis após a transformação.
 
-        Parameters
+        Parâmetros
         ----------
         input_features: sequence or None, default=None
-            Only used to validate feature names with the names seen in
-            `fit`.
+            Usado apenas para validar os nomes das variáveis com os nomes
+            observados durante o `fit`.
 
-        Returns
+        Retorna
         -------
         np.ndarray
-            Transformed feature names.
+            Nomes das variáveis transformadas.
 
         """
         check_is_fitted(self, attributes="feature_names_in_")
@@ -922,7 +919,7 @@ class Cleaner(TransformerMixin):
         columns = [col for col in self.feature_names_in_ if col not in self._drop_cols]
 
         if self.drop_chars:
-            # Drop prohibited chars from column names
+            # Remove caracteres proibidos dos nomes das colunas
             columns = [re.sub(self.drop_chars, "", str(c)) for c in columns]
 
         return np.array(columns)
@@ -932,24 +929,24 @@ class Cleaner(TransformerMixin):
         X: XConstructor | None = None,
         y: YConstructor | None = None,
     ) -> YReturn | tuple[XReturn, YReturn]:
-        """Apply the data cleaning steps to the data.
+        """Aplica as etapas de limpeza de dados.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like or None, default=None
-            Feature set with shape=(n_samples, n_features). If None,
-            `X` is ignored.
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis). Se None,
+            `X` é ignorado.
 
         y: sequence, dataframe-like or None, default=None
-            Target column(s) corresponding to `X`.
+            Coluna(s) alvo correspondente(s) a `X`.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Transformed feature set. Only returned if provided.
+            Conjunto de variáveis transformado. Retornado somente se fornecido.
 
         series or dataframe
-            Transformed target column. Only returned if provided.
+            Coluna alvo transformada. Retornada somente se fornecida.
 
         """
         check_is_fitted(self)
@@ -960,11 +957,11 @@ class Cleaner(TransformerMixin):
         self._log("Limpando os dados...", 1)
 
         if Xt is not None:
-            # Unify all missing values
+            # Unifica todos os valores ausentes
             Xt = replace_missing(Xt, self.missing_)
 
             for name, column in Xt.items():
-                # Drop features with an invalid data type
+                # Remove variáveis com tipo de dado inválido
                 if name in self._drop_cols:
                     self._log(
                         f" --> Removendo a variável {name} por "
@@ -975,16 +972,16 @@ class Cleaner(TransformerMixin):
 
                 elif column.dtype.name in CAT_TYPES:
                     if self.strip_categorical:
-                        # Strip strings from blank spaces
+                        # Remove espaços em branco de strings
                         Xt[name] = column.apply(
                             lambda val: val.strip() if isinstance(val, str) else val
                         )
 
-            # Drop prohibited chars from column names
+            # Remove caracteres proibidos dos nomes das colunas
             if self.drop_chars:
                 Xt = Xt.rename(columns=lambda x: re.sub(self.drop_chars, "", str(x)))
 
-            # Drop duplicate samples
+            # Remove amostras duplicadas
             if self.drop_duplicates:
                 Xt = Xt.drop_duplicates(ignore_index=True)
 
@@ -998,13 +995,13 @@ class Cleaner(TransformerMixin):
                 else:
                     yt = yt.rename(lambda x: re.sub(self.drop_chars, "", str(x)), axis=1)
 
-            # Delete samples with missing values in target
+            # Remove amostras com valores ausentes no alvo
             if self.drop_missing_target:
-                length = len(yt)  # Save original length to count deleted rows later
+                length = len(yt)  # Salva o comprimento original para contar as linhas removidas
                 yt = replace_missing(yt, self.missing_).dropna()
 
                 if Xt is not None:
-                    Xt = Xt[Xt.index.isin(yt.index)]  # Select only indices that remain
+                    Xt = Xt[Xt.index.isin(yt.index)]  # Seleciona apenas os índices restantes
 
                 if (d := length - len(yt)) > 0:
                     self._log(f" --> Removendo {d} linhas com valores ausentes no alvo.", 2)
@@ -1024,13 +1021,13 @@ class Cleaner(TransformerMixin):
                                 columns=[f"{col.name}_{c}" for c in est.classes_],
                             )
 
-                        # Replace target with encoded column(s)
+                        # Substitui o alvo pela(s) coluna(s) codificada(s)
                         if isinstance(yt, pd.Series):
                             y_new = out
                         else:
                             y_new = merge(y_new, out)
 
-                    else:  # Add unchanged column
+                    else:  # Adiciona coluna inalterada
                         y_new = merge(y_new, col)
 
                 yt = y_new
@@ -1045,27 +1042,27 @@ class Cleaner(TransformerMixin):
         X: XConstructor | None = None,
         y: YConstructor | None = None,
     ) -> YReturn | tuple[XReturn, YReturn]:
-        """Inversely transform the label encoding.
+        """Reverte a codificação de rótulos.
 
-        This method only inversely transforms the target encoding.
-        The rest of the transformations can't be inverted. If
-        `encode_target=False`, the data is returned as is.
+        Este método reverte apenas a codificação do alvo.
+        As demais transformações não podem ser revertidas. Se
+        `encode_target=False`, os dados são retornados como estão.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
         y: sequence, dataframe-like or None, default=None
-            Target column(s) corresponding to `X`.
+            Coluna(s) alvo correspondente(s) a `X`.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Unchanged feature set. Only returned if provided.
+            Conjunto de variáveis inalterado. Retornado somente se fornecido.
 
         series or dataframe
-            Original target column. Only returned if provided.
+            Coluna alvo original. Retornada somente se fornecida.
 
         """
         check_is_fitted(self)
@@ -1089,13 +1086,13 @@ class Cleaner(TransformerMixin):
                             yt.loc[:, yt.columns.str.startswith(f"{col}_")].to_numpy()
                         )
 
-                    # Replace encoded columns with target column
+                    # Substitui as colunas codificadas pela coluna alvo
                     if isinstance(yt, pd.Series):
                         y_new = to_series(out, yt.index, col)
                     else:
                         y_new = merge(y_new, to_series(out, yt.index, col))
 
-                else:  # Add unchanged column
+                else:  # Adiciona coluna inalterada
                     y_new = merge(y_new, pd.DataFrame(yt)[col])
 
             yt = y_new
@@ -1107,92 +1104,92 @@ class Cleaner(TransformerMixin):
 class Decomposer(TransformerMixin, OneToOneFeatureMixin):
     """Remove tendência e sazonalidade da série temporal.
 
-    This class does two things:
+    Esta classe realiza duas operações:
 
-    - Remove the trend from every column, returning the in-sample
-      residuals of the model's predicted values.
-    - Remove the seasonal component from every column, subject to
-      a seasonaility test.
+    - Remove a tendência de cada coluna, retornando os resíduos in-sample
+      dos valores previstos pelo modelo.
+    - Remove o componente sazonal de cada coluna, condicionado
+      a um teste de sazonalidade.
 
-    Categorical columns are ignored.
+    Colunas categóricas são ignoradas.
 
-    This class can be accessed from experionml through the [decompose]
-    [experionmlforecaster-decompose] method. Read more in the [user guide]
+    Esta classe pode ser acessada pelo experionml através do método [decompose]
+    [experionmlforecaster-decompose]. Leia mais no [guia do usuário]
     [time-series-decomposition].
 
     !!! note
-        When using this class from experionml, the `trend_model`, `sp` and
-        `seasonal_model` parameters are set automatically based on the
-        `experionml.sp` attribute.
+        Ao usar esta classe pelo experionml, os parâmetros `trend_model`, `sp` e
+        `seasonal_model` são definidos automaticamente com base no
+        atributo `experionml.sp`.
 
-    Parameters
+    Parâmetros
     ----------
     model: str, predictor or None, default=None
-        The forecasting model to remove the trend with. It must be
-        a model that supports the forecast task. If None,
-        [PolynomialTrend][](degree=1) is used.
+        O modelo de previsão para remover a tendência. Deve ser
+        um modelo que suporte a tarefa de previsão. Se None,
+        [PolynomialTrend][](degree=1) é usado.
 
     trend_model: str, default="additive"
-        Mode of the trend decomposition. Choose from:
+        Modo de decomposição da tendência. Escolha entre:
 
-        - "additive": The `model.transform` subtracts the trend, i.e.,
-          `transform(X)` returns `X - model.predict(fh=X.index)`.
-        - "multiplicative": The `model.transform` divides by the trend,
-          i.e., `transform(X)` returns `X / model.predict(fh=X.index)`.
+        - "additive": O `model.transform` subtrai a tendência, ou seja,
+          `transform(X)` retorna `X - model.predict(fh=X.index)`.
+        - "multiplicative": O `model.transform` divide pela tendência,
+          ou seja, `transform(X)` retorna `X / model.predict(fh=X.index)`.
 
     test_seasonality: bool, default=True
 
-        - If True, it fits a 90% autocorrelation seasonality test, and
-          if the passed time series has a seasonal component, it
-          applies seasonal decomposition. If the test is negative,
-          deseasonalization is skipped.
-        - If False, always performs deseasonalization.
+        - Se True, ajusta um teste de sazonalidade de autocorrelação de 90% e,
+          se a série temporal tiver componente sazonal,
+          aplica a decomposição sazonal. Se o teste for negativo,
+          a dessazonalização é ignorada.
+        - Se False, sempre realiza a dessazonalização.
 
     sp: int or None, default=None
-        Seasonality period of the time series. If None, there's no
-        seasonality.
+        Período de sazonalidade da série temporal. Se None, não há
+        sazonalidade.
 
     seasonal_model: str, default="additive"
-        Mode of the seasonal decomposition. Choose from:
+        Modo de decomposição sazonal. Escolha entre:
 
-        - "additive": Assumes the components have a linear relation,
-          i.e., y(t) = level + trend + seasonality + noise.
-        - "multiplicative": Assumes the components have a nonlinear
-          relation, i.e., y(t) = level * trend * seasonality * noise.
+        - "additive": Assume que os componentes têm relação linear,
+          ou seja, y(t) = nível + tendência + sazonalidade + ruído.
+        - "multiplicative": Assume que os componentes têm relação não linear,
+          ou seja, y(t) = nível * tendência * sazonalidade * ruído.
 
     n_jobs: int, default=1
-        Number of cores to use for parallel processing.
+        Número de núcleos a usar para processamento paralelo.
 
-        - If >0: Number of cores to use.
-        - If -1: Use all available cores.
-        - If <-1: Use number of cores - 1 + `n_jobs`.
+        - Se >0: Número de núcleos a usar.
+        - Se -1: Usar todos os núcleos disponíveis.
+        - Se <-1: Usar número de núcleos - 1 + `n_jobs`.
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não exibir nada.
+        - 1 para exibir informações básicas.
+        - 2 para exibir informações detalhadas.
 
     random_state: int or None, default=None
-        Seed used by the random number generator. If None, the random
-        number generator is the `RandomState` used by `np.random`.
+        Semente usada pelo gerador de números aleatórios. Se None, o gerador
+        é o `RandomState` utilizado pelo `np.random`.
 
-    Attributes
+    Atributos
     ----------
     feature_names_in_: np.ndarray
-        Names of features seen during `fit`.
+        Nomes das variáveis observadas durante o `fit`.
 
     n_features_in_: int
-        Number of features seen during `fit`.
+        Número de variáveis observadas durante o `fit`.
 
-    See Also
+    Veja também
     --------
     experionml.data_cleaning:Encoder
     experionml.data_cleaning:Discretizer
     experionml.data_cleaning:Scaler
 
-    Examples
+    Exemplos
     --------
     === "experionml"
         ```pycon
@@ -1244,20 +1241,20 @@ class Decomposer(TransformerMixin, OneToOneFeatureMixin):
         self.seasonal_model = seasonal_model
 
     def fit(self, X: XConstructor, y: YConstructor | None = None) -> Self:
-        """Fit to data.
+        """Ajusta aos dados.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis).
 
         y: sequence, dataframe-like or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
-        Returns
+        Retorna
         -------
         Self
-            Estimator instance.
+            Instância do estimador.
 
         """
         from experionml.models import MODELS
@@ -1276,8 +1273,8 @@ class Decomposer(TransformerMixin, OneToOneFeatureMixin):
                 forecaster = model._get_est({})
             else:
                 raise ValueError(
-                    "Invalid value for the model parameter. Unknown "
-                    f"model: {self.model}. Available models are:\n"
+                    "Valor inválido para o parâmetro model. Modelo desconhecido: "
+                    f"{self.model}. Os modelos disponíveis são:\n"
                     + "\n".join(
                         [
                             f" --> {m.__name__} ({m.acronym})"
@@ -1316,20 +1313,20 @@ class Decomposer(TransformerMixin, OneToOneFeatureMixin):
         return self
 
     def transform(self, X: XConstructor, y: YConstructor | None = None) -> XReturn:
-        """Decompose the data.
+        """Decompõe os dados.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis).
 
         y: sequence, dataframe-like or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Transformed feature set.
+            Conjunto de variáveis transformado.
 
         """
         check_is_fitted(self)
@@ -1344,20 +1341,20 @@ class Decomposer(TransformerMixin, OneToOneFeatureMixin):
         return self._convert(Xt)
 
     def inverse_transform(self, X: XConstructor, y: YConstructor | None = None) -> XReturn:
-        """Inversely transform the data.
+        """Aplica a transformação inversa nos dados.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis).
 
         y: sequence, dataframe-like or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Original feature set.
+            Conjunto de variáveis original.
 
         """
         check_is_fitted(self)
@@ -1376,95 +1373,95 @@ class Decomposer(TransformerMixin, OneToOneFeatureMixin):
 class Discretizer(TransformerMixin, OneToOneFeatureMixin):
     """Agrupa dados contínuos em intervalos.
 
-    For each feature, the bin edges are computed during fit and,
-    together with the number of bins, they define the intervals.
-    Ignores categorical columns.
+    Para cada variável, as bordas dos intervalos são calculadas durante o fit e,
+    juntamente com o número de intervalos, definem os bins.
+    Colunas categóricas são ignoradas.
 
-    This class can be accessed from experionml through the [discretize]
-    [experionmlclassifier-discretize] method. Read more in the [user guide]
+    Esta classe pode ser acessada pelo experionml através do método [discretize]
+    [experionmlclassifier-discretize]. Leia mais no [guia do usuário]
     [binning-numerical-features].
 
     !!! tip
-        The transformation returns categorical columns. Use the
-        [Encoder][] class to convert them back to numerical types.
+        A transformação retorna colunas categóricas. Use a
+        classe [Encoder][] para convertê-las de volta a tipos numéricos.
 
-    Parameters
+    Parâmetros
     ----------
     strategy: str, default="quantile"
-        Strategy used to define the widths of the bins. Choose from:
+        Estratégia usada para definir a largura dos bins. Escolha entre:
 
-        - "uniform": All bins have identical widths.
-        - "quantile": All bins have the same number of points.
-        - "kmeans": Values in each bin have the same nearest center of
-          a 1D k-means cluster.
-        - "custom": Use custom bin edges provided through `bins`.
+        - "uniform": Todos os bins têm larguras idênticas.
+        - "quantile": Todos os bins têm o mesmo número de pontos.
+        - "kmeans": Valores em cada bin têm o mesmo centro mais próximo de
+          um cluster k-means 1D.
+        - "custom": Use bordas de bin personalizadas fornecidas pelo `bins`.
 
     bins: int, sequence or dict, default=5
-        Bin number or bin edges in which to split every column.
+        Número ou bordas de bins em que dividir cada coluna.
 
-        - If int: Number of bins to produce for all columns. Only for
+        - Se int: Número de bins para todas as colunas. Apenas para
           strategy!="custom".
-        - If sequence:
+        - Se sequence:
 
-            - For strategy!="custom": Number of bins per column. The
-              n-th value corresponds to the n-th column that is
-              transformed. Categorical columns are ignored.
-            - For strategy="custom": Bin edges with length=n_bins - 1.
-              The outermost edges are always `-inf` and `+inf`, e.g.,
-              bins `[1, 2]` indicate `(-inf, 1], (1, 2], (2, inf]`.
+            - Para strategy!="custom": Número de bins por coluna. O
+              n-ésimo valor corresponde à n-ésima coluna transformada.
+              Colunas categóricas são ignoradas.
+            - Para strategy="custom": Bordas de bin com comprimento=n_bins - 1.
+              As bordas externas são sempre `-inf` e `+inf`, ex.,
+              bins `[1, 2]` indicam `(-inf, 1], (1, 2], (2, inf]`.
 
-        - If dict: One of the aforementioned options per column, where
-          the key is the column's name. Columns that are not in the
-          dictionary are not transformed.
+        - Se dict: Uma das opções acima por coluna, onde
+          a chave é o nome da coluna. Colunas não presentes no
+          dicionário não são transformadas.
 
     labels: sequence, dict or None, default=None
-        Label names with which to replace the binned intervals.
+        Nomes dos rótulos para substituir os intervalos.
 
-        - If None: Use default labels of the form `(min_edge, max_edge]`.
-        - If sequence: Labels to use for all columns.
-        - If dict: Labels per column, where the key is the column's name.
-          Columns that are not in the dictionary use the default labels.
+        - Se None: Usa rótulos padrão no formato `(borda_min, borda_max]`.
+        - Se sequence: Rótulos a usar para todas as colunas.
+        - Se dict: Rótulos por coluna, onde a chave é o nome da coluna.
+          Colunas não presentes no dicionário usam os rótulos padrão.
 
     device: str, default="cpu"
-        Device on which to run the estimators. Use any string that
-        follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        Dispositivo no qual executar os estimadores. Use qualquer string que
+        siga o seletor de filtro [SYCL_DEVICE_FILTER][], ex.:
+        `#!python device="gpu"` para usar a GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
     engine: str or None, default=None
-        Execution engine to use for [estimators][estimator-acceleration].
-        If None, the default value is used. Choose from:
+        Engine de execução para [estimadores][estimator-acceleration].
+        Se None, o valor padrão é usado. Escolha entre:
 
-        - "sklearn" (default)
+        - "sklearn" (padrão)
         - "cuml"
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não exibir nada.
+        - 1 para exibir informações básicas.
+        - 2 para exibir informações detalhadas.
 
     random_state: int or None, default=None
-        Seed used by the random number generator. If None, the random
-        number generator is the `RandomState` used by `np.random`. Only
-        for strategy="quantile".
+        Semente usada pelo gerador de números aleatórios. Se None, o gerador
+        é o `RandomState` utilizado pelo `np.random`. Apenas
+        para strategy="quantile".
 
-    Attributes
+    Atributos
     ----------
     feature_names_in_: np.ndarray
-        Names of features seen during `fit`.
+        Nomes das variáveis observadas durante o `fit`.
 
     n_features_in_: int
-        Number of features seen during `fit`.
+        Número de variáveis observadas durante o `fit`.
 
-    See Also
+    Veja também
     --------
     experionml.data_cleaning:Encoder
     experionml.data_cleaning:Imputer
     experionml.data_cleaning:Normalizer
 
-    Examples
+    Exemplos
     --------
     === "experionml"
         ```pycon
@@ -1530,38 +1527,38 @@ class Discretizer(TransformerMixin, OneToOneFeatureMixin):
         self.labels = labels
 
     def fit(self, X: XConstructor, y: YConstructor | None = None) -> Self:
-        """Fit to data.
+        """Ajusta aos dados.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis).
 
         y: sequence, dataframe-like or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
-        Returns
+        Retorna
         -------
         Self
-            Estimator instance.
+            Instância do estimador.
 
         """
 
         def get_labels(col: str, bins: Sequence[Scalar]) -> tuple[str, ...]:
-            """Get labels for the specified bins.
+            """Retorna os rótulos para os bins especificados.
 
-            Parameters
+            Parâmetros
             ----------
             col: str
-                Name of the column.
+                Nome da coluna.
 
             bins: sequence
-                Bin edges.
+                Bordas dos bins.
 
-            Returns
+            Retorna
             -------
             tuple
-                Labels for the column.
+                Rótulos para a coluna.
 
             """
             default = [
@@ -1578,9 +1575,9 @@ class Discretizer(TransformerMixin, OneToOneFeatureMixin):
 
             if len(bins) - 1 != len(labels):
                 raise ValueError(
-                    "Invalid value for the labels parameter. The length of "
-                    "the bins does not match the length of the labels, got "
-                    f"len(bins)={len(bins) - 1} and len(labels)={len(labels)}."
+                    "Valor inválido para o parâmetro labels. O número de "
+                    "bins não corresponde ao número de labels, obtido "
+                    f"len(bins)={len(bins) - 1} e len(labels)={len(labels)}."
                 )
 
             return labels
@@ -1601,26 +1598,26 @@ class Discretizer(TransformerMixin, OneToOneFeatureMixin):
                 if col in self.bins:
                     bins_c = self.bins[str(col)]
                 else:
-                    continue  # Ignore existing column not specified in dict
+                    continue  # Ignora coluna existente não especificada no dict
             else:
                 bins_c = self.bins
 
             if self.strategy != "custom":
                 if isinstance(bins_c, sequence_t):
                     try:
-                        bins_x = bins_c[i]  # Fetch the i-th bin for the i-th column
+                        bins_x = bins_c[i]  # Obtém o i-ésimo bin para a i-ésima coluna
                     except IndexError:
                         raise ValueError(
-                            "Invalid value for the bins parameter. The length of the "
-                            "bins does not match the length of the columns, got len"
-                            f"(bins)={len(bins_c)} and len(columns)={Xt.shape[1]}."
+                            "Valor inválido para o parâmetro bins. O número de "
+                            "bins não corresponde ao número de colunas, obtido len"
+                            f"(bins)={len(bins_c)} e len(columns)={Xt.shape[1]}."
                         ) from None
                 else:
                     bins_x = bins_c
 
                 KBinsDiscretizer = self._get_est_class("KBinsDiscretizer", "preprocessing")
 
-                # cuML implementation has no subsample and random_state
+                # Implementação cuML não possui subsample e random_state
                 kwargs: dict[str, Any] = {}
                 if "subsample" in sign(KBinsDiscretizer):
                     kwargs["subsample"] = 200000
@@ -1633,7 +1630,7 @@ class Discretizer(TransformerMixin, OneToOneFeatureMixin):
                     **kwargs,
                 ).fit(Xt[[col]])
 
-                # Save labels for transform method
+                # Salva os rótulos para o método transform
                 self._labels[col] = get_labels(
                     col=str(col),
                     bins=self._estimators[col].bin_edges_[0],
@@ -1642,8 +1639,8 @@ class Discretizer(TransformerMixin, OneToOneFeatureMixin):
             else:
                 if not isinstance(bins_c, sequence_t):
                     raise TypeError(
-                        f"Invalid type for the bins parameter, got {bins_c}. Only "
-                        "a sequence of bin edges is accepted when strategy='custom'."
+                        f"Tipo inválido para o parâmetro bins, valor recebido: {bins_c}. Apenas "
+                        "uma sequência de bordas de bin é aceita quando strategy='custom'."
                     )
                 else:
                     bins_c = [-np.inf, *bins_c, np.inf]
@@ -1653,7 +1650,7 @@ class Discretizer(TransformerMixin, OneToOneFeatureMixin):
                     module="preprocessing",
                 )
 
-                # Make of cut a transformer
+                # Transforma pd.cut em um transformer
                 self._estimators[col] = FunctionTransformer(
                     func=pd.cut,
                     kw_args={"bins": bins_c, "labels": get_labels(str(col), bins_c)},
@@ -1662,20 +1659,20 @@ class Discretizer(TransformerMixin, OneToOneFeatureMixin):
         return self
 
     def transform(self, X: XConstructor, y: YConstructor | None = None) -> XReturn:
-        """Bin the data into intervals.
+        """Agrupa os dados em intervalos.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis).
 
         y: sequence, dataframe-like or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Transformed feature set.
+            Conjunto de variáveis transformado.
 
         """
         check_is_fitted(self)
@@ -1690,7 +1687,7 @@ class Discretizer(TransformerMixin, OneToOneFeatureMixin):
             else:
                 Xt[col] = self._estimators[col].transform(Xt[[col]]).iloc[:, 0]
 
-                # Replace cluster values with labels
+                # Substitui os valores de cluster pelos rótulos
                 for i, label in enumerate(self._labels[col]):
                     Xt[col] = Xt[col].replace(i, label)
 
@@ -1703,94 +1700,94 @@ class Discretizer(TransformerMixin, OneToOneFeatureMixin):
 class Encoder(TransformerMixin):
     """Executa a codificação de variáveis categóricas.
 
-    The encoding type depends on the number of classes in the column:
+    O tipo de codificação depende do número de classes na coluna:
 
-    - If n_classes=2 or ordinal feature, use Ordinal-encoding.
-    - If 2 < n_classes <= `max_onehot`, use OneHot-encoding.
-    - If n_classes > `max_onehot`, use `strategy`-encoding.
+    - Se n_classes=2 ou variável ordinal, usa codificação Ordinal.
+    - Se 2 < n_classes <= `max_onehot`, usa codificação OneHot.
+    - Se n_classes > `max_onehot`, usa codificação `strategy`.
 
-    Missing values are propagated to the output column. Unknown
-    classes encountered during transforming are imputed according
-    to the selected strategy. Infrequent classes can be replaced with
-    a value in order to prevent too high cardinality.
+    Valores ausentes são propagados para a coluna de saída. Classes desconhecidas
+    encontradas durante a transformação são imputadas de acordo
+    com a estratégia selecionada. Classes infrequentes podem ser substituídas por
+    um valor para evitar cardinalidade muito alta.
 
-    This class can be accessed from experionml through the [encode]
-    [experionmlclassifier-encode] method. Read more in the [user guide]
+    Esta classe pode ser acessada pelo experionml através do método [encode]
+    [experionmlclassifier-encode]. Leia mais no [guia do usuário]
     [encoding-categorical-features].
 
     !!! warning
-        Three category-encoders estimators are unavailable:
+        Três estimadores do category-encoders não estão disponíveis:
 
-        * [OneHotEncoder][]: Use the max_onehot parameter.
-        * [HashingEncoder][]: Incompatibility of APIs.
-        * [LeaveOneOutEncoder][]: Incompatibility of APIs.
+        * [OneHotEncoder][]: Use o parâmetro max_onehot.
+        * [HashingEncoder][]: Incompatibilidade de APIs.
+        * [LeaveOneOutEncoder][]: Incompatibilidade de APIs.
 
-    Parameters
+    Parâmetros
     ----------
     strategy: str or transformer, default="Target"
-        Type of encoding to use for high cardinality features. Choose
-        from any of the estimators in the category-encoders package
-        or provide a custom one.
+        Tipo de codificação para variáveis de alta cardinalidade. Escolha
+        qualquer estimador do pacote category-encoders
+        ou forneça um personalizado.
 
     max_onehot: int or None, default=10
-        Maximum number of unique values in a feature to perform
-        one-hot encoding. If None, `strategy`-encoding is always
-        used for columns with more than two classes.
+        Número máximo de valores únicos em uma variável para realizar
+        codificação one-hot. Se None, codificação `strategy` é sempre
+        usada para colunas com mais de duas classes.
 
     ordinal: dict or None, default=None
-        Order of ordinal features, where the dict key is the feature's
-        name and the value is the class order, e.g., `{"salary": ["low",
+        Ordem das variáveis ordinais, onde a chave é o nome da variável
+        e o valor é a ordem das classes, ex.: `{"salary": ["low",
         "medium", "high"]}`.
 
     infrequent_to_value: int, float or None, default=None
-        Replaces infrequent class occurrences in categorical columns
-        with the string in parameter `value`. This transformation is
-        done before the encoding of the column.
+        Substitui ocorrências de classes infrequentes nas colunas categóricas
+        pela string no parâmetro `value`. Esta transformação é
+        feita antes da codificação da coluna.
 
-        - If None: Skip this step.
-        - If int: Minimum number of occurrences in a class.
-        - If float: Minimum fraction of occurrences in a class.
+        - Se None: Ignora esta etapa.
+        - Se int: Número mínimo de ocorrências em uma classe.
+        - Se float: Fração mínima de ocorrências em uma classe.
 
     value: str, default="infrequent"
-        Value with which to replace rare classes. This parameter is
-        ignored if `infrequent_to_value=None`.
+        Valor com o qual substituir classes raras. Este parâmetro é
+        ignorado se `infrequent_to_value=None`.
 
     n_jobs: int, default=1
-        Number of cores to use for parallel processing.
+        Número de núcleos a usar para processamento paralelo.
 
-        - If >0: Number of cores to use.
-        - If -1: Use all available cores.
-        - If <-1: Use number of cores - 1 - value.
+        - Se >0: Número de núcleos a usar.
+        - Se -1: Usar todos os núcleos disponíveis.
+        - Se <-1: Usar número de núcleos - 1 - valor.
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não exibir nada.
+        - 1 para exibir informações básicas.
+        - 2 para exibir informações detalhadas.
 
     **kwargs
-        Additional keyword arguments for the `strategy` estimator.
+        Argumentos de palavra-chave adicionais para o estimador `strategy`.
 
-    Attributes
+    Atributos
     ----------
     mapping_: dict of dicts
-        Encoded values and their respective mapping. The column name is
-        the key to its mapping dictionary. Only for ordinal encoding.
+        Valores codificados e seus respectivos mapeamentos. O nome da coluna é
+        a chave para seu dicionário de mapeamento. Apenas para codificação ordinal.
 
     feature_names_in_: np.ndarray
-        Names of features seen during `fit`.
+        Nomes das variáveis observadas durante o `fit`.
 
     n_features_in_: int
-        Number of features seen during `fit`.
+        Número de variáveis observadas durante o `fit`.
 
-    See Also
+    Veja também
     --------
     experionml.data_cleaning:Cleaner
     experionml.data_cleaning:Imputer
     experionml.data_cleaning:Pruner
 
-    Examples
+    Exemplos
     --------
     === "experionml"
         ```pycon
@@ -1808,7 +1805,7 @@ class Encoder(TransformerMixin):
 
         experionml.encode(strategy="target", max_onehot=10, verbose=2)
 
-        # Note the one-hot encoded column with name [feature]_[class]
+        # Observe a coluna codificada one-hot com nome [feature]_[classe]
         print(experionml.X)
         ```
 
@@ -1827,7 +1824,7 @@ class Encoder(TransformerMixin):
         encoder = Encoder(strategy="target", max_onehot=10, verbose=2)
         X = encoder.fit_transform(X, y)
 
-        # Note the one-hot encoded column with name [feature]_[class]
+        # Observe a coluna codificada one-hot com nome [feature]_[classe]
         print(X)
         ```
 
@@ -1854,24 +1851,24 @@ class Encoder(TransformerMixin):
         self.kwargs = kwargs
 
     def fit(self, X: XConstructor, y: YConstructor | None = None) -> Self:
-        """Fit to data.
+        """Ajusta aos dados.
 
-        Note that leaving y=None can lead to errors if the `strategy`
-        encoder requires target values. For multioutput tasks, only
-        the first target column is used to fit the encoder.
+        Deixar y=None pode levar a erros se o codificador `strategy`
+        requer valores alvo. Para tarefas multioutput, apenas
+        a primeira coluna alvo é usada para ajustar o codificador.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis).
 
         y: sequence or dataframe-like
-            Target column(s) corresponding to `X`.
+            Coluna(s) alvo correspondente(s) a `X`.
 
-        Returns
+        Retorna
         -------
         Self
-            Estimator instance.
+            Instância do estimador.
 
         """
         self.mapping_ = {}
@@ -1901,19 +1898,19 @@ class Encoder(TransformerMixin):
 
         if isinstance(self.strategy, str):
             if self.strategy.lower().endswith("encoder"):
-                self.strategy = self.strategy[:-7]  # Remove 'Encoder' at the end
+                self.strategy = self.strategy[:-7]  # Remove 'Encoder' do final
             if self.strategy.lower() not in strategies:
                 raise ValueError(
-                    f"Invalid value for the strategy parameter, got {self.strategy}. "
-                    f"Choose from: {', '.join(strategies)}."
+                    f"Valor inválido para o parâmetro strategy, valor recebido: {self.strategy}. "
+                    f"Escolha entre: {', '.join(strategies)}."
                 )
             estimator = strategies[self.strategy.lower()]
         elif callable(self.strategy):
             estimator = self.strategy
         else:
             raise TypeError(
-                f"Invalid type for the strategy parameter, got {self.strategy}. "
-                "For customs estimators, a class is expected, but got an instance."
+                f"Tipo inválido para o parâmetro strategy, valor recebido: {self.strategy}. "
+                "Para estimadores personalizados, esperava-se uma classe, mas foi recebida uma instância."
             )
 
         if self.max_onehot is None:
@@ -1932,32 +1929,32 @@ class Encoder(TransformerMixin):
         encoders: dict[str, list[str]] = defaultdict(list)
 
         for name, column in Xt.select_dtypes(include=CAT_TYPES).items():  # type: ignore[arg-type]
-            # Replace infrequent classes with the string in `value`
+            # Substitui classes infrequentes pela string em `value`
             if self.infrequent_to_value:
                 values = column.value_counts()
                 self._to_value[name] = values[values <= infrequent_to_value].index.tolist()
                 Xt[name] = column.replace(self._to_value[name], self.value)
 
-            # Get the unique categories before fitting
+            # Obtém as categorias únicas antes do ajuste
             self._categories[name] = column.dropna().sort_values().unique().tolist()
 
-            # Perform encoding type dependent on number of unique values
+            # Realiza o tipo de codificação de acordo com o número de valores únicos
             ordinal = self.ordinal or {}
             if name in ordinal or len(self._categories[name]) == 2:
-                # Check that provided classes match those of column
+                # Verifica se as classes fornecidas correspondem às da coluna
                 ordinal_c = ordinal.get(str(name), self._categories[name])
                 if column.nunique(dropna=True) != len(ordinal_c):
                     self._log(
-                        f" --> The number of classes passed to feature {name} in the "
-                        f"ordinal parameter ({len(ordinal_c)}) don't match the number "
-                        f"of classes in the data ({column.nunique(dropna=True)}).",
+                        f" --> O número de classes passado para a variável {name} no "
+                        f"parâmetro ordinal ({len(ordinal_c)}) não corresponde ao número "
+                        f"de classes nos dados ({column.nunique(dropna=True)}).",
                         1,
                         severity="warning",
                     )
 
-                # Create custom mapping from 0 to N - 1
+                # Cria mapeamento personalizado de 0 a N - 1
                 mapping: dict[Hashable, Scalar] = {v: i for i, v in enumerate(ordinal_c)}
-                mapping.setdefault(np.nan, -1)  # Encoder always needs mapping of NaN
+                mapping.setdefault(np.nan, -1)  # Encoder sempre precisa do mapeamento de NaN
                 self.mapping_[str(name)] = mapping
 
                 encoders["ordinal"].append(str(name))
@@ -2001,43 +1998,43 @@ class Encoder(TransformerMixin):
         return self
 
     def get_feature_names_out(self, input_features: Sequence[str] | None = None) -> np.ndarray:
-        """Get output feature names for transformation.
+        """Retorna os nomes das variáveis após a transformação.
 
-        Parameters
+        Parâmetros
         ----------
         input_features: sequence or None, default=None
-            Only used to validate feature names with the names seen in
-            `fit`.
+            Usado apenas para validar os nomes das variáveis com os nomes
+            observados durante o `fit`.
 
-        Returns
+        Retorna
         -------
         np.ndarray
-            Transformed feature names.
+            Nomes das variáveis transformadas.
 
         """
         check_is_fitted(self, attributes="feature_names_in_")
         _check_feature_names_in(self, input_features)
 
-        # Drop _nan columns (since missing values are propagated)
+        # Remove colunas _nan (pois valores ausentes são propagados)
         cols = [c for c in self._estimator.get_feature_names_out() if not c.endswith("_nan")]
 
         return get_col_order(cols, self.feature_names_in_, self._estimator.feature_names_in_)
 
     def transform(self, X: XConstructor, y: YConstructor | None = None) -> XReturn:
-        """Encode the data.
+        """Codifica os dados.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis).
 
         y: sequence, dataframe-like or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Encoded dataframe.
+            DataFrame codificado.
 
         """
         check_is_fitted(self)
@@ -2046,7 +2043,7 @@ class Encoder(TransformerMixin):
 
         self._log("Codificando colunas categóricas...", 1)
 
-        # Convert infrequent classes to value
+        # Converte classes infrequentes para o valor especificado
         Xt = Xt.replace(self._to_value, self.value)
 
         for name, categories in self._categories.items():
@@ -2063,11 +2060,11 @@ class Encoder(TransformerMixin):
                 2,
             )
 
-            # Count the propagated missing values
+            # Conta os valores ausentes propagados
             if n_nans := Xt[name].isna().sum():
                 self._log(f"   --> Propagando {n_nans} valores ausentes.", 2)
 
-            # Check for unknown classes
+            # Verifica classes desconhecidas
             if uc := len(Xt[name].dropna()[~Xt[name].isin(categories)]):
                 self._log(f"   --> Tratando {uc} classes desconhecidas.", 2)
 
@@ -2080,109 +2077,109 @@ class Encoder(TransformerMixin):
 class Imputer(TransformerMixin):
     """Trata valores ausentes nos dados.
 
-    Impute or remove missing values according to the selected strategy.
-    Also removes rows and columns with too many missing values. Use
-    the `missing_` attribute to customize what are considered "missing
-    values".
+    Imputa ou remove valores ausentes de acordo com a estratégia selecionada.
+    Também remove linhas e colunas com muitos valores ausentes. Use
+    o atributo `missing_` para personalizar o que é considerado como
+    "valores ausentes".
 
-    This class can be accessed from experionml through the [impute]
-    [experionmlclassifier-impute] method. Read more in the [user guide]
+    Esta classe pode ser acessada pelo experionml através do método [impute]
+    [experionmlclassifier-impute]. Leia mais no [guia do usuário]
     [imputing-missing-values].
 
-    Parameters
+    Parâmetros
     ----------
     strat_num: int, float, str or callable, default="mean"
-        Imputing strategy for numerical columns. Choose from:
+        Estratégia de imputação para colunas numéricas. Escolha entre:
 
-        - "drop": Drop rows containing missing values.
-        - "mean": Impute with mean of column.
-        - "median": Impute with median of column.
-        - "most_frequent": Impute with the most frequent value.
-        - "knn": Impute using a K-Nearest Neighbors approach.
-        - "iterative": Impute using a multivariate imputer.
-        - "drift": Impute values using a [PolynomialTrend][] model.
-        - "linear": Impute using linear interpolation.
-        - "nearest": Impute with nearest value.
-        - "bfill": Impute by using the next valid observation to fill
-           the gap.
-        - "ffill": Impute by propagating the last valid observation
-          to next valid.
-        - "random": Impute with random values between the min and max
-           of column.
-        - int or float: Impute with provided numerical value.
-        - callable: Replace missing values using the scalar statistic
-          returned by running the callable over a dense 1d array
-          containing non-missing values of each column.
+        - "drop": Remove linhas contendo valores ausentes.
+        - "mean": Imputa com a média da coluna.
+        - "median": Imputa com a mediana da coluna.
+        - "most_frequent": Imputa com o valor mais frequente.
+        - "knn": Imputa usando uma abordagem K-Nearest Neighbors.
+        - "iterative": Imputa usando um imputador multivariado.
+        - "drift": Imputa valores usando um modelo [PolynomialTrend][].
+        - "linear": Imputa usando interpolação linear.
+        - "nearest": Imputa com o valor mais próximo.
+        - "bfill": Imputa usando a próxima observação válida para preencher
+           a lacuna.
+        - "ffill": Imputa propagando a última observação válida
+          para a próxima válida.
+        - "random": Imputa com valores aleatórios entre o mínimo e o máximo
+           da coluna.
+        - int ou float: Imputa com o valor numérico fornecido.
+        - callable: Substitui valores ausentes usando a estatística escalar
+          retornada pelo callable aplicado a um array 1d denso
+          contendo valores não ausentes de cada coluna.
 
     strat_cat: str, default="most_frequent"
-        Imputing strategy for categorical columns. Choose from:
+        Estratégia de imputação para colunas categóricas. Escolha entre:
 
-        - "drop": Drop rows containing missing values.
-        - "most_frequent": Impute with the most frequent value.
-        - str: Impute with provided string.
+        - "drop": Remove linhas contendo valores ausentes.
+        - "most_frequent": Imputa com o valor mais frequente.
+        - str: Imputa com a string fornecida.
 
     max_nan_rows: int, float or None, default=None
-        Maximum number or fraction of missing values in a row
-        (if more, the row is removed). If None, ignore this step.
+        Número ou fração máxima de valores ausentes em uma linha
+        (se maior, a linha é removida). Se None, ignora esta etapa.
 
     max_nan_cols: int, float or None, default=None
-        Maximum number or fraction of missing values in a column
-        (if more, the column is removed). If None, ignore this step.
+        Número ou fração máxima de valores ausentes em uma coluna
+        (se maior, a coluna é removida). Se None, ignora esta etapa.
 
     n_jobs: int, default=1
-        Number of cores to use for parallel processing.
+        Número de núcleos a usar para processamento paralelo.
 
-        - If >0: Number of cores to use.
-        - If -1: Use all available cores.
-        - If <-1: Use number of cores - 1 - value.
+        - Se >0: Número de núcleos a usar.
+        - Se -1: Usar todos os núcleos disponíveis.
+        - Se <-1: Usar número de núcleos - 1 - valor.
 
     device: str, default="cpu"
-        Device on which to run the estimators. Use any string that
-        follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        Dispositivo no qual executar os estimadores. Use qualquer string que
+        siga o seletor de filtro [SYCL_DEVICE_FILTER][], ex.:
+        `#!python device="gpu"` para usar a GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
     engine: str or None, default=None
-        Execution engine to use for [estimators][estimator-acceleration].
-        If None, the default value is used. Choose from:
+        Engine de execução para [estimadores][estimator-acceleration].
+        Se None, o valor padrão é usado. Escolha entre:
 
-        - "sklearn" (default)
+        - "sklearn" (padrão)
         - "cuml"
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não exibir nada.
+        - 1 para exibir informações básicas.
+        - 2 para exibir informações detalhadas.
 
     random_state: int or None, default=None
-        Seed used by the random number generator. If None, the random
-        number generator is the `RandomState` used by `np.random`. Only
-        used when strat_num="iterative".
+        Semente usada pelo gerador de números aleatórios. Se None, o gerador
+        é o `RandomState` utilizado pelo `np.random`. Apenas
+        usado quando strat_num="iterative".
 
-    Attributes
+    Atributos
     ----------
     missing_: list
-        Values that are considered "missing". Default values are: None,
+        Valores considerados "ausentes". Os valores padrão são: None,
         NaN, NA, NaT, +inf, -inf, "", "?", "NA", "nan", "NaN", "NaT",
-        "none", "None", "inf", "-inf". Note that None, NaN, NA, +inf and
-        -inf are always considered missing since they are incompatible
-        with sklearn estimators.
+        "none", "None", "inf", "-inf". Note que None, NaN, NA, +inf e
+        -inf são sempre considerados ausentes pois são incompatíveis
+        com estimadores sklearn.
 
     feature_names_in_: np.ndarray
-        Names of features seen during `fit`.
+        Nomes das variáveis observadas durante o `fit`.
 
     n_features_in_: int
-        Number of features seen during `fit`.
+        Número de variáveis observadas durante o `fit`.
 
-    See Also
+    Veja também
     --------
     experionml.data_cleaning:Balancer
     experionml.data_cleaning:Discretizer
     experionml.data_cleaning:Encoder
 
-    Examples
+    Exemplos
     --------
     === "experionml"
         ```pycon
@@ -2193,7 +2190,7 @@ class Imputer(TransformerMixin):
 
         X, y = load_breast_cancer(return_X_y=True, as_frame=True)
 
-        # Add some random missing values to the data
+        # Adiciona alguns valores ausentes aleatórios aos dados
         for i, j in zip(randint(0, X.shape[0], 600), randint(0, 4, 600)):
             X.iloc[i, j] = np.NaN
 
@@ -2214,7 +2211,7 @@ class Imputer(TransformerMixin):
 
         X, y = load_breast_cancer(return_X_y=True, as_frame=True)
 
-        # Add some random missing values to the data
+        # Adiciona alguns valores ausentes aleatórios aos dados
         for i, j in zip(randint(0, X.shape[0], 600), randint(0, 4, 600)):
             X.iloc[i, j] = np.nan
 
@@ -2252,20 +2249,20 @@ class Imputer(TransformerMixin):
         self.max_nan_cols = max_nan_cols
 
     def fit(self, X: XConstructor, y: YConstructor | None = None) -> Self:
-        """Fit to data.
+        """Ajusta aos dados.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis).
 
         y: sequence, dataframe-like or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
-        Returns
+        Retorna
         -------
         Self
-            Estimator instance.
+            Instância do estimador.
 
         """
         Xt = to_df(X)
@@ -2278,7 +2275,7 @@ class Imputer(TransformerMixin):
 
         self._log("Ajustando Imputer...", 1)
 
-        # Unify all values to impute
+        # Unifica todos os valores a imputar
         Xt = replace_missing(Xt, self.missing_)
 
         if self.max_nan_rows is not None:
@@ -2290,10 +2287,10 @@ class Imputer(TransformerMixin):
             Xt = Xt.dropna(axis=0, thresh=Xt.shape[1] - self._max_nan_rows)
             if Xt.empty:
                 raise ValueError(
-                    "Invalid value for the max_nan_rows parameter, got "
-                    f"{self.max_nan_rows}. All rows contain more than "
-                    f"{self._max_nan_rows} missing values. Choose a "
-                    f"larger value or set the parameter to None."
+                    "Valor inválido para o parâmetro max_nan_rows, valor recebido: "
+                    f"{self.max_nan_rows}. Todas as linhas contêm mais de "
+                    f"{self._max_nan_rows} valores ausentes. Escolha um "
+                    f"valor maior ou defina o parâmetro como None."
                 )
 
         if self.max_nan_cols is not None:
@@ -2304,13 +2301,13 @@ class Imputer(TransformerMixin):
 
             Xt = Xt.drop(columns=Xt.columns[Xt.isna().sum() > max_nan_cols])
 
-        # Load the imputer class from sklearn or cuml (note the different modules)
+        # Carrega a classe imputadora do sklearn ou cuml (observe os módulos diferentes)
         SimpleImputer = self._get_est_class(
             name="SimpleImputer",
             module="preprocessing" if self.engine.estimator == "cuml" else "impute",
         )
 
-        # Note missing_values=pd.NA also imputes np.NaN
+        # Nota: missing_values=pd.NA também imputa np.NaN
         num_imputer: Estimator | Literal["passthrough"]
         if isinstance(self.strat_num, str):
             if self.strat_num in ("mean", "median", "most_frequent"):
@@ -2367,18 +2364,18 @@ class Imputer(TransformerMixin):
         return self
 
     def get_feature_names_out(self, input_features: Sequence[str] | None = None) -> np.ndarray:
-        """Get output feature names for transformation.
+        """Retorna os nomes das variáveis após a transformação.
 
-        Parameters
+        Parâmetros
         ----------
         input_features: sequence or None, default=None
-            Only used to validate feature names with the names seen in
-            `fit`.
+            Usado apenas para validar os nomes das variáveis com os nomes
+            observados durante o `fit`.
 
-        Returns
+        Retorna
         -------
         np.ndarray
-            Transformed feature names.
+            Nomes das variáveis transformadas.
 
         """
         check_is_fitted(self, attributes="feature_names_in_")
@@ -2393,27 +2390,27 @@ class Imputer(TransformerMixin):
         X: XConstructor,
         y: YConstructor | None = None,
     ) -> YReturn | tuple[XReturn, YReturn]:
-        """Impute the missing values.
+        """Imputa os valores ausentes.
 
-        Note that leaving y=None can lead to inconsistencies in
-        data length between X and y if rows are dropped during
-        the transformation.
+        Deixar y=None pode levar a inconsistências no
+        comprimento dos dados entre X e y se linhas forem removidas durante
+        a transformação.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis).
 
         y: sequence, dataframe-like or None, default=None
-            Target column(s) corresponding to `X`.
+            Coluna(s) alvo correspondente(s) a `X`.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Imputed dataframe.
+            DataFrame imputado.
 
         series or dataframe
-            Transformed target column. Only returned if provided.
+            Coluna alvo transformada. Retornada somente se fornecida.
 
         """
         check_is_fitted(self)
@@ -2428,10 +2425,10 @@ class Imputer(TransformerMixin):
 
         self._log("Imputando valores ausentes...", 1)
 
-        # Unify all values to impute
+        # Unifica todos os valores a imputar
         Xt = replace_missing(Xt, self.missing_)
 
-        # Drop rows with too many missing values
+        # Remove linhas com muitos valores ausentes
         if self.max_nan_rows is not None:
             length = len(Xt)
             Xt = Xt.dropna(axis=0, thresh=Xt.shape[1] - self._max_nan_rows)
@@ -2462,10 +2459,10 @@ class Imputer(TransformerMixin):
                     2,
                 )
 
-        # Print imputation information per feature
+        # Exibe informações de imputação por variável
         for name, column in Xt.items():
             if nans := column.isna().sum():
-                # Drop columns with too many missing values
+                # Remove colunas com muitos valores ausentes
                 if name not in self._estimator.feature_names_in_:
                     self._log(
                         f" --> Removendo a variável {name}. Ela contém {nans} "
@@ -2509,18 +2506,18 @@ class Imputer(TransformerMixin):
                         )
                     elif self.strat_cat != "drop":
                         self._log(
-                            f" --> Imputing {nans} missing values with value "
-                            f"'{self.strat_cat}' in column {name}.",
+                            f" --> Imputando {nans} valores ausentes com o valor "
+                            f"'{self.strat_cat}' na coluna {name}.",
                             2,
                         )
 
         Xt = self._estimator.transform(Xt)
 
-        # Make y consistent with X
+        # Torna y consistente com X
         if yt is not None:
             yt = yt.loc[yt.index.isin(Xt.index)]
 
-        # Reorder columns to original order
+        # Reordena as colunas na ordem original
         Xt = Xt[self.get_feature_names_out()]
 
         return variable_return(self._convert(Xt), self._convert(yt))
@@ -2530,79 +2527,79 @@ class Imputer(TransformerMixin):
 class Normalizer(TransformerMixin, OneToOneFeatureMixin):
     """Transforma os dados para seguirem uma distribuição Normal/Gaussiana.
 
-    This transformation is useful for modeling issues related to
-    heteroscedasticity (non-constant variance), or other situations
-    where normality is desired. Missing values are disregarded in
-    fit and maintained in transform. Categorical columns are ignored.
+    Esta transformação é útil para problemas de modelagem relacionados à
+    heterocedasticidade (variância não constante), ou outras situações
+    em que a normalidade é desejada. Valores ausentes são ignorados no
+    ajuste e mantidos na transformação. Colunas categóricas são ignoradas.
 
-    This class can be accessed from experionml through the [normalize]
-    [experionmlclassifier-normalize] method. Read more in the [user guide]
+    Esta classe pode ser acessada pelo experionml através do método [normalize]
+    [experionmlclassifier-normalize]. Leia mais no [guia do usuário]
     [normalizing-the-feature-set].
 
     !!! warning
-        The quantile strategy performs a non-linear transformation.
-        This may distort linear correlations between variables measured
-        at the same scale but renders variables measured at different
-        scales more directly comparable.
+        A estratégia quantile realiza uma transformação não linear.
+        Isso pode distorcer correlações lineares entre variáveis medidas
+        na mesma escala, mas torna variáveis medidas em escalas diferentes
+        mais diretamente comparáveis.
 
     !!! note
-        The yeojohnson and boxcox strategies scale the data after
-        transforming. Use the `kwargs` to change this behavior.
+        As estratégias yeojohnson e boxcox escalonam os dados após
+        a transformação. Use `kwargs` para alterar esse comportamento.
 
-    Parameters
+    Parâmetros
     ----------
     strategy: str, default="yeojohnson"
-        The transforming strategy. Choose from:
+        A estratégia de transformação. Escolha entre:
 
         - "[yeojohnson][]"
-        - "[boxcox][]" (only works with strictly positive values)
-        - "[quantile][]": Transform features using quantiles information.
+        - "[boxcox][]" (funciona apenas com valores estritamente positivos)
+        - "[quantile][]": Transforma variáveis usando informações de quantis.
 
     device: str, default="cpu"
-        Device on which to run the estimators. Use any string that
-        follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        Dispositivo no qual executar os estimadores. Use qualquer string que
+        siga o seletor de filtro [SYCL_DEVICE_FILTER][], ex.:
+        `#!python device="gpu"` para usar a GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
     engine: str or None, default=None
-        Execution engine to use for [estimators][estimator-acceleration].
-        If None, the default value is used. Choose from:
+        Engine de execução para [estimadores][estimator-acceleration].
+        Se None, o valor padrão é usado. Escolha entre:
 
-        - "sklearn" (default)
+        - "sklearn" (padrão)
         - "cuml"
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
+        - 0 para não exibir nada.
+        - 1 para exibir informações básicas.
 
     random_state: int or None, default=None
-        Seed used by the quantile strategy. If None, the random
-        number generator is the `RandomState` used by `np.random`.
+        Semente para a estratégia quantile. Se None, o gerador
+        é o `RandomState` utilizado pelo `np.random`.
 
     **kwargs
-        Additional keyword arguments for the `strategy` estimator.
+        Argumentos de palavra-chave adicionais para o estimador `strategy`.
 
-    Attributes
+    Atributos
     ----------
     [strategy]_: sklearn transformer
-        Object with which the data is transformed, e.g.,
-        `normalizer.yeojohnson` for the default strategy.
+        Objeto com o qual os dados são transformados, ex.:
+        `normalizer.yeojohnson` para a estratégia padrão.
 
     feature_names_in_: np.ndarray
-        Names of features seen during `fit`.
+        Nomes das variáveis observadas durante o `fit`.
 
     n_features_in_: int
-        Number of features seen during `fit`.
+        Número de variáveis observadas durante o `fit`.
 
-    See Also
+    Veja também
     --------
     experionml.data_cleaning:Cleaner
     experionml.data_cleaning:Pruner
     experionml.data_cleaning:Scaler
 
-    Examples
+    Exemplos
     --------
     === "experionml"
         ```pycon
@@ -2658,20 +2655,20 @@ class Normalizer(TransformerMixin, OneToOneFeatureMixin):
         self.kwargs = kwargs
 
     def fit(self, X: XConstructor, y: YConstructor | None = None) -> Self:
-        """Fit to data.
+        """Ajusta aos dados.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis).
 
         y: sequence, dataframe-like or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
-        Returns
+        Retorna
         -------
         Self
-            Estimator instance.
+            Instância do estimador.
 
         """
         strategies = {
@@ -2711,26 +2708,26 @@ class Normalizer(TransformerMixin, OneToOneFeatureMixin):
         self._log("Ajustando Normalizer...", 1)
         self._estimator.fit(num_cols)
 
-        # Add the estimator as attribute to the instance
+        # Adiciona o estimador como atributo à instância
         setattr(self, f"{self.strategy}_", self._estimator)
 
         return self
 
     def transform(self, X: XConstructor, y: YConstructor | None = None) -> XReturn:
-        """Apply the transformations to the data.
+        """Aplica as transformações aos dados.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis).
 
         y: sequence, dataframe-like or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Normalized dataframe.
+            DataFrame normalizado.
 
         """
         check_is_fitted(self)
@@ -2744,20 +2741,20 @@ class Normalizer(TransformerMixin, OneToOneFeatureMixin):
         return self._convert(Xt)
 
     def inverse_transform(self, X: XConstructor, y: YConstructor | None = None) -> XReturn:
-        """Apply the inverse transformation to the data.
+        """Aplica a transformação inversa aos dados.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis).
 
         y: sequence, dataframe-like or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Original dataframe.
+            DataFrame original.
 
         """
         check_is_fitted(self)
@@ -2777,96 +2774,95 @@ class Normalizer(TransformerMixin, OneToOneFeatureMixin):
 class Pruner(TransformerMixin, OneToOneFeatureMixin):
     """Remove valores atípicos dos dados.
 
-    Replace or remove outliers. The definition of outlier depends
-    on the selected strategy and can greatly differ from one another.
-    Ignores categorical columns.
+    Substitui ou remove valores atípicos. A definição de valor atípico depende
+    da estratégia selecionada e pode variar bastante entre elas.
+    Colunas categóricas são ignoradas.
 
-    This class can be accessed from experionml through the [prune]
-    [experionmlclassifier-prune] method. Read more in the [user guide]
+    Esta classe pode ser acessada pelo experionml através do método [prune]
+    [experionmlclassifier-prune]. Leia mais no [guia do usuário]
     [handling-outliers].
 
     !!! info
-        The "sklearnex" and "cuml" engines are only supported for
+        Os engines "sklearnex" e "cuml" são suportados apenas para
         strategy="dbscan".
 
-    Parameters
+    Parâmetros
     ----------
     strategy: str or sequence, default="zscore"
-        Strategy with which to select the outliers. If sequence of
-        strategies, only samples marked as outliers by all chosen
-        strategies are dropped. Choose from:
+        Estratégia com a qual selecionar os valores atípicos. Se uma sequência de
+        estratégias, apenas amostras marcadas como atípicas por todas as estratégias
+        escolhidas são removidas. Escolha entre:
 
-        - "zscore": Z-score of each data value.
+        - "zscore": Z-score de cada valor de dado.
         - "[iforest][]": Isolation Forest.
         - "[ee][]": Elliptic Envelope.
         - "[lof][]": Local Outlier Factor.
         - "[svm][]": One-class SVM.
         - "[dbscan][]": Density-Based Spatial Clustering.
         - "[hdbscan][]": Hierarchical Density-Based Spatial Clustering.
-        - "[optics][]": DBSCAN-like clustering approach.
+        - "[optics][]": Abordagem de clustering similar ao DBSCAN.
 
     method: int, float or str, default="drop"
-        Method to apply on the outliers. Only the zscore strategy
-        accepts another method than "drop". Choose from:
+        Método a aplicar nos valores atípicos. Apenas a estratégia zscore
+        aceita outro método além de "drop". Escolha entre:
 
-        - "drop": Drop any sample with outlier values.
-        - "minmax": Replace outlier with the min/max of the column.
-        - Any numerical value with which to replace the outliers.
+        - "drop": Remove qualquer amostra com valores atípicos.
+        - "minmax": Substitui o valor atípico pelo mínimo/máximo da coluna.
+        - Qualquer valor numérico com o qual substituir os valores atípicos.
 
     max_sigma: int or float, default=3
-        Maximum allowed standard deviations from the mean of the
-        column. If more, it is considered an outlier. Only if
-        strategy="zscore".
+        Máximo de desvios padrão permitidos em relação à média da coluna.
+        Se maior, é considerado um valor atípico. Apenas para strategy="zscore".
 
     include_target: bool, default=False
-        Whether to include the target column in the search for
-        outliers. This can be useful for regression tasks. Only
-        if strategy="zscore".
+        Se deve incluir a coluna alvo na busca por valores atípicos.
+        Pode ser útil para tarefas de regressão. Apenas
+        para strategy="zscore".
 
     device: str, default="cpu"
-        Device on which to run the estimators. Use any string that
-        follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        Dispositivo no qual executar os estimadores. Use qualquer string que
+        siga o seletor de filtro [SYCL_DEVICE_FILTER][], ex.:
+        `#!python device="gpu"` para usar a GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
     engine: str or None, default=None
-        Execution engine to use for [estimators][estimator-acceleration].
-        If None, the default value is used. Choose from:
+        Engine de execução para [estimadores][estimator-acceleration].
+        Se None, o valor padrão é usado. Escolha entre:
 
-        - "sklearn" (default)
+        - "sklearn" (padrão)
         - "cuml"
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não exibir nada.
+        - 1 para exibir informações básicas.
+        - 2 para exibir informações detalhadas.
 
     **kwargs
-        Additional keyword arguments for the `strategy` estimator. If
-        sequence of strategies, the params should be provided in a dict
-        with the strategy's name as key.
+        Argumentos de palavra-chave adicionais para o estimador `strategy`. Se
+        sequência de estratégias, os parâmetros devem ser fornecidos em um
+        dicionário com o nome da estratégia como chave.
 
-    Attributes
+    Atributos
     ----------
     [strategy]_: sklearn estimator
-        Object used to prune the data, e.g., `pruner.iforest` for the
-        isolation forest strategy. Not available for strategy="zscore".
+        Objeto usado para remover os valores atípicos, ex.: `pruner.iforest` para
+        a estratégia isolation forest. Não disponível para strategy="zscore".
 
     feature_names_in_: np.ndarray
-        Names of features seen during `fit`.
+        Nomes das variáveis observadas durante o `fit`.
 
     n_features_in_: int
-        Number of features seen during `fit`.
+        Número de variáveis observadas durante o `fit`.
 
-    See Also
+    Veja também
     --------
     experionml.data_cleaning:Balancer
     experionml.data_cleaning:Normalizer
     experionml.data_cleaning:Scaler
 
-    Examples
+    Exemplos
     --------
     === "experionml"
         ```pycon
@@ -2880,7 +2876,7 @@ class Pruner(TransformerMixin, OneToOneFeatureMixin):
 
         experionml.prune(stratgey="iforest", verbose=2)
 
-        # Note the reduced number of rows
+        # Observe o número reduzido de linhas
         print(experionml.dataset)
 
         experionml.plot_distribution(columns=0)
@@ -2896,7 +2892,7 @@ class Pruner(TransformerMixin, OneToOneFeatureMixin):
         normalizer = Normalizer(verbose=2)
         X = normalizer.fit_transform(X)
 
-        # Note the reduced number of rows
+        # Observe o número reduzido de linhas
         print(X)
         ```
 
@@ -2928,29 +2924,29 @@ class Pruner(TransformerMixin, OneToOneFeatureMixin):
         X: XConstructor,
         y: YConstructor | None = None,
     ) -> YReturn | tuple[XReturn, YReturn]:
-        """Apply the outlier strategy on the data.
+        """Aplica a estratégia de detecção de valores atípicos.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis).
 
         y: sequence, dataframe-like or None, default=None
-            Target column(s) corresponding to `X`.
+            Coluna(s) alvo correspondente(s) a `X`.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Transformed feature set.
+            Conjunto de variáveis transformado.
 
         series or dataframe
-            Transformed target column. Only returned if provided.
+            Coluna alvo transformada. Retornada somente se fornecida.
 
         """
         Xt = to_df(X, columns=getattr(self, "feature_names_in_", None))
         yt = to_tabular(y, index=Xt.index)
 
-        # Estimators with their modules
+        # Estimadores com seus módulos
         strategies = {
             "iforest": ["IsolationForest", "ensemble"],
             "ee": ["EllipticEnvelope", "covariance"],
@@ -2964,32 +2960,32 @@ class Pruner(TransformerMixin, OneToOneFeatureMixin):
         for strat in lst(self.strategy):
             if strat != "zscore" and str(self.method) != "drop":
                 raise ValueError(
-                    "Invalid value for the method parameter. Only the zscore "
-                    f"strategy accepts another method than 'drop', got {self.method}."
+                    "Valor inválido para o parâmetro method. Apenas a estratégia zscore "
+                    f"aceita outro método além de 'drop', valor recebido: {self.method}."
                 )
 
-        # Allocate kwargs to every estimator
+        # Aloca kwargs para cada estimador
         kwargs: dict[PrunerStrats, dict[str, Any]] = {}
         for strat in lst(self.strategy):
             kwargs[strat] = {}
             for key, value in self.kwargs.items():
-                # Parameters for this estimator only
+                # Parâmetros apenas para este estimador
                 if key == strat:
                     kwargs[strat].update(value)
-                # Parameters for all estimators
+                # Parâmetros para todos os estimadores
                 elif key not in lst(self.strategy):
                     kwargs[strat].update({key: value})
 
         self._log("Removendo valores atípicos...", 1)
 
-        # Prepare dataset (merge with y and exclude categorical columns)
+        # Prepara o dataset (une com y e exclui colunas categóricas)
         objective = merge(Xt, yt) if self.include_target and yt is not None else Xt
         objective = objective.select_dtypes(include=["number"])
 
         outliers = []
         for strat in lst(self.strategy):
             if strat == "zscore":
-                # stats.zscore only works with np types, therefore, convert
+                # stats.zscore funciona apenas com tipos numpy, portanto, converte
                 z_scores = zscore(objective.values.astype(float), nan_policy="propagate")
 
                 if not isinstance(self.method, str):
@@ -3003,18 +2999,18 @@ class Pruner(TransformerMixin, OneToOneFeatureMixin):
                 elif self.method.lower() == "minmax":
                     counts = 0
                     for i, col in enumerate(objective):
-                        # Replace outliers with NaN and after that with max,
-                        # so that the max is not calculated with the outliers in it
+                        # Substitui outliers por NaN e depois pelo máximo,
+                        # para que o máximo não seja calculado com os outliers
                         cond1 = z_scores[:, i] > self.max_sigma
                         mask = objective[col].mask(cond1, np.nan)
                         objective[col] = mask.replace(np.nan, mask.max(skipna=True))
 
-                        # Replace outliers with the minimum
+                        # Substitui outliers pelo mínimo
                         cond2 = z_scores[:, i] < -self.max_sigma
                         mask = objective[col].mask(cond2, np.nan)
                         objective[col] = mask.replace(np.nan, mask.min(skipna=True))
 
-                        # Sum number of replacements
+                        # Soma o número de substituições
                         counts += cond1.sum() + cond2.sum()
 
                     self._log(
@@ -3048,20 +3044,20 @@ class Pruner(TransformerMixin, OneToOneFeatureMixin):
                 setattr(self, f"{strat}_", estimator)
 
         if outliers:
-            # Select outliers from intersection of strategies
+            # Seleciona outliers pela intersecção das estratégias
             outlier_rows = [any(strats) for strats in zip(*outliers, strict=True)]
             self._log(
                 f" --> Removendo {len(outlier_rows) - sum(outlier_rows)} valores atípicos.",
                 2,
             )
 
-            # Keep only the non-outliers from the data
+            # Mantém apenas as amostras não atípicas nos dados
             Xt = Xt[outlier_rows]
             if yt is not None:
                 yt = yt[outlier_rows]
 
         else:
-            # Replace the columns in X with the new values from objective
+            # Substitui as colunas em X com os novos valores de objective
             Xt.update(objective)
 
         return variable_return(self._convert(Xt), self._convert(yt))
@@ -3071,67 +3067,67 @@ class Pruner(TransformerMixin, OneToOneFeatureMixin):
 class Scaler(TransformerMixin, OneToOneFeatureMixin):
     """Escalona os dados.
 
-    Apply one of sklearn's scaling strategies. Categorical columns
-    are ignored.
+    Aplica uma das estratégias de escalonamento do sklearn. Colunas categóricas
+    são ignoradas.
 
-    This class can be accessed from experionml through the [scale]
-    [experionmlclassifier-scale] method. Read more in the [user guide]
+    Esta classe pode ser acessada pelo experionml através do método [scale]
+    [experionmlclassifier-scale]. Leia mais no [guia do usuário]
     [scaling-the-feature-set].
 
-    Parameters
+    Parâmetros
     ----------
     strategy: str, default="standard"
-        Strategy with which to scale the data. Choose from:
+        Estratégia com a qual escalonar os dados. Escolha entre:
 
-        - "[standard][]": Remove mean and scale to unit variance.
-        - "[minmax][]": Scale features to a given range.
-        - "[maxabs][]": Scale features by their maximum absolute value.
-        - "[robust][]": Scale using statistics that are robust to outliers.
+        - "[standard][]": Remove a média e escala para variância unitária.
+        - "[minmax][]": Escala as variáveis para um intervalo dado.
+        - "[maxabs][]": Escala as variáveis pelo seu valor absoluto máximo.
+        - "[robust][]": Escala usando estatísticas robustas a valores atípicos.
 
     include_binary: bool, default=False
-        Whether to scale binary columns (only 0s and 1s).
+        Se deve escalonar colunas binárias (apenas 0s e 1s).
 
     device: str, default="cpu"
-        Device on which to run the estimators. Use any string that
-        follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        Dispositivo no qual executar os estimadores. Use qualquer string que
+        siga o seletor de filtro [SYCL_DEVICE_FILTER][], ex.:
+        `#!python device="gpu"` para usar a GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
     engine: str or None, default=None
-        Execution engine to use for [estimators][estimator-acceleration].
-        If None, the default value is used. Choose from:
+        Engine de execução para [estimadores][estimator-acceleration].
+        Se None, o valor padrão é usado. Escolha entre:
 
-        - "sklearn" (default)
+        - "sklearn" (padrão)
         - "cuml"
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
+        - 0 para não exibir nada.
+        - 1 para exibir informações básicas.
 
     **kwargs
-        Additional keyword arguments for the `strategy` estimator.
+        Argumentos de palavra-chave adicionais para o estimador `strategy`.
 
-    Attributes
+    Atributos
     ----------
     [strategy]_: sklearn transformer
-        Object with which the data is scaled, e.g.,
-        `scaler.standard` for the default strategy.
+        Objeto com o qual os dados são escalonados, ex.:
+        `scaler.standard` para a estratégia padrão.
 
     feature_names_in_: np.ndarray
-        Names of features seen during `fit`.
+        Nomes das variáveis observadas durante o `fit`.
 
     n_features_in_: int
-        Number of features seen during `fit`.
+        Número de variáveis observadas durante o `fit`.
 
-    See Also
+    Veja também
     --------
     experionml.data_cleaning:Balancer
     experionml.data_cleaning:Normalizer
     experionml.data_cleaning:Scaler
 
-    Examples
+    Exemplos
     --------
     === "experionml"
         ```pycon
@@ -3145,7 +3141,7 @@ class Scaler(TransformerMixin, OneToOneFeatureMixin):
 
         experionml.scale(verbose=2)
 
-        # Note the reduced number of rows
+        # Observe o número reduzido de linhas
         print(experionml.dataset)
         ```
 
@@ -3159,7 +3155,7 @@ class Scaler(TransformerMixin, OneToOneFeatureMixin):
         scaler = Scaler(verbose=2)
         X = scaler.fit_transform(X)
 
-        # Note the reduced number of rows
+        # Observe o número reduzido de linhas
         print(X)
         ```
 
@@ -3186,23 +3182,23 @@ class Scaler(TransformerMixin, OneToOneFeatureMixin):
         y: YConstructor | None = None,
         sample_weight: Sequence[Scalar] | None = None,
     ) -> Self:
-        """Fit to data.
+        """Ajusta aos dados.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis).
 
         y: sequence, dataframe-like or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
         sample_weight: sequence or None, default=None
-            Sample weights with shape=(n_samples,).
+            Pesos das amostras com shape=(n_amostras,).
 
-        Returns
+        Retorna
         -------
         Self
-            Estimator instance.
+            Instância do estimador.
 
         """
         strategies = {
@@ -3241,26 +3237,26 @@ class Scaler(TransformerMixin, OneToOneFeatureMixin):
         else:
             self._estimator.fit(num_cols)
 
-        # Add the estimator as attribute to the instance
+        # Adiciona o estimador como atributo à instância
         setattr(self, f"{self.strategy}_", self._estimator)
 
         return self
 
     def transform(self, X: XConstructor, y: YConstructor | None = None) -> XReturn:
-        """Perform standardization by centering and scaling.
+        """Padroniza os dados centralizando e escalonando.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis).
 
         y: sequence, dataframe-like or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Scaled dataframe.
+            DataFrame escalonado.
 
         """
         check_is_fitted(self)
@@ -3274,20 +3270,20 @@ class Scaler(TransformerMixin, OneToOneFeatureMixin):
         return self._convert(Xt)
 
     def inverse_transform(self, X: XConstructor, y: YConstructor | None = None) -> XReturn:
-        """Apply the inverse transformation to the data.
+        """Aplica a transformação inversa aos dados.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like
-            Feature set with shape=(n_samples, n_features).
+            Conjunto de variáveis com shape=(n_amostras, n_variáveis).
 
         y: sequence, dataframe-like or None, default=None
-            Do nothing. Implemented for continuity of the API.
+            Não faz nada. Implementado para continuidade da API.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Scaled dataframe.
+            DataFrame escalonado.
 
         """
         check_is_fitted(self)

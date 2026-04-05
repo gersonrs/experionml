@@ -29,10 +29,10 @@ from experionml.utils.utils import check_canvas, crash, has_task
 class ShapPlot(BasePlot, metaclass=ABCMeta):
     """Gráficos SHAP.
 
-    ExperionML wrapper for plots made by the shap package, using Shapley
-    values for model interpretation. These plots are accessible from
-    the runners or from the models. Only one model can be plotted at
-    the same time since the plots are not made by ExperionML.
+    Invólucro do ExperionML para gráficos gerados pelo pacote shap, usando
+    valores de Shapley para interpretação de modelos. Esses gráficos são
+    acessíveis a partir dos runners ou dos modelos. Apenas um modelo pode
+    ser plotado por vez, pois os gráficos não são gerados pelo ExperionML.
 
     """
 
@@ -53,11 +53,11 @@ class ShapPlot(BasePlot, metaclass=ABCMeta):
     ) -> plt.Figure | None:
         """Plota o gráfico de barras do SHAP.
 
-        Create a bar plot of a set of SHAP values. If a single sample
-        is passed, then the SHAP values are plotted. If many samples
-        are passed, then the mean absolute value for each feature
-        column is plotted. Read more about SHAP plots in the
-        [user guide][shap].
+        Cria um gráfico de barras a partir de um conjunto de valores SHAP.
+        Se uma única amostra for passada, os valores SHAP são plotados. Se
+        várias amostras forem passadas, o valor absoluto médio por coluna
+        de feature é plotado. Leia mais sobre gráficos SHAP no
+        [guia do usuário][shap].
 
         Parâmetros
         ----------
@@ -109,13 +109,13 @@ class ShapPlot(BasePlot, metaclass=ABCMeta):
         [plt.Figure][] or None
             Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_parshap
         experionml.plots:ShapPlot.plot_shap_beeswarm
         experionml.plots:ShapPlot.plot_shap_scatter
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -224,13 +224,13 @@ class ShapPlot(BasePlot, metaclass=ABCMeta):
         [plt.Figure][] or None
             Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_parshap
         experionml.plots:ShapPlot.plot_shap_bar
         experionml.plots:ShapPlot.plot_shap_scatter
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -342,13 +342,13 @@ class ShapPlot(BasePlot, metaclass=ABCMeta):
         [plt.Figure][] or None
             Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:ShapPlot.plot_shap_bar
         experionml.plots:ShapPlot.plot_shap_beeswarm
         experionml.plots:ShapPlot.plot_shap_force
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -417,7 +417,7 @@ class ShapPlot(BasePlot, metaclass=ABCMeta):
         amostra é plotada. Leia mais sobre gráficos SHAP no [guia do
         usuário][shap].
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model or None, default=None
             Modelo a plotar. Se None, todos os modelos são
@@ -436,7 +436,7 @@ class ShapPlot(BasePlot, metaclass=ABCMeta):
             multirrótulo, a classe selecionada é sempre a positiva.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
             - Se None, nenhum título é exibido.
             - Se str, texto do título.
@@ -467,13 +467,13 @@ class ShapPlot(BasePlot, metaclass=ABCMeta):
         [plt.Figure][] ou None
             Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:ShapPlot.plot_shap_beeswarm
         experionml.plots:ShapPlot.plot_shap_scatter
         experionml.plots:ShapPlot.plot_shap_decision
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -552,7 +552,7 @@ class ShapPlot(BasePlot, metaclass=ABCMeta):
         features, mas por suas explicações. Leia mais sobre gráficos
         SHAP no [guia do usuário][shap].
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model or None, default=None
             Modelo a plotar. Se None, todos os modelos são
@@ -577,7 +577,7 @@ class ShapPlot(BasePlot, metaclass=ABCMeta):
             multirrótulo, a classe selecionada é sempre a positiva.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
             - Se None, nenhum título é exibido.
             - Se str, texto do título.
@@ -604,13 +604,13 @@ class ShapPlot(BasePlot, metaclass=ABCMeta):
         [plt.Figure][] ou None
             Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:ShapPlot.plot_shap_decision
         experionml.plots:ShapPlot.plot_shap_force
         experionml.plots:ShapPlot.plot_shap_waterfall
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -664,14 +664,13 @@ class ShapPlot(BasePlot, metaclass=ABCMeta):
     ) -> plt.Figure | None:
         """Plota o gráfico de dispersão do SHAP.
 
-        Plots the value of the feature on the x-axis and the SHAP value
-        of the same feature on the y-axis. This shows how the model
-        depends on the given feature, and is like a richer extension of
-        the classical partial dependence plots. Vertical dispersion of
-        the data points represents interaction effects. Read more about
-        SHAP plots in the [user guide][shap].
+        Plota o valor da feature no eixo x e o valor SHAP da mesma feature
+        no eixo y. Isso mostra como o modelo depende da feature fornecida,
+        sendo uma extensão mais rica dos gráficos clássicos de dependência
+        parcial. A dispersão vertical dos pontos representa efeitos de
+        interação. Leia mais sobre gráficos SHAP no [guia do usuário][shap].
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model or None, default=None
             Modelo a plotar. Se None, todos os modelos são
@@ -686,17 +685,17 @@ class ShapPlot(BasePlot, metaclass=ABCMeta):
             amostra.
 
         columns: int, str, segment, sequence or dataframe, default=0
-            [Feature][row-and-column-selection] to plot. Only a single
-            feature can be selected.
+            [Feature][row-and-column-selection] a plotar. Apenas uma única
+            feature pode ser selecionada.
 
         target: int, str or tuple, default=1
-            Class in the target column to target. For multioutput tasks,
-            the value should be a tuple of the form (column, class).
-            Note that for binary and multilabel tasks, the selected
-            class is always the positive one.
+            Classe da coluna alvo a ser considerada. Para tarefas com
+            múltiplas saídas, o valor deve ser uma tupla no formato
+            (coluna, classe). Note que, em tarefas binárias e
+            multirrótulo, a classe selecionada é sempre a positiva.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
             - Se None, nenhum título é exibido.
             - Se str, texto do título.
@@ -722,13 +721,13 @@ class ShapPlot(BasePlot, metaclass=ABCMeta):
         [plt.Figure][] ou None
             Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:ShapPlot.plot_shap_beeswarm
         experionml.plots:ShapPlot.plot_shap_decision
         experionml.plots:ShapPlot.plot_shap_force
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -757,7 +756,7 @@ class ShapPlot(BasePlot, metaclass=ABCMeta):
         target_c = self.branch._get_target(target)
         explanation = models_c._shap.get_explanation(X, target_c)
 
-        # Get explanation for a specific column
+        # Obtém a explicação para uma coluna específica
         explanation = explanation[:, models_c.branch.columns.get_loc(col)]
 
         self._get_figure(backend="matplotlib")
@@ -807,7 +806,7 @@ class ShapPlot(BasePlot, metaclass=ABCMeta):
         o parâmetro `show`. Leia mais sobre gráficos SHAP no [guia do
         usuário][shap].
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model or None, default=None
             Modelo a plotar. Se None, todos os modelos são
@@ -832,7 +831,7 @@ class ShapPlot(BasePlot, metaclass=ABCMeta):
             multirrótulo, a classe selecionada é sempre a positiva.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
             - Se None, nenhum título é exibido.
             - Se str, texto do título.
@@ -859,13 +858,13 @@ class ShapPlot(BasePlot, metaclass=ABCMeta):
         [plt.Figure][] ou None
             Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:ShapPlot.plot_shap_bar
         experionml.plots:ShapPlot.plot_shap_beeswarm
         experionml.plots:ShapPlot.plot_shap_heatmap
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -892,7 +891,7 @@ class ShapPlot(BasePlot, metaclass=ABCMeta):
         target_c = self.branch._get_target(target)
         explanation = models_c._shap.get_explanation(X, target_c)
 
-        # Waterfall accepts only one row
+        # Waterfall aceita apenas uma única linha
         explanation.values = explanation.values[0]
         explanation.data = explanation.data[0]
 

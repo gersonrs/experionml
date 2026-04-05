@@ -14,13 +14,7 @@ from optuna.trial import Trial
 
 from experionml.basemodel import ClassRegModel
 from experionml.utils.types import Pandas, Predictor
-from experionml.utils.utils import (
-    CatBMetric,
-    Goal,
-    LGBMetric,
-    XGBMetric,
-    check_dependency,
-)
+from experionml.utils.utils import CatBMetric, Goal, LGBMetric, XGBMetric, check_dependency
 
 
 class AdaBoost(ClassRegModel):
@@ -39,13 +33,13 @@ class AdaBoost(ClassRegModel):
 
     Leia mais na [documentação][adabdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:GradientBoostingMachine
     experionml.models:RandomForest
     experionml.models:XGBoost
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -108,13 +102,13 @@ class AutomaticRelevanceDetermination(ClassRegModel):
 
     Leia mais na [documentação][arddocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:BayesianRidge
     experionml.models:GaussianProcess
     experionml.models:LeastAngleRegression
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLRegressor
@@ -176,13 +170,13 @@ class Bagging(ClassRegModel):
 
     Leia mais na [documentação][bagdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:DecisionTree
     experionml.models:LogisticRegression
     experionml.models:RandomForest
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -214,10 +208,10 @@ class Bagging(ClassRegModel):
     def _get_distributions() -> dict[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
-            Hyperparameter distributions.
+            Distribuições de hiperparâmetros.
 
         """
         return {
@@ -243,13 +237,13 @@ class BayesianRidge(ClassRegModel):
 
     Leia mais na [documentação][brdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:AutomaticRelevanceDetermination
     experionml.models:GaussianProcess
     experionml.models:LeastAngleRegression
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLRegressor
@@ -308,13 +302,13 @@ class BernoulliNB(ClassRegModel):
 
     Leia mais na [documentação][bnbdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:ComplementNB
     experionml.models:CategoricalNB
     experionml.models:MultinomialNB
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -389,13 +383,13 @@ class CatBoost(ClassRegModel):
         é feito para manter uma nomenclatura consistente com os modelos
         [XGBoost][] e [LightGBM][].
 
-    See Also
+    Veja também
     --------
     experionml.models:GradientBoostingMachine
     experionml.models:LightGBM
     experionml.models:XGBoost
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -517,19 +511,19 @@ class CatBoost(ClassRegModel):
         if trial and len(self._metric) == 1 and not self._gpu:
             callbacks.append(cb := CatBoostPruningCallback(trial, "CatBMetric"))
 
-        # gpu implementation fails if callbacks!=None
+        # A implementação GPU falha se callbacks != None
         estimator.fit(*data, eval_set=validation, callbacks=callbacks or None, **params)
 
         if not self._gpu:
             if validation:
-                # Create evals attribute with train and validation scores
+                # Cria o atributo evals com pontuações de treino e validação
                 m = self._metric[0].name
                 evals = estimator.evals_result_
                 self._evals[f"{m}_train"] = evals["learn"]["CatBMetric"]
                 self._evals[f"{m}_test"] = evals["validation"]["CatBMetric"]
 
             if trial and len(self._metric) == 1 and cb._pruned:
-                # Add the pruned step to the output
+                # Adiciona o passo podado à saída
                 step = len(self.evals[f"{m}_train"])
                 steps = estimator.get_params()[self.validation]
                 trial.params[self.validation] = f"{step}/{steps}"
@@ -543,10 +537,10 @@ class CatBoost(ClassRegModel):
     def _get_distributions() -> dict[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
-            Hyperparameter distributions.
+            Distribuições de hiperparâmetros.
 
         """
         return {
@@ -573,13 +567,13 @@ class CategoricalNB(ClassRegModel):
 
     Leia mais na [documentação][catnbdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:BernoulliNB
     experionml.models:ComplementNB
     experionml.models:GaussianNB
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -636,13 +630,13 @@ class ComplementNB(ClassRegModel):
 
     Leia mais na [documentação][cnbdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:BernoulliNB
     experionml.models:CategoricalNB
     experionml.models:MultinomialNB
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -696,13 +690,13 @@ class DecisionTree(ClassRegModel):
 
     Leia mais na [documentação][treedocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:ExtraTree
     experionml.models:ExtraTrees
     experionml.models:RandomForest
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -733,10 +727,10 @@ class DecisionTree(ClassRegModel):
     def _get_distributions(self) -> Mapping[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
-            Hyperparameter distributions.
+            Distribuições de hiperparâmetros.
 
         """
         if self._goal is Goal.classification:
@@ -771,13 +765,13 @@ class Dummy(ClassRegModel):
 
     Leia mais na [documentação][dummydocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:DecisionTree
     experionml.models:ExtraTree
     experionml.models:NaiveForecaster
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -838,13 +832,13 @@ class ElasticNet(ClassRegModel):
 
     Leia mais na [documentação][endocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:Lasso
     experionml.models:OrdinaryLeastSquares
     experionml.models:Ridge
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLRegressor
@@ -873,7 +867,7 @@ class ElasticNet(ClassRegModel):
     def _get_distributions() -> dict[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
             Distribuições de hiperparâmetros.
@@ -904,13 +898,13 @@ class ExtraTree(ClassRegModel):
 
     Leia mais na [documentação][treedocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:DecisionTree
     experionml.models:ExtraTrees
     experionml.models:RandomForest
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -941,7 +935,7 @@ class ExtraTree(ClassRegModel):
     def _get_distributions(self) -> Mapping[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
             Distribuições de hiperparâmetros.
@@ -979,13 +973,13 @@ class ExtraTrees(ClassRegModel):
 
     Leia mais na [documentação][etdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:DecisionTree
     experionml.models:ExtraTree
     experionml.models:RandomForest
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -1016,12 +1010,12 @@ class ExtraTrees(ClassRegModel):
     def _get_parameters(self, trial: Trial) -> dict:
         """Obtém os hiperparâmetros do trial.
 
-        Parameters
+        Parâmetros
         ----------
         trial: [Trial][]
             Trial atual.
 
-        Returns
+        Retorna
         -------
         dict
             Hiperparâmetros do trial.
@@ -1037,7 +1031,7 @@ class ExtraTrees(ClassRegModel):
     def _get_distributions(self) -> Mapping[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
             Distribuições de hiperparâmetros.
@@ -1074,13 +1068,13 @@ class GaussianNB(ClassRegModel):
 
     Leia mais na [documentação][gnbdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:BernoulliNB
     experionml.models:CategoricalNB
     experionml.models:ComplementNB
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -1135,13 +1129,13 @@ class GaussianProcess(ClassRegModel):
 
         Leia mais na [documentação][gpdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:GaussianNB
     experionml.models:LinearDiscriminantAnalysis
     experionml.models:PassiveAggressive
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -1192,13 +1186,13 @@ class GradientBoostingMachine(ClassRegModel):
         [HistGradientBoosting][] é uma variante muito mais rápida desse
         algoritmo para conjuntos de dados intermediários (n_samples >= 10k).
 
-    See Also
+    Veja também
     --------
     experionml.models:CatBoost
     experionml.models:HistGradientBoosting
     experionml.models:LightGBM
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -1271,13 +1265,13 @@ class HuberRegression(ClassRegModel):
 
     Leia mais na [documentação][huberdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:AutomaticRelevanceDetermination
     experionml.models:LeastAngleRegression
     experionml.models:OrdinaryLeastSquares
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLRegressor
@@ -1306,7 +1300,7 @@ class HuberRegression(ClassRegModel):
     def _get_distributions() -> dict[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
             Distribuições de hiperparâmetros.
@@ -1337,13 +1331,13 @@ class HistGradientBoosting(ClassRegModel):
 
     Leia mais na [documentação][hgbmdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:CatBoost
     experionml.models:GradientBoostingMachine
     experionml.models:XGBoost
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -1374,7 +1368,7 @@ class HistGradientBoosting(ClassRegModel):
     def _get_distributions(self) -> Mapping[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
             Distribuições de hiperparâmetros.
@@ -1413,13 +1407,13 @@ class KNearestNeighbors(ClassRegModel):
 
     Leia mais na [documentação][knndocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:LinearDiscriminantAnalysis
     experionml.models:QuadraticDiscriminantAnalysis
     experionml.models:RadiusNearestNeighbors
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -1485,13 +1479,13 @@ class Lasso(ClassRegModel):
 
     Leia mais na [documentação][lassodocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:ElasticNet
     experionml.models:OrdinaryLeastSquares
     experionml.models:Ridge
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLRegressor
@@ -1548,13 +1542,13 @@ class LeastAngleRegression(ClassRegModel):
 
     Leia mais na [documentação][larsdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:BayesianRidge
     experionml.models:HuberRegression
     experionml.models:OrdinaryLeastSquares
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLRegressor
@@ -1603,13 +1597,13 @@ class LightGBM(ClassRegModel):
         O uso da [aceleração por GPU][estimator-acceleration] do
         LightGBM requer [dependências adicionais de software][lgb_gpu].
 
-    See Also
+    Veja também
     --------
     experionml.models:CatBoost
     experionml.models:GradientBoostingMachine
     experionml.models:XGBoost
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -1717,7 +1711,7 @@ class LightGBM(ClassRegModel):
                 **params,
             )
         except TrialPruned as ex:
-            trial = cast(Trial, trial)  # If pruned, trial can't be None
+            trial = cast(Trial, trial)  # Se podado, trial não pode ser None
 
             # Adiciona o passo podado à saída
             step = str(ex).split(" ")[-1][:-1]
@@ -1773,13 +1767,13 @@ class LinearDiscriminantAnalysis(ClassRegModel):
 
     Leia mais na [documentação][ldadocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:LogisticRegression
     experionml.models:RadiusNearestNeighbors
     experionml.models:QuadraticDiscriminantAnalysis
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -1858,13 +1852,13 @@ class LinearSVM(ClassRegModel):
 
     Leia mais na [documentação][svmdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:KNearestNeighbors
     experionml.models:StochasticGradientDescent
     experionml.models:SupportVectorMachine
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -1985,13 +1979,13 @@ class LogisticRegression(ClassRegModel):
 
     Leia mais na [documentação][lrdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:GaussianProcess
     experionml.models:LinearDiscriminantAnalysis
     experionml.models:PassiveAggressive
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -2094,13 +2088,13 @@ class MultiLayerPerceptron(ClassRegModel):
 
     Leia mais na [documentação][mlpdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:PassiveAggressive
     experionml.models:Perceptron
     experionml.models:StochasticGradientDescent
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -2131,15 +2125,15 @@ class MultiLayerPerceptron(ClassRegModel):
     def _trial_to_est(self, params: dict[str, Any]) -> dict[str, Any]:
         """Converte os hiperparâmetros do trial em parâmetros do estimador.
 
-        Parameters
+        Parâmetros
         ----------
         params: dict
-            Trial's hyperparameters.
+            Hiperparâmetros do trial.
 
-        Returns
+        Retorna
         -------
         dict
-            Estimator's hyperparameters.
+            Hiperparâmetros do estimador.
 
         """
         params = super()._trial_to_est(params)
@@ -2147,7 +2141,7 @@ class MultiLayerPerceptron(ClassRegModel):
         hidden_layer_sizes = [
             value
             for param in [p for p in sorted(params) if p.startswith("hidden_layer")]
-            if (value := params.pop(param))  # Neurons should be >0
+            if (value := params.pop(param))  # Neurônios devem ser > 0
         ]
 
         if hidden_layer_sizes:
@@ -2158,10 +2152,10 @@ class MultiLayerPerceptron(ClassRegModel):
     def _get_distributions(self) -> Mapping[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
-            Hyperparameter distributions.
+            Distribuições de hiperparâmetros.
 
         """
         dist = {
@@ -2178,7 +2172,7 @@ class MultiLayerPerceptron(ClassRegModel):
             "max_iter": Int(50, 500, step=10),
         }
 
-        # Drop layers if user specifies sizes
+        # Remove camadas se o usuário especificar tamanhos
         if "hidden_layer_sizes" in self._est_params:
             return {k: v for k, v in dist.items() if "hidden_layer" not in k}
         else:
@@ -2200,13 +2194,13 @@ class MultinomialNB(ClassRegModel):
 
     Leia mais na [documentação][mnbdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:BernoulliNB
     experionml.models:ComplementNB
     experionml.models:GaussianNB
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -2262,13 +2256,13 @@ class OrdinaryLeastSquares(ClassRegModel):
 
     Leia mais na [documentação][olsdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:ElasticNet
     experionml.models:Lasso
     experionml.models:Ridge
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLRegressor
@@ -2307,13 +2301,13 @@ class OrthogonalMatchingPursuit(ClassRegModel):
 
     Leia mais na [documentação][ompdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:Lasso
     experionml.models:LeastAngleRegression
     experionml.models:OrdinaryLeastSquares
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLRegressor
@@ -2357,13 +2351,13 @@ class PassiveAggressive(ClassRegModel):
 
     Leia mais na [documentação][padocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:MultiLayerPerceptron
     experionml.models:Perceptron
     experionml.models:StochasticGradientDescent
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -2433,13 +2427,13 @@ class Perceptron(ClassRegModel):
 
     Leia mais na [documentação][percdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:MultiLayerPerceptron
     experionml.models:PassiveAggressive
     experionml.models:StochasticGradientDescent
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -2498,13 +2492,13 @@ class QuadraticDiscriminantAnalysis(ClassRegModel):
 
     Leia mais na [documentação][ldadocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:LinearDiscriminantAnalysis
     experionml.models:LogisticRegression
     experionml.models:RadiusNearestNeighbors
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -2566,13 +2560,13 @@ class RadiusNearestNeighbors(ClassRegModel):
 
         Leia mais na [documentação][knndocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:KNearestNeighbors
     experionml.models:LinearDiscriminantAnalysis
     experionml.models:QuadraticDiscriminantAnalysis
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -2609,10 +2603,10 @@ class RadiusNearestNeighbors(ClassRegModel):
     def _get_distributions() -> dict[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
-            Hyperparameter distributions.
+            Distribuições de hiperparâmetros.
 
         """
         return {
@@ -2647,13 +2641,13 @@ class RandomForest(ClassRegModel):
         antes de chamar o método [run][experionmlclassifier-run] do
         experionml para evitar exceções.
 
-    See Also
+    Veja também
     --------
     experionml.models:DecisionTree
     experionml.models:ExtraTrees
     experionml.models:HistGradientBoosting
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -2761,13 +2755,13 @@ class Ridge(ClassRegModel):
         Os engines `sklearnex` e `cuml` só estão disponíveis para
         tarefas de regressão.
 
-    See Also
+    Veja também
     --------
     experionml.models:BayesianRidge
     experionml.models:ElasticNet
     experionml.models:Lasso
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLRegressor
@@ -2834,13 +2828,13 @@ class StochasticGradientDescent(ClassRegModel):
 
     Leia mais na [documentação][sgddocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:MultiLayerPerceptron
     experionml.models:PassiveAggressive
     experionml.models:SupportVectorMachine
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -2919,13 +2913,13 @@ class SupportVectorMachine(ClassRegModel):
 
     Leia mais na [documentação][svmdocs] do sklearn.
 
-    See Also
+    Veja também
     --------
     experionml.models:LinearSVM
     experionml.models:MultiLayerPerceptron
     experionml.models:StochasticGradientDescent
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -2970,7 +2964,7 @@ class SupportVectorMachine(ClassRegModel):
         params = super()._get_parameters(trial)
 
         if self._get_param("kernel", params) == "poly" and "gamma" in params:
-            params["gamma"] = "scale"  # Crashes in combination with "auto"
+            params["gamma"] = "scale"  # Falha em combinação com "auto"
 
         return params
 
@@ -3036,13 +3030,13 @@ class XGBoost(ClassRegModel):
 
     Leia mais na [documentação][xgbdocs] do XGBoost.
 
-    See Also
+    Veja também
     --------
     experionml.models:CatBoost
     experionml.models:GradientBoostingMachine
     experionml.models:LightGBM
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -3167,7 +3161,7 @@ class XGBoost(ClassRegModel):
                 **params,
             )
         except TrialPruned as ex:
-            trial = cast(Trial, trial)  # If pruned, trial can't be None
+            trial = cast(Trial, trial)  # Se podado, trial não pode ser None
 
             # Adiciona o passo podado à saída
             step = str(ex).split(" ")[-1][:-1]
@@ -3190,10 +3184,10 @@ class XGBoost(ClassRegModel):
     def _get_distributions() -> dict[str, BaseDistribution]:
         """Obtém as distribuições predefinidas de hiperparâmetros.
 
-        Returns
+        Retorna
         -------
         dict
-            Hyperparameter distributions.
+            Distribuições de hiperparâmetros.
 
         """
         return {

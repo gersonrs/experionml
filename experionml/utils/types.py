@@ -43,17 +43,17 @@ _T = TypeVar("_T")
 class Sequence(Protocol[_T]):
     """Fábrica de type hints para sequências com tipos subscritos.
 
-    Dynamically creates new `Annotated[Sequence[...], ...]` type hints,
-    subscripted by the passed type. For subscripted types, it passes
-    when the type is an array-like and all items in the sequence are of
-    the subscripted type.
+    Cria dinamicamente novos type hints `Annotated[Sequence[...], ...]`,
+    parametrizados pelo tipo passado. Para tipos parametrizados, valida
+    se o objeto é array-like e se todos os itens da sequência são do
+    tipo parametrizado.
 
-    Parameters
+    Parâmetros
     ----------
     _T: object
         Arbitrary child type hint to subscript the protocol.
 
-    Notes
+    Notas
     -----
     See https://github.com/beartype/beartype/discussions/277#discussioncomment-7086878
 
@@ -119,8 +119,8 @@ class Style(TypedDict):
 class EngineTuple(NamedTuple):
     """Tipo de retorno do parâmetro `engine`.
 
-    We use a namedtuple for immutability to be able to clone
-    the estimator since sklearn does a `is` instance check.
+    Usamos uma namedtuple para imutabilidade, possibilitando clonar
+    o estimador, pois o sklearn faz verificação de identidade com `is`.
 
     """
 
@@ -143,7 +143,7 @@ class EngineTuple(NamedTuple):
 class SparseMatrix(Protocol):
     """Protocolo para matrizes esparsas.
 
-    Required since scipy doesn't have stubs.
+    Necessário pois o scipy não possui stubs de tipagem.
 
     """
 
@@ -191,8 +191,8 @@ class SkScorer(Protocol):
 class Scorer(SkScorer, Protocol):
     """Protocolo para os scorers do ExperionML.
 
-    ExperionML's scorers are the same objects as sklearn's scorers
-    but with an extra 'name' and 'fullname' attribute.
+    Os scorers do ExperionML são os mesmos objetos que os scorers do sklearn,
+    porém com os atributos extras 'name' e 'fullname'.
 
     """
 

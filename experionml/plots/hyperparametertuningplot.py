@@ -37,15 +37,7 @@ from experionml.utils.types import (
     int_t,
     segment_t,
 )
-from experionml.utils.utils import (
-    check_dependency,
-    crash,
-    divide,
-    get_segment,
-    it,
-    lst,
-    rnd,
-)
+from experionml.utils.utils import check_dependency, crash, divide, get_segment, it, lst, rnd
 
 
 class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
@@ -219,12 +211,12 @@ class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
         [go.Figure][] or None
             Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:HyperparameterTuningPlot.plot_hyperparameters
         experionml.plots:HyperparameterTuningPlot.plot_trials
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -361,13 +353,13 @@ class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
         [go.Figure][] or None
             Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_feature_importance
         experionml.plots:HyperparameterTuningPlot.plot_hyperparameters
         experionml.plots:HyperparameterTuningPlot.plot_trials
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -451,7 +443,7 @@ class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
         estudo. Este gráfico está disponível apenas para modelos que
         executaram [ajuste de hiperparâmetros][].
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model or None, default=None
             Modelo a plotar. Se None, todos os modelos são
@@ -495,13 +487,13 @@ class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
         [go.Figure][] ou None
             Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:HyperparameterTuningPlot.plot_hyperparameter_importance
         experionml.plots:HyperparameterTuningPlot.plot_parallel_coordinate
         experionml.plots:HyperparameterTuningPlot.plot_trials
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -640,7 +632,7 @@ class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
         disponível apenas para modelos que executaram [ajuste de
         hiperparâmetros][].
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model or None, default=None
             Modelo a plotar. Se None, todos os modelos são
@@ -685,13 +677,13 @@ class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
         [go.Figure][] ou None
             Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:HyperparameterTuningPlot.plot_edf
         experionml.plots:HyperparameterTuningPlot.plot_hyperparameter_importance
         experionml.plots:HyperparameterTuningPlot.plot_hyperparameters
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -812,7 +804,7 @@ class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
         está disponível apenas para modelos com [execuções com múltiplas
         métricas][] e [ajuste de hiperparâmetros][].
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model or None, default=None
             Modelo a plotar. Se None, todos os modelos são
@@ -854,13 +846,13 @@ class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
         [go.Figure][] ou None
             Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:HyperparameterTuningPlot.plot_edf
         experionml.plots:HyperparameterTuningPlot.plot_slice
         experionml.plots:HyperparameterTuningPlot.plot_trials
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -969,7 +961,7 @@ class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
         disponível apenas para modelos que executaram [ajuste de
         hiperparâmetros][].
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model or None, default=None
             Modelo a plotar. Se None, todos os modelos são
@@ -1017,13 +1009,13 @@ class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
         [go.Figure][] ou None
             Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:HyperparameterTuningPlot.plot_edf
         experionml.plots:HyperparameterTuningPlot.plot_hyperparameters
         experionml.plots:HyperparameterTuningPlot.plot_parallel_coordinate
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -1050,15 +1042,15 @@ class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
         for i in range(len(params_c) * len(metric_c)):
             x, y = i // len(params_c), i % len(params_c)
 
-            # Calculate the distance between subplots
+            # Calcula a distância entre subplots
             x_offset = divide(0.0125, (len(params_c) - 1))
             y_offset = divide(0.0125, (len(metric_c) - 1))
 
-            # Calculate the size of the subplot
+            # Calcula o tamanho do subplot
             x_size = (1 - ((x_offset * 2) * (len(params_c) - 1))) / len(params_c)
             y_size = (1 - ((y_offset * 2) * (len(metric_c) - 1))) / len(metric_c)
 
-            # Determine the position for the axes
+            # Determina a posição dos eixos
             x_pos = y * (x_size + 2 * x_offset)
             y_pos = (len(metric_c) - x - 1) * (y_size + 2 * y_offset)
 
@@ -1137,7 +1129,7 @@ class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
                             [`memory`][experionmlclassifier-memory] para armazenar os
                             resultados em cache e acelerar chamadas repetidas.
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
             Modelos a plotar. Se None, todos os modelos que usaram
@@ -1175,13 +1167,13 @@ class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
         [go.Figure][] ou None
             Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:HyperparameterTuningPlot.plot_pareto_front
         experionml.plots:HyperparameterTuningPlot.plot_timeline
         experionml.plots:HyperparameterTuningPlot.plot_trials
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -1254,7 +1246,7 @@ class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
         Este gráfico está disponível apenas para modelos que executaram
         [ajuste de hiperparâmetros][].
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
             Modelos a plotar. Se None, todos os modelos que usaram
@@ -1292,13 +1284,13 @@ class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
         [go.Figure][] ou None
             Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:HyperparameterTuningPlot.plot_edf
         experionml.plots:HyperparameterTuningPlot.plot_slice
         experionml.plots:HyperparameterTuningPlot.plot_terminator_improvement
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier
@@ -1324,11 +1316,11 @@ class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
         xaxis, yaxis = BasePlot._fig.get_axes()
 
         _cm = {
-            "COMPLETE": "rgb(173, 116, 230)",  # Blue
-            "FAIL": "rgb(255, 0, 0)",  # Red
-            "PRUNED": "rgb(255, 165, 0)",  # Orange
-            "RUNNING": "rgb(124, 252, 0)",  # Green
-            "WAITING": "rgb(220, 220, 220)",  # Gray
+            "COMPLETE": "rgb(173, 116, 230)",  # Azul
+            "FAIL": "rgb(255, 0, 0)",  # Vermelho
+            "PRUNED": "rgb(255, 165, 0)",  # Laranja
+            "RUNNING": "rgb(124, 252, 0)",  # Verde
+            "WAITING": "rgb(220, 220, 220)",  # Cinza
         }
 
         for m in models_c:
@@ -1411,7 +1403,7 @@ class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
         `ht_params={"plot": True}`. Este gráfico está disponível apenas
         para modelos que executaram [ajuste de hiperparâmetros][].
 
-        Parameters
+        Parâmetros
         ----------
         models: int, str, Model, segment, sequence or None, default=None
             Modelos a plotar. Se None, todos os modelos que usaram
@@ -1454,13 +1446,13 @@ class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
         [go.Figure][] ou None
             Objeto do gráfico. Só é retornado se `display=None`.
 
-        See Also
+        Veja também
         --------
         experionml.plots:PredictionPlot.plot_evals
         experionml.plots:HyperparameterTuningPlot.plot_hyperparameters
         experionml.plots:PredictionPlot.plot_results
 
-        Examples
+        Exemplos
         --------
         ```pycon
         from experionml import ExperionMLClassifier

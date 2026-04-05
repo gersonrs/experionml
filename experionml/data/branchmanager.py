@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import shutil
@@ -17,46 +16,46 @@ from experionml.utils.utils import ClassMap, DataContainer
 
 @beartype
 class BranchManager:
-    """Object that manages branches.
+    """Objeto que gerencia branches.
 
-    Maintains references to a series of branches and the current
-    active branch. Additionally, always stores an 'original' branch
-    containing the original dataset (previous to any transformations).
-    The branches share a reference to a holdout set, not the instance
-    self. When a memory object is specified, it stores inactive
-    branches in memory.
+    Mantém referências a uma série de branches e à branch ativa no
+    momento. Além disso, sempre armazena uma branch 'original' com
+    o dataset original (anterior a qualquer transformação). As branches
+    compartilham uma referência ao conjunto de holdout, não à instância em
+    si. Quando um objeto de memory é especificado, branches inativas são
+    armazenadas em memória (cache).
 
-    Read more in the [user guide][branches].
+    Leia mais no [guia do usuário][branches].
 
     !!! warning
-        This class should not be called directly. The BranchManager is
-        created internally by the [ExperionMLClassifier][], [ExperionMLForecaster][]
-        and [ExperionMLRegressor][] classes.
+        Esta classe não deve ser chamada diretamente. O BranchManager é
+        criado internamente pelas classes [ExperionMLClassifier][], [ExperionMLForecaster][]
+        e [ExperionMLRegressor][].
 
-    Parameters
+    Parâmetros
     ----------
     memory: str, [Memory][joblibmemory] or None, default=None
-        Location to store inactive branches. If None, all branches
-        are kept in memory. This memory object is passed to the
-        branches for pipeline caching.
+        Local para armazenar branches inativas. Se None, todas as branches
+        são mantidas em memória. Este objeto de memory é repassado às
+        branches para cache do pipeline.
 
-    Attributes
+    Atributos
     ----------
     branches: ClassMap
-        Collection of branches.
+        Coleção de branches.
 
     og: [Branch][]
-        Branch containing the original dataset. It can be any branch
-        in `branches` or an internally made branch called `og`.
+        Branch contendo o dataset original. Pode ser qualquer branch
+        em `branches` ou uma branch interna chamada `og`.
 
     current: [Branch][]
-        Current active branch.
+        Branch ativa no momento.
 
-    See Also
+    Veja também
     --------
     experionml.data:Branch
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml import ExperionMLClassifier
@@ -64,19 +63,19 @@ class BranchManager:
 
     X, y = load_breast_cancer(return_X_y=True, as_frame=True)
 
-    # Initialize experionml
+    # Inicializa o experionml
     experionml = ExperionMLClassifier(X, y, verbose=2)
 
-    # Train a model
+    # Treina um modelo
     experionml.run("RF")
 
-    # Change the branch and apply feature scaling
+    # Muda a branch e aplica escalonamento de features
     experionml.branch = "scaled"
 
     experionml.scale()
     experionml.run("RF_scaled")
 
-    # Compare the models
+    # Compara os modelos
     experionml.plot_roc()
     ```
 
@@ -91,23 +90,23 @@ class BranchManager:
         self._og: Branch | None = None
 
     def __repr__(self) -> str:
-        """Print containing branches."""
+        """Exibe as branches contidas."""
         return f"BranchManager([{', '.join(self.branches.keys())}], og={self.og.name})"
 
     def __len__(self) -> int:
-        """Get the number of branches in the manager."""
+        """Retorna o número de branches no manager."""
         return len(self.branches)
 
     def __iter__(self) -> Iterator[Branch]:
-        """Iterate over the branches."""
+        """Itera sobre as branches."""
         yield from self.branches
 
     def __contains__(self, item: str) -> bool:
-        """Whether item is one of the containing branches."""
+        """Verifica se item é uma das branches contidas."""
         return item in self.branches
 
     def __getitem__(self, item: Int | str) -> Branch:
-        """Get a branch."""
+        """Retorna uma branch."""
         try:
             return self.branches[item]
         except KeyError:
@@ -117,18 +116,18 @@ class BranchManager:
 
     @property
     def og(self) -> Branch:
-        """Branch containing the original dataset.
+        """Branch contendo o dataset original.
 
-        This branch contains the data prior to any transformations.
-        It redirects to the first branch with an empty pipeline (if
-        it exists), or to an internally made branch called `og`.
+        Esta branch contém os dados anteriores a qualquer transformação.
+        Redireciona para a primeira branch com pipeline vazio (se existir),
+        ou para uma branch interna chamada `og`.
 
         """
         return self._og or next(b for b in self.branches if not b.pipeline.steps)
 
     @property
     def current(self) -> Branch:
-        """Current active branch."""
+        """Branch ativa no momento."""
         return self._current
 
     @current.setter
@@ -139,58 +138,58 @@ class BranchManager:
 
     @staticmethod
     def _copy_from_parent(branch: Branch, parent: Branch):
-        """Pass data and attributes from a parent to a new branch.
+        """Copia dados e atributos de uma branch pai para uma nova branch.
 
-        Parameters
+        Parâmetros
         ----------
         branch: Branch
-            Pass data and attributes to this branch.
+            Branch que receberá os dados e atributos.
 
         parent: Branch
-            Parent branch from which to get the info from.
+            Branch pai da qual as informações serão copiadas.
 
         """
         if branch.name == "og" and parent._location and branch._location:
-            # Make a new copy of the data for the og branch
+            # Cria uma nova cópia dos dados para a branch og
             parent.store(assign=False)
             shutil.copy(
                 parent._location.joinpath(f"{parent}.pkl"),
                 branch._location.joinpath(f"{branch}.pkl"),
             )
         elif parent._location:
-            # Transfer data from memory to avoid having
-            # the datasets in memory twice at one time
+            # Transfere dados da memória para evitar ter
+            # os datasets em memória duas vezes ao mesmo tempo
             parent.store()
             branch._container = parent.load(assign=False)
         else:
-            # Copy the dataset in-memory
+            # Copia o dataset em memória
             branch._container = deepcopy(parent._container)
 
-        # Deepcopy the pipeline but use the same estimators
+        # Deepcopy do pipeline, mas usa os mesmos estimadores
         branch._pipeline = deepcopy(parent._pipeline)
         for i, step in enumerate(parent._pipeline.steps):
             branch.pipeline.steps[i] = step
 
-        # Copy mapping and assign other vars
+        # Copia o mapeamento e atribui outras variáveis
         branch._mapping = copy(parent._mapping)
         for attr in vars(parent):
-            if not hasattr(branch, attr):  # If not already assigned...
+            if not hasattr(branch, attr):  # Se ainda não foi atribuído...
                 setattr(branch, attr, getattr(parent, attr))
 
     def add(self, name: str, parent: Branch | None = None):
-        """Add a new branch to the manager.
+        """Adiciona uma nova branch ao manager.
 
-        If the branch is called `og` (reserved name for the original
-        branch), it's created separately and stored in memory.
+        Se a branch for chamada de `og` (nome reservado para a branch
+        original), ela é criada separadamente e armazenada em memória.
 
-        Parameters
+        Parâmetros
         ----------
         name: str
-            Name for the new branch.
+            Nome da nova branch.
 
         parent: Branch or None, default=None
-            Parent branch. Data and attributes from the parent are
-            passed to the new branch.
+            Branch pai. Dados e atributos da branch pai são
+            copiados para a nova branch.
 
         """
         if name == "og":
@@ -198,7 +197,7 @@ class BranchManager:
                 self._og = Branch("og", memory=self.memory)
                 self._copy_from_parent(self.og, self.current)
         else:
-            # Skip for first call from __init__
+            # Ignora na primeira chamada de __init__
             if self.branches:
                 self.current.store()
 
@@ -208,17 +207,17 @@ class BranchManager:
                 self._copy_from_parent(self.current, parent)
 
     def fill(self, data: DataContainer, holdout: pd.DataFrame | None = None):
-        """Fill the current branch with data.
+        """Preenche a branch atual com dados.
 
-        This call resets the cached holdout calculation.
+        Esta chamada reinicia o cálculo do holdout em cache.
 
-        Parameters
+        Parâmetros
         ----------
         data: DataContainer
-            New data for the current branch.
+            Novos dados para a branch atual.
 
         holdout: dataframe or None, default=None
-            Holdout data set (if any).
+            Conjunto de holdout (se existir).
 
         """
         self.current._container = data
@@ -228,16 +227,16 @@ class BranchManager:
         self.current.__dict__.pop("holdout", None)
 
     def reset(self, *, hard: Bool = False):
-        """Reset this instance to its initial state.
+        """Reinicia esta instância ao estado inicial.
 
-        The initial state of the BranchManager contains a single branch
-        called `main` with no data. There's no reference to an original
-        (`og`) branch.
+        O estado inicial do BranchManager contém uma única branch
+        chamada `main` sem dados. Não há referência a uma branch
+        original (`og`).
 
-        Parameters
+        Parâmetros
         ----------
         hard: bool, default=False
-            If True, flushes completely the cache.
+            Se True, limpa completamente o cache.
 
         """
         self.branches = ClassMap()

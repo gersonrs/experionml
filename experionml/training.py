@@ -105,14 +105,14 @@ class Direct(BaseEstimator, BaseTrainer):
 
     @composed(crash, method_to_log)
     def run(self, *arrays):
-        """Train and evaluate the models.
+        """Treina e avalia os modelos.
 
-        Read more in the [user guide][training].
+        Leia mais no [guia do usuário][training].
 
-        Parameters
+        Parâmetros
         ----------
         *arrays: sequence of indexables
-            Training set and test set. Allowed formats are:
+            Conjunto de treino e conjunto de teste. Formatos permitidos:
 
             - train, test
             - X_train, X_test, y_train, y_test
@@ -130,7 +130,7 @@ class Direct(BaseEstimator, BaseTrainer):
 
 
 class SuccessiveHalving(BaseEstimator, BaseTrainer):
-    """Train and evaluate the models in a [successive halving][] fashion.
+    """Treina e avalia os modelos no formato [successive halving][].
 
     See [SuccessiveHalvingClassifier][] or [SuccessiveHalvingRegressor][]
     for a description of the remaining parameters.
@@ -183,14 +183,14 @@ class SuccessiveHalving(BaseEstimator, BaseTrainer):
 
     @composed(crash, method_to_log)
     def run(self, *arrays):
-        """Train and evaluate the models.
+        """Treina e avalia os modelos.
 
-        Read more in the [user guide][training].
+        Leia mais no [guia do usuário][training].
 
-        Parameters
+        Parâmetros
         ----------
         *arrays: sequence of indexables
-            Training set and test set. Allowed formats are:
+            Conjunto de treino e conjunto de teste. Formatos permitidos:
 
             - train, test
             - X_train, X_test, y_train, y_test
@@ -244,7 +244,7 @@ class SuccessiveHalving(BaseEstimator, BaseTrainer):
 
 
 class TrainSizing(BaseEstimator, BaseTrainer):
-    """Train and evaluate the models in a [train sizing][] fashion.
+    """Treina e avalia os modelos no formato [train sizing][].
 
     See [TrainSizingClassifier][] or [TrainSizingRegressor][] for a
     description of the remaining parameters.
@@ -297,14 +297,14 @@ class TrainSizing(BaseEstimator, BaseTrainer):
 
     @composed(crash, method_to_log)
     def run(self, *arrays):
-        """Train and evaluate the models.
+        """Treina e avalia os modelos.
 
-        Read more in the [user guide][training].
+        Leia mais no [guia do usuário][training].
 
-        Parameters
+        Parâmetros
         ----------
         *arrays: sequence of indexables
-            Training set and test set. Allowed formats are:
+            Conjunto de treino e conjunto de teste. Formatos permitidos:
 
             - train, test
             - X_train, X_test, y_train, y_test
@@ -354,187 +354,181 @@ class TrainSizing(BaseEstimator, BaseTrainer):
 
 @beartype
 class DirectClassifier(Direct):
-    r"""Train and evaluate the models in a direct fashion.
+    r"""Treina e avalia os modelos de forma direta.
 
-    The following steps are applied to every model:
+    As etapas a seguir são aplicadas a cada modelo:
 
-    1. Apply [hyperparameter tuning][] (optional).
-    2. Fit the model on the training set using the best combination
-       of hyperparameters found.
-    3. Evaluate the model on the test set.
-    4. Train the estimator on various [bootstrapped][bootstrapping]
-       samples of the training set and evaluate again on the test set
-       (optional).
+    1. Aplicar [ajuste de hiperparâmetros][] (opcional).
+    2. Ajustar o modelo no conjunto de treino com a melhor combinação
+       de hiperparâmetros encontrada.
+    3. Avaliar o modelo no conjunto de teste.
+    4. Treinar o estimador em amostras [bootstrapped][bootstrapping]
+       do conjunto de treino e avaliar novamente no teste (opcional).
 
-    Parameters
+    Parâmetros
     ----------
     models: str, estimator or sequence, default=None
-        Models to fit to the data. Allowed inputs are: an acronym from
-        any of the [predefined models][], an [ExperionMLModel][] or a custom
-        predictor as class or instance. If None, all the predefined
-        models are used.
+        Modelos a ajustar nos dados. As entradas permitidas são: uma sigla de
+        qualquer um dos [modelos predefinidos][], um [ExperionMLModel][] ou um
+        preditor personalizado como classe ou instância. Se None, todos os modelos
+        predefinidos são usados.
 
     metric: str, func, scorer, sequence or None, default=None
-        Metric on which to fit the models. Choose from any of sklearn's
-        [scorers][], a function with signature `function(y_true, y_pred,
-        **kwargs) -> score`, a scorer object or a sequence of these. If
-        None, a default metric is selected for every task:
+        Métrica para ajuste dos modelos. Escolha entre qualquer um dos [scorers][] do
+        sklearn, uma função com assinatura `function(y_true, y_pred, **kwargs) -> score`,
+        um objeto scorer ou uma sequência destes. Se None, uma métrica padrão é selecionada
+        para cada tarefa:
 
-        - "f1" for binary classification
-        - "f1_weighted" for multiclass(-multioutput) classification
-        - "average_precision" for multilabel classification
+        - "f1" para classificação binária
+        - "f1_weighted" para classificação multiclasse(-multioutput)
+        - "average_precision" para classificação multilabel
 
-    n_trials: int, dict or sequence, default=0
-        Maximum number of iterations for the [hyperparameter tuning][].
-        If 0, skip the tuning and fit the model on its default
-        parameters. If sequence, the n-th value applies to the n-th
-        model.
+    n_trials: int, dict ou sequence, default=0
+        Número máximo de iterações para o [ajuste de hiperparâmetros][].
+        Se 0, o ajuste é ignorado e o modelo é ajustado com seus parâmetros
+        padrão. Se sequence, o n-ésimo valor aplica-se ao n-ésimo modelo.
 
-    est_params: dict or None, default=None
-        Additional parameters for the models. See their corresponding
-        documentation for the available options. For multiple models,
-        use the acronyms as key (or 'all' for all models) and a dict
-        of the parameters as value. Add `_fit` to the parameter's name
-        to pass it to the estimator's fit method instead of the
-        constructor.
+    est_params: dict ou None, default=None
+        Parâmetros adicionais para os modelos. Consulte a documentação
+        correspondente para as opções disponíveis. Para múltiplos modelos,
+        use as siglas como chave (ou 'all' para todos) e um dict de parâmetros
+        como valor. Adicione `_fit` ao nome do parâmetro para passá-lo ao
+        método fit do estimador em vez do construtor.
 
-    ht_params: dict or None, default=None
-        Additional parameters for the hyperparameter tuning. If None,
-        it uses the same parameters as the first run. Can include:
+    ht_params: dict ou None, default=None
+        Parâmetros adicionais para o ajuste de hiperparâmetros. Se None,
+        usa os mesmos parâmetros da primeira execução. Pode incluir:
 
-        - **cv: int, cv-generator, dict or sequence, default=1**<br>
-          Cross-validation object or number of splits. If 1, the
-          data is randomly split in a subtrain and validation set.
-        - **plot: bool, dict or sequence, default=False**<br>
-          Whether to plot the optimization's progress as it runs.
-          Creates a canvas with two plots: the first plot shows the
-          score of every trial and the second shows the distance between
-          the last consecutive steps. See the [plot_trials][] method.
-        - **distributions: dict, sequence or None, default=None**<br>
-          Custom hyperparameter distributions. If None, it uses the
-          model's predefined distributions. Read more in the
-          [user guide][hyperparameter-tuning].
-        - **tags: dict, sequence or None, default=None**<br>
-          Custom tags for the model's trial and [mlflow run][tracking].
+        - **cv: int, cv-generator, dict ou sequence, default=1**<br>
+          Objeto de validação cruzada ou número de divisões. Se 1, os dados
+          são divididos aleatoriamente em subconjunto de treino e validação.
+        - **plot: bool, dict ou sequence, default=False**<br>
+          Se deve plotar o progresso da otimização em tempo real.
+          Cria um canvas com dois gráficos: o primeiro exibe a pontuação de
+          cada trial e o segundo mostra a distância entre os últimos passos
+          consecutivos. Consulte o método [plot_trials][].
+        - **distributions: dict, sequence ou None, default=None**<br>
+          Distribuições de hiperparâmetros personalizadas. Se None, usa as
+          distribuições predefinidas do modelo. Leia mais no
+          [guia do usuário][hyperparameter-tuning].
+        - **tags: dict, sequence ou None, default=None**<br>
+          Tags personalizadas para o trial e a [execução do mlflow][tracking].
         - **\*\*kwargs**<br>
-          Additional Keyword arguments for the constructor of the
-          [study][] class or the [optimize][] method.
+          Argumentos de palavra-chave adicionais para o construtor da classe
+          [study][] ou do método [optimize][].
 
-    n_bootstrap: int or sequence, default=0
-        Number of data sets to use for [bootstrapping][]. If 0, no
-        bootstrapping is performed. If sequence, the n-th value applies
-        to the n-th model.
+    n_bootstrap: int ou sequence, default=0
+        Número de conjuntos de dados usados para [bootstrapping][]. Se 0, nenhum
+        bootstrapping é realizado. Se sequence, o n-ésimo valor aplica-se
+        ao n-ésimo modelo.
 
     parallel: bool, default=False
-        Whether to train the models in a parallel or sequential
-        fashion. Using `parallel=True` turns off the verbosity of the
-        models during training. Note that many models also have
-        build-in parallelizations (often when the estimator has the
-        `n_jobs` parameter).
+        Se os modelos devem ser treinados em paralelo ou sequencialmente.
+        Usar `parallel=True` desativa a verbosidade dos modelos durante o
+        treinamento. Observe que muitos modelos também possuem paralelização
+        nativa (geralmente quando o estimador tem o parâmetro `n_jobs`).
 
     errors: str, default="skip"
-        How to handle exceptions encountered during model [training][].
-        Choose from:
+        Como lidar com exceções encontradas durante o [treinamento][training] dos modelos.
+        Escolha entre:
 
-        - "raise": Raise any encountered exception.
-        - "skip": Skip a failed model. This model is not accessible
-          after training.
-        - "keep": Keep the model in its state at failure. Note that
-          this model can break down many other methods after training.
-          This option is useful to be able to rerun hyperparameter
-          optimization after failure without losing previous successful
-          trials.
+        - "raise": Lança qualquer exceção encontrada.
+        - "skip": Ignora um modelo com falha. Este modelo não fica acessível
+          após o treinamento.
+        - "keep": Mantém o modelo no estado em que falhou. Este modelo pode
+          quebrar outros métodos após o treinamento. Esta opção é útil para
+          retomar a otimização de hiperparâmetros sem perder trials anteriores.
 
     n_jobs: int, default=1
-        Number of cores to use for parallel processing.
+        Número de núcleos a usar para processamento paralelo.
 
-        - If >0: Number of cores to use.
-        - If -1: Use all available cores.
-        - If <-1: Use number of cores - 1 + `n_jobs`.
+        - Se >0: Número de núcleos a usar.
+        - Se -1: Usa todos os núcleos disponíveis.
+        - Se <-1: Usa número de núcleos - 1 + `n_jobs`.
 
     device: str, default="cpu"
-        Device on which to run the estimators. Use any string that
-        follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        Dispositivo no qual executar os estimadores. Use qualquer string que
+        siga o seletor de filtro [SYCL_DEVICE_FILTER][], por exemplo,
+        `#!python device="gpu"` para usar a GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
-    engine: str, dict or None, default=None
-        Execution engine to use for [data][data-engines] and
-        [estimators][estimator-acceleration]. The value should be
-        one of the possible values to change one of the two engines,
-        or a dictionary with keys `data` and `estimator`, with their
-        corresponding choice as values to change both engines. If
-        None, the default values are used. Choose from:
+    engine: str, dict ou None, default=None
+        Engine de execução para [dados][data-engines] e
+        [estimadores][estimator-acceleration]. O valor deve ser
+        uma das opções possíveis para alterar uma das duas engines,
+        ou um dicionário com chaves `data` e `estimator`, com as
+        escolhas correspondentes como valores. Se None, os valores
+        padrão são usados. Escolha entre:
 
         - "data":
 
-            - "pandas" (default)
+            - "pandas" (padrão)
             - "pyarrow"
             - "modin"
 
         - "estimator":
 
-            - "sklearn" (default)
+            - "sklearn" (padrão)
             - "sklearnex"
             - "cuml"
 
     backend: str, default="loky"
-        Parallelization backend. Read more in the
-        [user guide][parallel-execution]. Choose from:
+        Backend de paralelização. Leia mais no
+        [guia do usuário][parallel-execution]. Escolha entre:
 
-        - "loky": Single-node, process-based parallelism.
-        - "multiprocessing": Legacy single-node, process-based
-          parallelism. Less robust than `loky`.
-        - "threading": Single-node, thread-based parallelism.
-        - "ray": Multi-node, process-based parallelism.
-        - "dask": Multi-node, process-based parallelism.
+        - "loky": Paralelismo baseado em processos, nó único.
+        - "multiprocessing": Paralelismo legado baseado em processos, nó único.
+          Menos robusto que `loky`.
+        - "threading": Paralelismo baseado em threads, nó único.
+        - "ray": Paralelismo baseado em processos, múltiplos nós.
+        - "dask": Paralelismo baseado em processos, múltiplos nós.
 
-    memory: bool, str, Path or Memory, default=False
-        Enables caching for memory optimization. Read more in the
-        [user guide][memory-considerations].
+    memory: bool, str, Path ou Memory, default=False
+        Habilita cache para otimização de memória. Leia mais no
+        [guia do usuário][memory-considerations].
 
-        - If False: No caching is performed.
-        - If True: A default temp directory is used.
-        - If str: Path to the caching directory.
-        - If Path: A [pathlib.Path][] to the caching directory.
-        - If Memory: Object with the [joblib.Memory][] interface.
+        - Se False: Nenhum cache é realizado.
+        - Se True: Um diretório temporário padrão é usado.
+        - Se str: Caminho para o diretório de cache.
+        - Se Path: Um [pathlib.Path][] para o diretório de cache.
+        - Se Memory: Objeto com a interface [joblib.Memory][].
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não imprimir nada.
+        - 1 para imprimir informações básicas.
+        - 2 para imprimir informações detalhadas.
 
-    warnings: bool or str, default=False
-        - If True: Default warning action (equal to "once").
-        - If False: Suppress all warnings (equal to "ignore").
-        - If str: One of python's [warnings filters][warnings].
+    warnings: bool ou str, default=False
+        - Se True: Ação padrão de aviso (equivalente a "once").
+        - Se False: Suprime todos os avisos (equivalente a "ignore").
+        - Se str: Um dos [filtros de aviso][warnings] do Python.
 
-        Changing this parameter affects the `PYTHONWarnings` environment.
-        ExperionML can't manage warnings that go from C/C++ code to stdout.
+        Alterar este parâmetro afeta o ambiente `PYTHONWarnings`.
+        O ExperionML não consegue gerenciar avisos que vão de código C/C++ para stdout.
 
-    logger: str, Logger or None, default=None
-        - If None: Logging isn't used.
-        - If str: Name of the log file. Use "auto" for automatic name.
-        - If Path: A [pathlib.Path][] to the log file.
-        - Else: Python `logging.Logger` instance.
+    logger: str, Logger ou None, default=None
+        - Se None: Logging não é usado.
+        - Se str: Nome do arquivo de log. Use "auto" para nome automático.
+        - Se Path: Um [pathlib.Path][] para o arquivo de log.
+        - Caso contrário: Instância de `logging.Logger` do Python.
 
-    experiment: str or None, default=None
-        Name of the [mlflow experiment][experiment] to use for tracking.
-        If None, no mlflow tracking is performed.
+    experiment: str ou None, default=None
+        Nome do [experimento mlflow][experiment] a usar para rastreamento.
+        Se None, nenhum rastreamento mlflow é realizado.
 
-    random_state: int or None, default=None
-        Seed used by the random number generator. If None, the random
-        number generator is the `RandomState` used by `np.random`.
+    random_state: int ou None, default=None
+        Semente usada pelo gerador de números aleatórios. Se None, o gerador
+        de números aleatórios é o `RandomState` usado por `np.random`.
 
-    See Also
-    --------
+    Veja também
+    -----------
     experionml.api:ExperionMLClassifier
     experionml.training:SuccessiveHalvingClassifier
     experionml.training:TrainSizingClassifier
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml.training import DirectClassifier
@@ -605,184 +599,176 @@ class DirectClassifier(Direct):
 
 @beartype
 class DirectForecaster(Direct):
-    r"""Train and evaluate the models in a direct fashion.
+    r"""Treina e avalia os modelos de forma direta.
 
-    The following steps are applied to every model:
+    As etapas a seguir são aplicadas a cada modelo:
 
-    1. Apply [hyperparameter tuning][] (optional).
-    2. Fit the model on the training set using the best combination
-       of hyperparameters found.
-    3. Evaluate the model on the test set.
-    4. Train the estimator on various [bootstrapped][bootstrapping]
-       samples of the training set and evaluate again on the test set
-       (optional).
+    1. Aplicar [ajuste de hiperparâmetros][] (opcional).
+    2. Ajustar o modelo no conjunto de treino com a melhor combinação
+       de hiperparâmetros encontrada.
+    3. Avaliar o modelo no conjunto de teste.
+    4. Treinar o estimador em amostras [bootstrapped][bootstrapping]
+       do conjunto de treino e avaliar novamente no teste (opcional).
 
-    Parameters
+    Parâmetros
     ----------
     models: str, estimator or sequence, default=None
-        Models to fit to the data. Allowed inputs are: an acronym from
-        any of the [predefined models][], an [ExperionMLModel][] or a custom
-        predictor as class or instance. If None, all the predefined
-        models are used.
+        Modelos a ajustar nos dados. As entradas permitidas são: uma sigla de
+        qualquer um dos [modelos predefinidos][], um [ExperionMLModel][] ou um
+        preditor personalizado como classe ou instância. Se None, todos os modelos
+        predefinidos são usados.
 
     metric: str, func, scorer, sequence or None, default=None
-        Metric on which to fit the models. Choose from any of sklearn's
-        [scorers][], a function with signature `function(y_true, y_pred,
-        **kwargs) -> score`, a scorer object or a sequence of these. If
-        None, the default metric `mean_absolute_percentage_error` is
-        selected.
+        Métrica para ajuste dos modelos. Escolha entre qualquer um dos [scorers][] do
+        sklearn, uma função com assinatura `function(y_true, y_pred, **kwargs) -> score`,
+        um objeto scorer ou uma sequência destes. Se None, a métrica padrão `mean_absolute_percentage_error` é selecionada.
 
-    n_trials: int, dict or sequence, default=0
-        Maximum number of iterations for the [hyperparameter tuning][].
-        If 0, skip the tuning and fit the model on its default
-        parameters. If sequence, the n-th value applies to the n-th
-        model.
+    n_trials: int, dict ou sequence, default=0
+        Número máximo de iterações para o [ajuste de hiperparâmetros][].
+        Se 0, o ajuste é ignorado e o modelo é ajustado com seus parâmetros
+        padrão. Se sequence, o n-ésimo valor aplica-se ao n-ésimo modelo.
 
-    est_params: dict or None, default=None
-        Additional parameters for the models. See their corresponding
-        documentation for the available options. For multiple models,
-        use the acronyms as key (or 'all' for all models) and a dict
-        of the parameters as value. Add `_fit` to the parameter's name
-        to pass it to the estimator's fit method instead of the
-        constructor.
+    est_params: dict ou None, default=None
+        Parâmetros adicionais para os modelos. Consulte a documentação
+        correspondente para as opções disponíveis. Para múltiplos modelos,
+        use as siglas como chave (ou 'all' para todos) e um dict de parâmetros
+        como valor. Adicione `_fit` ao nome do parâmetro para passá-lo ao
+        método fit do estimador em vez do construtor.
 
-    ht_params: dict or None, default=None
-        Additional parameters for the hyperparameter tuning. If None,
-        it uses the same parameters as the first run. Can include:
+    ht_params: dict ou None, default=None
+        Parâmetros adicionais para o ajuste de hiperparâmetros. Se None,
+        usa os mesmos parâmetros da primeira execução. Pode incluir:
 
-        - **cv: int, cv-generator, dict or sequence, default=1**<br>
-          Cross-validation object or number of splits. If 1, the
-          data is randomly split in a subtrain and validation set.
-        - **plot: bool, dict or sequence, default=False**<br>
-          Whether to plot the optimization's progress as it runs.
-          Creates a canvas with two plots: the first plot shows the
-          score of every trial and the second shows the distance between
-          the last consecutive steps. See the [plot_trials][] method.
-        - **distributions: dict, sequence or None, default=None**<br>
-          Custom hyperparameter distributions. If None, it uses the
-          model's predefined distributions. Read more in the
-          [user guide][hyperparameter-tuning].
-        - **tags: dict, sequence or None, default=None**<br>
-          Custom tags for the model's trial and [mlflow run][tracking].
+        - **cv: int, cv-generator, dict ou sequence, default=1**<br>
+          Objeto de validação cruzada ou número de divisões. Se 1, os dados
+          são divididos aleatoriamente em subconjunto de treino e validação.
+        - **plot: bool, dict ou sequence, default=False**<br>
+          Se deve plotar o progresso da otimização em tempo real.
+          Cria um canvas com dois gráficos: o primeiro exibe a pontuação de
+          cada trial e o segundo mostra a distância entre os últimos passos
+          consecutivos. Consulte o método [plot_trials][].
+        - **distributions: dict, sequence ou None, default=None**<br>
+          Distribuições de hiperparâmetros personalizadas. Se None, usa as
+          distribuições predefinidas do modelo. Leia mais no
+          [guia do usuário][hyperparameter-tuning].
+        - **tags: dict, sequence ou None, default=None**<br>
+          Tags personalizadas para o trial e a [execução do mlflow][tracking].
         - **\*\*kwargs**<br>
-          Additional Keyword arguments for the constructor of the
-          [study][] class or the [optimize][] method.
+          Argumentos de palavra-chave adicionais para o construtor da classe
+          [study][] ou do método [optimize][].
 
-    n_bootstrap: int or sequence, default=0
-        Number of data sets to use for [bootstrapping][]. If 0, no
-        bootstrapping is performed. If sequence, the n-th value applies
-        to the n-th model.
+    n_bootstrap: int ou sequence, default=0
+        Número de conjuntos de dados usados para [bootstrapping][]. Se 0, nenhum
+        bootstrapping é realizado. Se sequence, o n-ésimo valor aplica-se
+        ao n-ésimo modelo.
 
     parallel: bool, default=False
-        Whether to train the models in a parallel or sequential
-        fashion. Using `parallel=True` turns off the verbosity of the
-        models during training. Note that many models also have
-        build-in parallelizations (often when the estimator has the
-        `n_jobs` parameter).
+        Se os modelos devem ser treinados em paralelo ou sequencialmente.
+        Usar `parallel=True` desativa a verbosidade dos modelos durante o
+        treinamento. Observe que muitos modelos também possuem paralelização
+        nativa (geralmente quando o estimador tem o parâmetro `n_jobs`).
 
     errors: str, default="skip"
-        How to handle exceptions encountered during model [training][].
-        Choose from:
+        Como lidar com exceções encontradas durante o [treinamento][training] dos modelos.
+        Escolha entre:
 
-        - "raise": Raise any encountered exception.
-        - "skip": Skip a failed model. This model is not accessible
-          after training.
-        - "keep": Keep the model in its state at failure. Note that
-          this model can break down many other methods after training.
-          This option is useful to be able to rerun hyperparameter
-          optimization after failure without losing previous successful
-          trials.
+        - "raise": Lança qualquer exceção encontrada.
+        - "skip": Ignora um modelo com falha. Este modelo não fica acessível
+          após o treinamento.
+        - "keep": Mantém o modelo no estado em que falhou. Este modelo pode
+          quebrar outros métodos após o treinamento. Esta opção é útil para
+          retomar a otimização de hiperparâmetros sem perder trials anteriores.
 
     n_jobs: int, default=1
-        Number of cores to use for parallel processing.
+        Número de núcleos a usar para processamento paralelo.
 
-        - If >0: Number of cores to use.
-        - If -1: Use all available cores.
-        - If <-1: Use number of cores - 1 + `n_jobs`.
+        - Se >0: Número de núcleos a usar.
+        - Se -1: Usa todos os núcleos disponíveis.
+        - Se <-1: Usa número de núcleos - 1 + `n_jobs`.
 
     device: str, default="cpu"
-        Device on which to run the estimators. Use any string that
-        follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        Dispositivo no qual executar os estimadores. Use qualquer string que
+        siga o seletor de filtro [SYCL_DEVICE_FILTER][], por exemplo,
+        `#!python device="gpu"` para usar a GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
-    engine: str, dict or None, default=None
-        Execution engine to use for [data][data-engines] and
-        [estimators][estimator-acceleration]. The value should be
-        one of the possible values to change one of the two engines,
-        or a dictionary with keys `data` and `estimator`, with their
-        corresponding choice as values to change both engines. If
-        None, the default values are used. Choose from:
+    engine: str, dict ou None, default=None
+        Engine de execução para [dados][data-engines] e
+        [estimadores][estimator-acceleration]. O valor deve ser
+        uma das opções possíveis para alterar uma das duas engines,
+        ou um dicionário com chaves `data` e `estimator`, com as
+        escolhas correspondentes como valores. Se None, os valores
+        padrão são usados. Escolha entre:
 
         - "data":
 
-            - "pandas" (default)
+            - "pandas" (padrão)
             - "pyarrow"
             - "modin"
 
         - "estimator":
 
-            - "sklearn" (default)
+            - "sklearn" (padrão)
             - "sklearnex"
             - "cuml"
 
     backend: str, default="loky"
-        Parallelization backend. Read more in the
-        [user guide][parallel-execution]. Choose from:
+        Backend de paralelização. Leia mais no
+        [guia do usuário][parallel-execution]. Escolha entre:
 
-        - "loky": Single-node, process-based parallelism.
-        - "multiprocessing": Legacy single-node, process-based
-          parallelism. Less robust than `loky`.
-        - "threading": Single-node, thread-based parallelism.
-        - "ray": Multi-node, process-based parallelism.
-        - "dask": Multi-node, process-based parallelism.
+        - "loky": Paralelismo baseado em processos, nó único.
+        - "multiprocessing": Paralelismo legado baseado em processos, nó único.
+          Menos robusto que `loky`.
+        - "threading": Paralelismo baseado em threads, nó único.
+        - "ray": Paralelismo baseado em processos, múltiplos nós.
+        - "dask": Paralelismo baseado em processos, múltiplos nós.
 
-    memory: bool, str, Path or Memory, default=False
-        Enables caching for memory optimization. Read more in the
-        [user guide][memory-considerations].
+    memory: bool, str, Path ou Memory, default=False
+        Habilita cache para otimização de memória. Leia mais no
+        [guia do usuário][memory-considerations].
 
-        - If False: No caching is performed.
-        - If True: A default temp directory is used.
-        - If str: Path to the caching directory.
-        - If Path: A [pathlib.Path][] to the caching directory.
-        - If Memory: Object with the [joblib.Memory][] interface.
+        - Se False: Nenhum cache é realizado.
+        - Se True: Um diretório temporário padrão é usado.
+        - Se str: Caminho para o diretório de cache.
+        - Se Path: Um [pathlib.Path][] para o diretório de cache.
+        - Se Memory: Objeto com a interface [joblib.Memory][].
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não imprimir nada.
+        - 1 para imprimir informações básicas.
+        - 2 para imprimir informações detalhadas.
 
-    warnings: bool or str, default=False
-        - If True: Default warning action (equal to "once").
-        - If False: Suppress all warnings (equal to "ignore").
-        - If str: One of python's [warnings filters][warnings].
+    warnings: bool ou str, default=False
+        - Se True: Ação padrão de aviso (equivalente a "once").
+        - Se False: Suprime todos os avisos (equivalente a "ignore").
+        - Se str: Um dos [filtros de aviso][warnings] do Python.
 
-        Changing this parameter affects the `PYTHONWarnings` environment.
-        ExperionML can't manage warnings that go from C/C++ code to stdout.
+        Alterar este parâmetro afeta o ambiente `PYTHONWarnings`.
+        O ExperionML não consegue gerenciar avisos que vão de código C/C++ para stdout.
 
-    logger: str, Logger or None, default=None
-        - If None: Logging isn't used.
-        - If str: Name of the log file. Use "auto" for automatic name.
-        - If Path: A [pathlib.Path][] to the log file.
-        - Else: Python `logging.Logger` instance.
+    logger: str, Logger ou None, default=None
+        - Se None: Logging não é usado.
+        - Se str: Nome do arquivo de log. Use "auto" para nome automático.
+        - Se Path: Um [pathlib.Path][] para o arquivo de log.
+        - Caso contrário: Instância de `logging.Logger` do Python.
 
-    experiment: str or None, default=None
-        Name of the [mlflow experiment][experiment] to use for tracking.
-        If None, no mlflow tracking is performed.
+    experiment: str ou None, default=None
+        Nome do [experimento mlflow][experiment] a usar para rastreamento.
+        Se None, nenhum rastreamento mlflow é realizado.
 
-    random_state: int or None, default=None
-        Seed used by the random number generator. If None, the random
-        number generator is the `RandomState` used by `np.random`.
+    random_state: int ou None, default=None
+        Semente usada pelo gerador de números aleatórios. Se None, o gerador
+        de números aleatórios é o `RandomState` usado por `np.random`.
 
-    See Also
-    --------
+    Veja também
+    -----------
     experionml.api:ExperionMLForecaster
     experionml.training:SuccessiveHalvingForecaster
     experionml.training:TrainSizingForecaster
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml.training import DirectForecaster
@@ -796,7 +782,7 @@ class DirectForecaster(Direct):
     runner = DirectForecaster(models=["ES", "ETS"], verbose=2)
     runner.run(train, test)
 
-    # Analyze the results
+    # Analisa os resultados
     runner.results
     ```
 
@@ -850,183 +836,176 @@ class DirectForecaster(Direct):
 
 @beartype
 class DirectRegressor(Direct):
-    r"""Train and evaluate the models in a direct fashion.
+    r"""Treina e avalia os modelos de forma direta.
 
-    The following steps are applied to every model:
+    As etapas a seguir são aplicadas a cada modelo:
 
-    1. Apply [hyperparameter tuning][] (optional).
-    2. Fit the model on the training set using the best combination
-       of hyperparameters found.
-    3. Evaluate the model on the test set.
-    4. Train the estimator on various [bootstrapped][bootstrapping]
-       samples of the training set and evaluate again on the test set
-       (optional).
+    1. Aplicar [ajuste de hiperparâmetros][] (opcional).
+    2. Ajustar o modelo no conjunto de treino com a melhor combinação
+       de hiperparâmetros encontrada.
+    3. Avaliar o modelo no conjunto de teste.
+    4. Treinar o estimador em amostras [bootstrapped][bootstrapping]
+       do conjunto de treino e avaliar novamente no teste (opcional).
 
-    Parameters
+    Parâmetros
     ----------
     models: str, estimator or sequence, default=None
-        Models to fit to the data. Allowed inputs are: an acronym from
-        any of the [predefined models][], an [ExperionMLModel][] or a custom
-        predictor as class or instance. If None, all the predefined
-        models are used.
+        Modelos a ajustar nos dados. As entradas permitidas são: uma sigla de
+        qualquer um dos [modelos predefinidos][], um [ExperionMLModel][] ou um
+        preditor personalizado como classe ou instância. Se None, todos os modelos
+        predefinidos são usados.
 
     metric: str, func, scorer, sequence or None, default=None
-        Metric on which to fit the models. Choose from any of sklearn's
-        [scorers][], a function with signature `function(y_true, y_pred,
-        **kwargs) -> score`, a scorer object or a sequence of these. If
-        None, the default metric `r2` is selected.
+        Métrica para ajuste dos modelos. Escolha entre qualquer um dos [scorers][] do
+        sklearn, uma função com assinatura `function(y_true, y_pred, **kwargs) -> score`,
+        um objeto scorer ou uma sequência destes. Se None, a métrica padrão `r2` é selecionada.
 
-    n_trials: int, dict or sequence, default=0
-        Maximum number of iterations for the [hyperparameter tuning][].
-        If 0, skip the tuning and fit the model on its default
-        parameters. If sequence, the n-th value applies to the n-th
-        model.
+    n_trials: int, dict ou sequence, default=0
+        Número máximo de iterações para o [ajuste de hiperparâmetros][].
+        Se 0, o ajuste é ignorado e o modelo é ajustado com seus parâmetros
+        padrão. Se sequence, o n-ésimo valor aplica-se ao n-ésimo modelo.
 
-    est_params: dict or None, default=None
-        Additional parameters for the models. See their corresponding
-        documentation for the available options. For multiple models,
-        use the acronyms as key (or 'all' for all models) and a dict
-        of the parameters as value. Add `_fit` to the parameter's name
-        to pass it to the estimator's fit method instead of the
-        constructor.
+    est_params: dict ou None, default=None
+        Parâmetros adicionais para os modelos. Consulte a documentação
+        correspondente para as opções disponíveis. Para múltiplos modelos,
+        use as siglas como chave (ou 'all' para todos) e um dict de parâmetros
+        como valor. Adicione `_fit` ao nome do parâmetro para passá-lo ao
+        método fit do estimador em vez do construtor.
 
-    ht_params: dict or None, default=None
-        Additional parameters for the hyperparameter tuning. If None,
-        it uses the same parameters as the first run. Can include:
+    ht_params: dict ou None, default=None
+        Parâmetros adicionais para o ajuste de hiperparâmetros. Se None,
+        usa os mesmos parâmetros da primeira execução. Pode incluir:
 
-        - **cv: int, cv-generator, dict or sequence, default=1**<br>
-          Cross-validation object or number of splits. If 1, the
-          data is randomly split in a subtrain and validation set.
-        - **plot: bool, dict or sequence, default=False**<br>
-          Whether to plot the optimization's progress as it runs.
-          Creates a canvas with two plots: the first plot shows the
-          score of every trial and the second shows the distance between
-          the last consecutive steps. See the [plot_trials][] method.
-        - **distributions: dict, sequence or None, default=None**<br>
-          Custom hyperparameter distributions. If None, it uses the
-          model's predefined distributions. Read more in the
-          [user guide][hyperparameter-tuning].
-        - **tags: dict, sequence or None, default=None**<br>
-          Custom tags for the model's trial and [mlflow run][tracking].
+        - **cv: int, cv-generator, dict ou sequence, default=1**<br>
+          Objeto de validação cruzada ou número de divisões. Se 1, os dados
+          são divididos aleatoriamente em subconjunto de treino e validação.
+        - **plot: bool, dict ou sequence, default=False**<br>
+          Se deve plotar o progresso da otimização em tempo real.
+          Cria um canvas com dois gráficos: o primeiro exibe a pontuação de
+          cada trial e o segundo mostra a distância entre os últimos passos
+          consecutivos. Consulte o método [plot_trials][].
+        - **distributions: dict, sequence ou None, default=None**<br>
+          Distribuições de hiperparâmetros personalizadas. Se None, usa as
+          distribuições predefinidas do modelo. Leia mais no
+          [guia do usuário][hyperparameter-tuning].
+        - **tags: dict, sequence ou None, default=None**<br>
+          Tags personalizadas para o trial e a [execução do mlflow][tracking].
         - **\*\*kwargs**<br>
-          Additional Keyword arguments for the constructor of the
-          [study][] class or the [optimize][] method.
+          Argumentos de palavra-chave adicionais para o construtor da classe
+          [study][] ou do método [optimize][].
 
-    n_bootstrap: int or sequence, default=0
-        Number of data sets to use for [bootstrapping][]. If 0, no
-        bootstrapping is performed. If sequence, the n-th value applies
-        to the n-th model.
+    n_bootstrap: int ou sequence, default=0
+        Número de conjuntos de dados usados para [bootstrapping][]. Se 0, nenhum
+        bootstrapping é realizado. Se sequence, o n-ésimo valor aplica-se
+        ao n-ésimo modelo.
 
     parallel: bool, default=False
-        Whether to train the models in a parallel or sequential
-        fashion. Using `parallel=True` turns off the verbosity of the
-        models during training. Note that many models also have
-        build-in parallelizations (often when the estimator has the
-        `n_jobs` parameter).
+        Se os modelos devem ser treinados em paralelo ou sequencialmente.
+        Usar `parallel=True` desativa a verbosidade dos modelos durante o
+        treinamento. Observe que muitos modelos também possuem paralelização
+        nativa (geralmente quando o estimador tem o parâmetro `n_jobs`).
 
     errors: str, default="skip"
-        How to handle exceptions encountered during model [training][].
-        Choose from:
+        Como lidar com exceções encontradas durante o [treinamento][training] dos modelos.
+        Escolha entre:
 
-        - "raise": Raise any encountered exception.
-        - "skip": Skip a failed model. This model is not accessible
-          after training.
-        - "keep": Keep the model in its state at failure. Note that
-          this model can break down many other methods after training.
-          This option is useful to be able to rerun hyperparameter
-          optimization after failure without losing previous successful
-          trials.
+        - "raise": Lança qualquer exceção encontrada.
+        - "skip": Ignora um modelo com falha. Este modelo não fica acessível
+          após o treinamento.
+        - "keep": Mantém o modelo no estado em que falhou. Este modelo pode
+          quebrar outros métodos após o treinamento. Esta opção é útil para
+          retomar a otimização de hiperparâmetros sem perder trials anteriores.
 
     n_jobs: int, default=1
-        Number of cores to use for parallel processing.
+        Número de núcleos a usar para processamento paralelo.
 
-        - If >0: Number of cores to use.
-        - If -1: Use all available cores.
-        - If <-1: Use number of cores - 1 + `n_jobs`.
+        - Se >0: Número de núcleos a usar.
+        - Se -1: Usa todos os núcleos disponíveis.
+        - Se <-1: Usa número de núcleos - 1 + `n_jobs`.
 
     device: str, default="cpu"
-        Device on which to run the estimators. Use any string that
-        follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        Dispositivo no qual executar os estimadores. Use qualquer string que
+        siga o seletor de filtro [SYCL_DEVICE_FILTER][], por exemplo,
+        `#!python device="gpu"` para usar a GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
-    engine: str, dict or None, default=None
-        Execution engine to use for [data][data-engines] and
-        [estimators][estimator-acceleration]. The value should be
-        one of the possible values to change one of the two engines,
-        or a dictionary with keys `data` and `estimator`, with their
-        corresponding choice as values to change both engines. If
-        None, the default values are used. Choose from:
+    engine: str, dict ou None, default=None
+        Engine de execução para [dados][data-engines] e
+        [estimadores][estimator-acceleration]. O valor deve ser
+        uma das opções possíveis para alterar uma das duas engines,
+        ou um dicionário com chaves `data` e `estimator`, com as
+        escolhas correspondentes como valores. Se None, os valores
+        padrão são usados. Escolha entre:
 
         - "data":
 
-            - "pandas" (default)
+            - "pandas" (padrão)
             - "pyarrow"
             - "modin"
 
         - "estimator":
 
-            - "sklearn" (default)
+            - "sklearn" (padrão)
             - "sklearnex"
             - "cuml"
 
     backend: str, default="loky"
-        Parallelization backend. Read more in the
-        [user guide][parallel-execution]. Choose from:
+        Backend de paralelização. Leia mais no
+        [guia do usuário][parallel-execution]. Escolha entre:
 
-        - "loky": Single-node, process-based parallelism.
-        - "multiprocessing": Legacy single-node, process-based
-          parallelism. Less robust than `loky`.
-        - "threading": Single-node, thread-based parallelism.
-        - "ray": Multi-node, process-based parallelism.
-        - "dask": Multi-node, process-based parallelism.
+        - "loky": Paralelismo baseado em processos, nó único.
+        - "multiprocessing": Paralelismo legado baseado em processos, nó único.
+          Menos robusto que `loky`.
+        - "threading": Paralelismo baseado em threads, nó único.
+        - "ray": Paralelismo baseado em processos, múltiplos nós.
+        - "dask": Paralelismo baseado em processos, múltiplos nós.
 
-    memory: bool, str, Path or Memory, default=False
-        Enables caching for memory optimization. Read more in the
-        [user guide][memory-considerations].
+    memory: bool, str, Path ou Memory, default=False
+        Habilita cache para otimização de memória. Leia mais no
+        [guia do usuário][memory-considerations].
 
-        - If False: No caching is performed.
-        - If True: A default temp directory is used.
-        - If str: Path to the caching directory.
-        - If Path: A [pathlib.Path][] to the caching directory.
-        - If Memory: Object with the [joblib.Memory][] interface.
+        - Se False: Nenhum cache é realizado.
+        - Se True: Um diretório temporário padrão é usado.
+        - Se str: Caminho para o diretório de cache.
+        - Se Path: Um [pathlib.Path][] para o diretório de cache.
+        - Se Memory: Objeto com a interface [joblib.Memory][].
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não imprimir nada.
+        - 1 para imprimir informações básicas.
+        - 2 para imprimir informações detalhadas.
 
-    warnings: bool or str, default=False
-        - If True: Default warning action (equal to "once").
-        - If False: Suppress all warnings (equal to "ignore").
-        - If str: One of python's [warnings filters][warnings].
+    warnings: bool ou str, default=False
+        - Se True: Ação padrão de aviso (equivalente a "once").
+        - Se False: Suprime todos os avisos (equivalente a "ignore").
+        - Se str: Um dos [filtros de aviso][warnings] do Python.
 
-        Changing this parameter affects the `PYTHONWarnings` environment.
-        ExperionML can't manage warnings that go from C/C++ code to stdout.
+        Alterar este parâmetro afeta o ambiente `PYTHONWarnings`.
+        O ExperionML não consegue gerenciar avisos que vão de código C/C++ para stdout.
 
-    logger: str, Logger or None, default=None
-        - If None: Logging isn't used.
-        - If str: Name of the log file. Use "auto" for automatic name.
-        - If Path: A [pathlib.Path][] to the log file.
-        - Else: Python `logging.Logger` instance.
+    logger: str, Logger ou None, default=None
+        - Se None: Logging não é usado.
+        - Se str: Nome do arquivo de log. Use "auto" para nome automático.
+        - Se Path: Um [pathlib.Path][] para o arquivo de log.
+        - Caso contrário: Instância de `logging.Logger` do Python.
 
-    experiment: str or None, default=None
-        Name of the [mlflow experiment][experiment] to use for tracking.
-        If None, no mlflow tracking is performed.
+    experiment: str ou None, default=None
+        Nome do [experimento mlflow][experiment] a usar para rastreamento.
+        Se None, nenhum rastreamento mlflow é realizado.
 
-    random_state: int or None, default=None
-        Seed used by the random number generator. If None, the random
-        number generator is the `RandomState` used by `np.random`.
+    random_state: int ou None, default=None
+        Semente usada pelo gerador de números aleatórios. Se None, o gerador
+        de números aleatórios é o `RandomState` usado por `np.random`.
 
-    See Also
-    --------
+    Veja também
+    -----------
     experionml.api:ExperionMLRegressor
     experionml.training:SuccessiveHalvingRegressor
     experionml.training:TrainSizingRegressor
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml.training import DirectRegressor
@@ -1043,7 +1022,7 @@ class DirectRegressor(Direct):
     runner = DirectRegressor(models=["OLS", "RF"], verbose=2)
     runner.run(train, test)
 
-    # Analyze the results
+    # Analisa os resultados
     runner.results
     ```
 
@@ -1097,190 +1076,184 @@ class DirectRegressor(Direct):
 
 @beartype
 class SuccessiveHalvingClassifier(SuccessiveHalving):
-    r"""Train and evaluate the models in a [successive halving][] fashion.
+    r"""Treina e avalia os modelos no formato [successive halving][].
 
-    The following steps are applied to every model (per iteration):
+    As etapas a seguir são aplicadas a cada modelo (por iteração):
 
-    1. Apply [hyperparameter tuning][] (optional).
-    2. Fit the model on the training set using the best combination
-       of hyperparameters found.
-    3. Evaluate the model on the test set.
-    4. Train the estimator on various [bootstrapped][bootstrapping]
-       samples of the training set and evaluate again on the test set
-       (optional).
+    1. Aplicar [ajuste de hiperparâmetros][] (opcional).
+    2. Ajustar o modelo no conjunto de treino com a melhor combinação
+       de hiperparâmetros encontrada.
+    3. Avaliar o modelo no conjunto de teste.
+    4. Treinar o estimador em amostras [bootstrapped][bootstrapping]
+       do conjunto de treino e avaliar novamente no teste (opcional).
 
-    Parameters
+    Parâmetros
     ----------
     models: str, estimator or sequence, default=None
-        Models to fit to the data. Allowed inputs are: an acronym from
-        any of the [predefined models][], an [ExperionMLModel][] or a custom
-        predictor as class or instance. If None, all the predefined
-        models are used.
+        Modelos a ajustar nos dados. As entradas permitidas são: uma sigla de
+        qualquer um dos [modelos predefinidos][], um [ExperionMLModel][] ou um
+        preditor personalizado como classe ou instância. Se None, todos os modelos
+        predefinidos são usados.
 
     metric: str, func, scorer, sequence or None, default=None
-        Metric on which to fit the models. Choose from any of sklearn's
-        [scorers][], a function with signature `function(y_true, y_pred,
-        **kwargs) -> score`, a scorer object or a sequence of these. If
-        None, a default metric is selected for every task:
+        Métrica para ajuste dos modelos. Escolha entre qualquer um dos [scorers][] do
+        sklearn, uma função com assinatura `function(y_true, y_pred, **kwargs) -> score`,
+        um objeto scorer ou uma sequência destes. Se None, uma métrica padrão é selecionada
+        para cada tarefa:
 
-        - "f1" for binary classification
-        - "f1_weighted" for multiclass(-multioutput) classification
-        - "average_precision" for multilabel classification
+        - "f1" para classificação binária
+        - "f1_weighted" para classificação multiclasse(-multioutput)
+        - "average_precision" para classificação multilabel
 
     skip_runs: int, default=0
-        Skip last `skip_runs` runs of the successive halving.
+        Ignora as últimas `skip_runs` execuções do successive halving.
 
-    n_trials: int, dict or sequence, default=0
-        Maximum number of iterations for the [hyperparameter tuning][].
-        If 0, skip the tuning and fit the model on its default
-        parameters. If sequence, the n-th value applies to the n-th
-        model.
+    n_trials: int, dict ou sequence, default=0
+        Número máximo de iterações para o [ajuste de hiperparâmetros][].
+        Se 0, o ajuste é ignorado e o modelo é ajustado com seus parâmetros
+        padrão. Se sequence, o n-ésimo valor aplica-se ao n-ésimo modelo.
 
-    est_params: dict or None, default=None
-        Additional parameters for the models. See their corresponding
-        documentation for the available options. For multiple models,
-        use the acronyms as key (or 'all' for all models) and a dict
-        of the parameters as value. Add `_fit` to the parameter's name
-        to pass it to the estimator's fit method instead of the
-        constructor.
+    est_params: dict ou None, default=None
+        Parâmetros adicionais para os modelos. Consulte a documentação
+        correspondente para as opções disponíveis. Para múltiplos modelos,
+        use as siglas como chave (ou 'all' para todos) e um dict de parâmetros
+        como valor. Adicione `_fit` ao nome do parâmetro para passá-lo ao
+        método fit do estimador em vez do construtor.
 
-    ht_params: dict or None, default=None
-        Additional parameters for the hyperparameter tuning. If None,
-        it uses the same parameters as the first run. Can include:
+    ht_params: dict ou None, default=None
+        Parâmetros adicionais para o ajuste de hiperparâmetros. Se None,
+        usa os mesmos parâmetros da primeira execução. Pode incluir:
 
-        - **cv: int, cv-generator, dict or sequence, default=1**<br>
-          Cross-validation object or number of splits. If 1, the
-          data is randomly split in a subtrain and validation set.
-        - **plot: bool, dict or sequence, default=False**<br>
-          Whether to plot the optimization's progress as it runs.
-          Creates a canvas with two plots: the first plot shows the
-          score of every trial and the second shows the distance between
-          the last consecutive steps. See the [plot_trials][] method.
-        - **distributions: dict, sequence or None, default=None**<br>
-          Custom hyperparameter distributions. If None, it uses the
-          model's predefined distributions. Read more in the
-          [user guide][hyperparameter-tuning].
-        - **tags: dict, sequence or None, default=None**<br>
-          Custom tags for the model's trial and [mlflow run][tracking].
+        - **cv: int, cv-generator, dict ou sequence, default=1**<br>
+          Objeto de validação cruzada ou número de divisões. Se 1, os dados
+          são divididos aleatoriamente em subconjunto de treino e validação.
+        - **plot: bool, dict ou sequence, default=False**<br>
+          Se deve plotar o progresso da otimização em tempo real.
+          Cria um canvas com dois gráficos: o primeiro exibe a pontuação de
+          cada trial e o segundo mostra a distância entre os últimos passos
+          consecutivos. Consulte o método [plot_trials][].
+        - **distributions: dict, sequence ou None, default=None**<br>
+          Distribuições de hiperparâmetros personalizadas. Se None, usa as
+          distribuições predefinidas do modelo. Leia mais no
+          [guia do usuário][hyperparameter-tuning].
+        - **tags: dict, sequence ou None, default=None**<br>
+          Tags personalizadas para o trial e a [execução do mlflow][tracking].
         - **\*\*kwargs**<br>
-          Additional Keyword arguments for the constructor of the
-          [study][] class or the [optimize][] method.
+          Argumentos de palavra-chave adicionais para o construtor da classe
+          [study][] ou do método [optimize][].
 
-    n_bootstrap: int or sequence, default=0
-        Number of data sets to use for [bootstrapping][]. If 0, no
-        bootstrapping is performed. If sequence, the n-th value applies
-        to the n-th model.
+    n_bootstrap: int ou sequence, default=0
+        Número de conjuntos de dados usados para [bootstrapping][]. Se 0, nenhum
+        bootstrapping é realizado. Se sequence, o n-ésimo valor aplica-se
+        ao n-ésimo modelo.
 
     parallel: bool, default=False
-        Whether to train the models in a parallel or sequential
-        fashion. Using `parallel=True` turns off the verbosity of the
-        models during training. Note that many models also have
-        build-in parallelizations (often when the estimator has the
-        `n_jobs` parameter).
+        Se os modelos devem ser treinados em paralelo ou sequencialmente.
+        Usar `parallel=True` desativa a verbosidade dos modelos durante o
+        treinamento. Observe que muitos modelos também possuem paralelização
+        nativa (geralmente quando o estimador tem o parâmetro `n_jobs`).
 
     errors: str, default="skip"
-        How to handle exceptions encountered during model [training][].
-        Choose from:
+        Como lidar com exceções encontradas durante o [treinamento][training] dos modelos.
+        Escolha entre:
 
-        - "raise": Raise any encountered exception.
-        - "skip": Skip a failed model. This model is not accessible
-          after training.
-        - "keep": Keep the model in its state at failure. Note that
-          this model can break down many other methods after training.
-          This option is useful to be able to rerun hyperparameter
-          optimization after failure without losing previous successful
-          trials.
+        - "raise": Lança qualquer exceção encontrada.
+        - "skip": Ignora um modelo com falha. Este modelo não fica acessível
+          após o treinamento.
+        - "keep": Mantém o modelo no estado em que falhou. Este modelo pode
+          quebrar outros métodos após o treinamento. Esta opção é útil para
+          retomar a otimização de hiperparâmetros sem perder trials anteriores.
 
     n_jobs: int, default=1
-        Number of cores to use for parallel processing.
+        Número de núcleos a usar para processamento paralelo.
 
-        - If >0: Number of cores to use.
-        - If -1: Use all available cores.
-        - If <-1: Use number of cores - 1 + `n_jobs`.
+        - Se >0: Número de núcleos a usar.
+        - Se -1: Usa todos os núcleos disponíveis.
+        - Se <-1: Usa número de núcleos - 1 + `n_jobs`.
 
     device: str, default="cpu"
-        Device on which to run the estimators. Use any string that
-        follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        Dispositivo no qual executar os estimadores. Use qualquer string que
+        siga o seletor de filtro [SYCL_DEVICE_FILTER][], por exemplo,
+        `#!python device="gpu"` para usar a GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
-    engine: str, dict or None, default=None
-        Execution engine to use for [data][data-engines] and
-        [estimators][estimator-acceleration]. The value should be
-        one of the possible values to change one of the two engines,
-        or a dictionary with keys `data` and `estimator`, with their
-        corresponding choice as values to change both engines. If
-        None, the default values are used. Choose from:
+    engine: str, dict ou None, default=None
+        Engine de execução para [dados][data-engines] e
+        [estimadores][estimator-acceleration]. O valor deve ser
+        uma das opções possíveis para alterar uma das duas engines,
+        ou um dicionário com chaves `data` e `estimator`, com as
+        escolhas correspondentes como valores. Se None, os valores
+        padrão são usados. Escolha entre:
 
         - "data":
 
-            - "pandas" (default)
+            - "pandas" (padrão)
             - "pyarrow"
             - "modin"
 
         - "estimator":
 
-            - "sklearn" (default)
+            - "sklearn" (padrão)
             - "sklearnex"
             - "cuml"
 
     backend: str, default="loky"
-        Parallelization backend. Read more in the
-        [user guide][parallel-execution]. Choose from:
+        Backend de paralelização. Leia mais no
+        [guia do usuário][parallel-execution]. Escolha entre:
 
-        - "loky": Single-node, process-based parallelism.
-        - "multiprocessing": Legacy single-node, process-based
-          parallelism. Less robust than `loky`.
-        - "threading": Single-node, thread-based parallelism.
-        - "ray": Multi-node, process-based parallelism.
-        - "dask": Multi-node, process-based parallelism.
+        - "loky": Paralelismo baseado em processos, nó único.
+        - "multiprocessing": Paralelismo legado baseado em processos, nó único.
+          Menos robusto que `loky`.
+        - "threading": Paralelismo baseado em threads, nó único.
+        - "ray": Paralelismo baseado em processos, múltiplos nós.
+        - "dask": Paralelismo baseado em processos, múltiplos nós.
 
-    memory: bool, str, Path or Memory, default=False
-        Enables caching for memory optimization. Read more in the
-        [user guide][memory-considerations].
+    memory: bool, str, Path ou Memory, default=False
+        Habilita cache para otimização de memória. Leia mais no
+        [guia do usuário][memory-considerations].
 
-        - If False: No caching is performed.
-        - If True: A default temp directory is used.
-        - If str: Path to the caching directory.
-        - If Path: A [pathlib.Path][] to the caching directory.
-        - If Memory: Object with the [joblib.Memory][] interface.
+        - Se False: Nenhum cache é realizado.
+        - Se True: Um diretório temporário padrão é usado.
+        - Se str: Caminho para o diretório de cache.
+        - Se Path: Um [pathlib.Path][] para o diretório de cache.
+        - Se Memory: Objeto com a interface [joblib.Memory][].
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não imprimir nada.
+        - 1 para imprimir informações básicas.
+        - 2 para imprimir informações detalhadas.
 
-    warnings: bool or str, default=False
-        - If True: Default warning action (equal to "once").
-        - If False: Suppress all warnings (equal to "ignore").
-        - If str: One of python's [warnings filters][warnings].
+    warnings: bool ou str, default=False
+        - Se True: Ação padrão de aviso (equivalente a "once").
+        - Se False: Suprime todos os avisos (equivalente a "ignore").
+        - Se str: Um dos [filtros de aviso][warnings] do Python.
 
-        Changing this parameter affects the `PYTHONWarnings` environment.
-        ExperionML can't manage warnings that go from C/C++ code to stdout.
+        Alterar este parâmetro afeta o ambiente `PYTHONWarnings`.
+        O ExperionML não consegue gerenciar avisos que vão de código C/C++ para stdout.
 
-    logger: str, Logger or None, default=None
-        - If None: Logging isn't used.
-        - If str: Name of the log file. Use "auto" for automatic name.
-        - If Path: A [pathlib.Path][] to the log file.
-        - Else: Python `logging.Logger` instance.
+    logger: str, Logger ou None, default=None
+        - Se None: Logging não é usado.
+        - Se str: Nome do arquivo de log. Use "auto" para nome automático.
+        - Se Path: Um [pathlib.Path][] para o arquivo de log.
+        - Caso contrário: Instância de `logging.Logger` do Python.
 
-    experiment: str or None, default=None
-        Name of the [mlflow experiment][experiment] to use for tracking.
-        If None, no mlflow tracking is performed.
+    experiment: str ou None, default=None
+        Nome do [experimento mlflow][experiment] a usar para rastreamento.
+        Se None, nenhum rastreamento mlflow é realizado.
 
-    random_state: int or None, default=None
-        Seed used by the random number generator. If None, the random
-        number generator is the `RandomState` used by `np.random`.
+    random_state: int ou None, default=None
+        Semente usada pelo gerador de números aleatórios. Se None, o gerador
+        de números aleatórios é o `RandomState` usado por `np.random`.
 
-    See Also
-    --------
+    Veja também
+    -----------
     experionml.api:ExperionMLClassifier
     experionml.training:DirectClassifier
     experionml.training:TrainSizingClassifier
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml.training import SuccessiveHalvingClassifier
@@ -1297,7 +1270,7 @@ class SuccessiveHalvingClassifier(SuccessiveHalving):
     runner = SuccessiveHalvingClassifier(["LR", "RF"], verbose=2)
     runner.run(train, test)
 
-    # Analyze the results
+    # Analisa os resultados
     runner.results
     ```
 
@@ -1353,186 +1326,179 @@ class SuccessiveHalvingClassifier(SuccessiveHalving):
 
 @beartype
 class SuccessiveHalvingForecaster(SuccessiveHalving):
-    r"""Train and evaluate the models in a [successive halving][] fashion.
+    r"""Treina e avalia os modelos no formato [successive halving][].
 
-    The following steps are applied to every model (per iteration):
+    As etapas a seguir são aplicadas a cada modelo (por iteração):
 
-    1. Apply [hyperparameter tuning][] (optional).
-    2. Fit the model on the training set using the best combination
-       of hyperparameters found.
-    3. Evaluate the model on the test set.
-    4. Train the estimator on various [bootstrapped][bootstrapping]
-       samples of the training set and evaluate again on the test set
-       (optional).
+    1. Aplicar [ajuste de hiperparâmetros][] (opcional).
+    2. Ajustar o modelo no conjunto de treino com a melhor combinação
+       de hiperparâmetros encontrada.
+    3. Avaliar o modelo no conjunto de teste.
+    4. Treinar o estimador em amostras [bootstrapped][bootstrapping]
+       do conjunto de treino e avaliar novamente no teste (opcional).
 
-    Parameters
+    Parâmetros
     ----------
     models: str, estimator or sequence, default=None
-        Models to fit to the data. Allowed inputs are: an acronym from
-        any of the [predefined models][], an [ExperionMLModel][] or a custom
-        predictor as class or instance. If None, all the predefined
-        models are used.
+        Modelos a ajustar nos dados. As entradas permitidas são: uma sigla de
+        qualquer um dos [modelos predefinidos][], um [ExperionMLModel][] ou um
+        preditor personalizado como classe ou instância. Se None, todos os modelos
+        predefinidos são usados.
 
     metric: str, func, scorer, sequence or None, default=None
-        Metric on which to fit the models. Choose from any of sklearn's
-        [scorers][], a function with signature `function(y_true, y_pred,
-        **kwargs) -> score`, a scorer object or a sequence of these. If
-        None, the default metric `mean_absolute_percentage_error` is selected.
+        Métrica para ajuste dos modelos. Escolha entre qualquer um dos [scorers][] do
+        sklearn, uma função com assinatura `function(y_true, y_pred, **kwargs) -> score`,
+        um objeto scorer ou uma sequência destes. Se None, a métrica padrão `mean_absolute_percentage_error` é selecionada.
 
     skip_runs: int, default=0
-        Skip last `skip_runs` runs of the successive halving.
+        Ignora as últimas `skip_runs` execuções do successive halving.
 
-    n_trials: int, dict or sequence, default=0
-        Maximum number of iterations for the [hyperparameter tuning][].
-        If 0, skip the tuning and fit the model on its default
-        parameters. If sequence, the n-th value applies to the n-th
-        model.
+    n_trials: int, dict ou sequence, default=0
+        Número máximo de iterações para o [ajuste de hiperparâmetros][].
+        Se 0, o ajuste é ignorado e o modelo é ajustado com seus parâmetros
+        padrão. Se sequence, o n-ésimo valor aplica-se ao n-ésimo modelo.
 
-    est_params: dict or None, default=None
-        Additional parameters for the models. See their corresponding
-        documentation for the available options. For multiple models,
-        use the acronyms as key (or 'all' for all models) and a dict
-        of the parameters as value. Add `_fit` to the parameter's name
-        to pass it to the estimator's fit method instead of the
-        constructor.
+    est_params: dict ou None, default=None
+        Parâmetros adicionais para os modelos. Consulte a documentação
+        correspondente para as opções disponíveis. Para múltiplos modelos,
+        use as siglas como chave (ou 'all' para todos) e um dict de parâmetros
+        como valor. Adicione `_fit` ao nome do parâmetro para passá-lo ao
+        método fit do estimador em vez do construtor.
 
-    ht_params: dict or None, default=None
-        Additional parameters for the hyperparameter tuning. If None,
-        it uses the same parameters as the first run. Can include:
+    ht_params: dict ou None, default=None
+        Parâmetros adicionais para o ajuste de hiperparâmetros. Se None,
+        usa os mesmos parâmetros da primeira execução. Pode incluir:
 
-        - **cv: int, cv-generator, dict or sequence, default=1**<br>
-          Cross-validation object or number of splits. If 1, the
-          data is randomly split in a subtrain and validation set.
-        - **plot: bool, dict or sequence, default=False**<br>
-          Whether to plot the optimization's progress as it runs.
-          Creates a canvas with two plots: the first plot shows the
-          score of every trial and the second shows the distance between
-          the last consecutive steps. See the [plot_trials][] method.
-        - **distributions: dict, sequence or None, default=None**<br>
-          Custom hyperparameter distributions. If None, it uses the
-          model's predefined distributions. Read more in the
-          [user guide][hyperparameter-tuning].
-        - **tags: dict, sequence or None, default=None**<br>
-          Custom tags for the model's trial and [mlflow run][tracking].
+        - **cv: int, cv-generator, dict ou sequence, default=1**<br>
+          Objeto de validação cruzada ou número de divisões. Se 1, os dados
+          são divididos aleatoriamente em subconjunto de treino e validação.
+        - **plot: bool, dict ou sequence, default=False**<br>
+          Se deve plotar o progresso da otimização em tempo real.
+          Cria um canvas com dois gráficos: o primeiro exibe a pontuação de
+          cada trial e o segundo mostra a distância entre os últimos passos
+          consecutivos. Consulte o método [plot_trials][].
+        - **distributions: dict, sequence ou None, default=None**<br>
+          Distribuições de hiperparâmetros personalizadas. Se None, usa as
+          distribuições predefinidas do modelo. Leia mais no
+          [guia do usuário][hyperparameter-tuning].
+        - **tags: dict, sequence ou None, default=None**<br>
+          Tags personalizadas para o trial e a [execução do mlflow][tracking].
         - **\*\*kwargs**<br>
-          Additional Keyword arguments for the constructor of the
-          [study][] class or the [optimize][] method.
+          Argumentos de palavra-chave adicionais para o construtor da classe
+          [study][] ou do método [optimize][].
 
-    n_bootstrap: int or sequence, default=0
-        Number of data sets to use for [bootstrapping][]. If 0, no
-        bootstrapping is performed. If sequence, the n-th value applies
-        to the n-th model.
+    n_bootstrap: int ou sequence, default=0
+        Número de conjuntos de dados usados para [bootstrapping][]. Se 0, nenhum
+        bootstrapping é realizado. Se sequence, o n-ésimo valor aplica-se
+        ao n-ésimo modelo.
 
     parallel: bool, default=False
-        Whether to train the models in a parallel or sequential
-        fashion. Using `parallel=True` turns off the verbosity of the
-        models during training. Note that many models also have
-        build-in parallelizations (often when the estimator has the
-        `n_jobs` parameter).
+        Se os modelos devem ser treinados em paralelo ou sequencialmente.
+        Usar `parallel=True` desativa a verbosidade dos modelos durante o
+        treinamento. Observe que muitos modelos também possuem paralelização
+        nativa (geralmente quando o estimador tem o parâmetro `n_jobs`).
 
     errors: str, default="skip"
-        How to handle exceptions encountered during model [training][].
-        Choose from:
+        Como lidar com exceções encontradas durante o [treinamento][training] dos modelos.
+        Escolha entre:
 
-        - "raise": Raise any encountered exception.
-        - "skip": Skip a failed model. This model is not accessible
-          after training.
-        - "keep": Keep the model in its state at failure. Note that
-          this model can break down many other methods after training.
-          This option is useful to be able to rerun hyperparameter
-          optimization after failure without losing previous successful
-          trials.
+        - "raise": Lança qualquer exceção encontrada.
+        - "skip": Ignora um modelo com falha. Este modelo não fica acessível
+          após o treinamento.
+        - "keep": Mantém o modelo no estado em que falhou. Este modelo pode
+          quebrar outros métodos após o treinamento. Esta opção é útil para
+          retomar a otimização de hiperparâmetros sem perder trials anteriores.
 
     n_jobs: int, default=1
-        Number of cores to use for parallel processing.
+        Número de núcleos a usar para processamento paralelo.
 
-        - If >0: Number of cores to use.
-        - If -1: Use all available cores.
-        - If <-1: Use number of cores - 1 + `n_jobs`.
+        - Se >0: Número de núcleos a usar.
+        - Se -1: Usa todos os núcleos disponíveis.
+        - Se <-1: Usa número de núcleos - 1 + `n_jobs`.
 
     device: str, default="cpu"
-        Device on which to run the estimators. Use any string that
-        follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        Dispositivo no qual executar os estimadores. Use qualquer string que
+        siga o seletor de filtro [SYCL_DEVICE_FILTER][], por exemplo,
+        `#!python device="gpu"` para usar a GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
-    engine: str, dict or None, default=None
-        Execution engine to use for [data][data-engines] and
-        [estimators][estimator-acceleration]. The value should be
-        one of the possible values to change one of the two engines,
-        or a dictionary with keys `data` and `estimator`, with their
-        corresponding choice as values to change both engines. If
-        None, the default values are used. Choose from:
+    engine: str, dict ou None, default=None
+        Engine de execução para [dados][data-engines] e
+        [estimadores][estimator-acceleration]. O valor deve ser
+        uma das opções possíveis para alterar uma das duas engines,
+        ou um dicionário com chaves `data` e `estimator`, com as
+        escolhas correspondentes como valores. Se None, os valores
+        padrão são usados. Escolha entre:
 
         - "data":
 
-            - "pandas" (default)
+            - "pandas" (padrão)
             - "pyarrow"
             - "modin"
 
         - "estimator":
 
-            - "sklearn" (default)
+            - "sklearn" (padrão)
             - "sklearnex"
             - "cuml"
 
     backend: str, default="loky"
-        Parallelization backend. Read more in the
-        [user guide][parallel-execution]. Choose from:
+        Backend de paralelização. Leia mais no
+        [guia do usuário][parallel-execution]. Escolha entre:
 
-        - "loky": Single-node, process-based parallelism.
-        - "multiprocessing": Legacy single-node, process-based
-          parallelism. Less robust than `loky`.
-        - "threading": Single-node, thread-based parallelism.
-        - "ray": Multi-node, process-based parallelism.
-        - "dask": Multi-node, process-based parallelism.
+        - "loky": Paralelismo baseado em processos, nó único.
+        - "multiprocessing": Paralelismo legado baseado em processos, nó único.
+          Menos robusto que `loky`.
+        - "threading": Paralelismo baseado em threads, nó único.
+        - "ray": Paralelismo baseado em processos, múltiplos nós.
+        - "dask": Paralelismo baseado em processos, múltiplos nós.
 
-    memory: bool, str, Path or Memory, default=False
-        Enables caching for memory optimization. Read more in the
-        [user guide][memory-considerations].
+    memory: bool, str, Path ou Memory, default=False
+        Habilita cache para otimização de memória. Leia mais no
+        [guia do usuário][memory-considerations].
 
-        - If False: No caching is performed.
-        - If True: A default temp directory is used.
-        - If str: Path to the caching directory.
-        - If Path: A [pathlib.Path][] to the caching directory.
-        - If Memory: Object with the [joblib.Memory][] interface.
+        - Se False: Nenhum cache é realizado.
+        - Se True: Um diretório temporário padrão é usado.
+        - Se str: Caminho para o diretório de cache.
+        - Se Path: Um [pathlib.Path][] para o diretório de cache.
+        - Se Memory: Objeto com a interface [joblib.Memory][].
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não imprimir nada.
+        - 1 para imprimir informações básicas.
+        - 2 para imprimir informações detalhadas.
 
-    warnings: bool or str, default=False
-        - If True: Default warning action (equal to "once").
-        - If False: Suppress all warnings (equal to "ignore").
-        - If str: One of python's [warnings filters][warnings].
+    warnings: bool ou str, default=False
+        - Se True: Ação padrão de aviso (equivalente a "once").
+        - Se False: Suprime todos os avisos (equivalente a "ignore").
+        - Se str: Um dos [filtros de aviso][warnings] do Python.
 
-        Changing this parameter affects the `PYTHONWarnings` environment.
-        ExperionML can't manage warnings that go from C/C++ code to stdout.
+        Alterar este parâmetro afeta o ambiente `PYTHONWarnings`.
+        O ExperionML não consegue gerenciar avisos que vão de código C/C++ para stdout.
 
-    logger: str, Logger or None, default=None
-        - If None: Logging isn't used.
-        - If str: Name of the log file. Use "auto" for automatic name.
-        - If Path: A [pathlib.Path][] to the log file.
-        - Else: Python `logging.Logger` instance.
+    logger: str, Logger ou None, default=None
+        - Se None: Logging não é usado.
+        - Se str: Nome do arquivo de log. Use "auto" para nome automático.
+        - Se Path: Um [pathlib.Path][] para o arquivo de log.
+        - Caso contrário: Instância de `logging.Logger` do Python.
 
-    experiment: str or None, default=None
-        Name of the [mlflow experiment][experiment] to use for tracking.
-        If None, no mlflow tracking is performed.
+    experiment: str ou None, default=None
+        Nome do [experimento mlflow][experiment] a usar para rastreamento.
+        Se None, nenhum rastreamento mlflow é realizado.
 
-    random_state: int or None, default=None
-        Seed used by the random number generator. If None, the random
-        number generator is the `RandomState` used by `np.random`.
+    random_state: int ou None, default=None
+        Semente usada pelo gerador de números aleatórios. Se None, o gerador
+        de números aleatórios é o `RandomState` usado por `np.random`.
 
-    See Also
-    --------
+    Veja também
+    -----------
     experionml.api:ExperionMLForecaster
     experionml.training:DirectForecaster
     experionml.training:TrainSizingForecaster
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml.training import SuccessiveHalvingForecaster
@@ -1546,7 +1512,7 @@ class SuccessiveHalvingForecaster(SuccessiveHalving):
     runner = SuccessiveHalvingForecaster(["Croston", "PT"], verbose=2)
     runner.run(train, test)
 
-    # Analyze the results
+    # Analisa os resultados
     runner.results
     ```
 
@@ -1602,186 +1568,179 @@ class SuccessiveHalvingForecaster(SuccessiveHalving):
 
 @beartype
 class SuccessiveHalvingRegressor(SuccessiveHalving):
-    r"""Train and evaluate the models in a [successive halving][] fashion.
+    r"""Treina e avalia os modelos no formato [successive halving][].
 
-    The following steps are applied to every model (per iteration):
+    As etapas a seguir são aplicadas a cada modelo (por iteração):
 
-    1. Apply [hyperparameter tuning][] (optional).
-    2. Fit the model on the training set using the best combination
-       of hyperparameters found.
-    3. Evaluate the model on the test set.
-    4. Train the estimator on various [bootstrapped][bootstrapping]
-       samples of the training set and evaluate again on the test set
-       (optional).
+    1. Aplicar [ajuste de hiperparâmetros][] (opcional).
+    2. Ajustar o modelo no conjunto de treino com a melhor combinação
+       de hiperparâmetros encontrada.
+    3. Avaliar o modelo no conjunto de teste.
+    4. Treinar o estimador em amostras [bootstrapped][bootstrapping]
+       do conjunto de treino e avaliar novamente no teste (opcional).
 
-    Parameters
+    Parâmetros
     ----------
     models: str, estimator or sequence, default=None
-        Models to fit to the data. Allowed inputs are: an acronym from
-        any of the [predefined models][], an [ExperionMLModel][] or a custom
-        predictor as class or instance. If None, all the predefined
-        models are used.
+        Modelos a ajustar nos dados. As entradas permitidas são: uma sigla de
+        qualquer um dos [modelos predefinidos][], um [ExperionMLModel][] ou um
+        preditor personalizado como classe ou instância. Se None, todos os modelos
+        predefinidos são usados.
 
     metric: str, func, scorer, sequence or None, default=None
-        Metric on which to fit the models. Choose from any of sklearn's
-        [scorers][], a function with signature `function(y_true, y_pred,
-        **kwargs) -> score`, a scorer object or a sequence of these. If
-        None, the default metric `r2` is selected.
+        Métrica para ajuste dos modelos. Escolha entre qualquer um dos [scorers][] do
+        sklearn, uma função com assinatura `function(y_true, y_pred, **kwargs) -> score`,
+        um objeto scorer ou uma sequência destes. Se None, a métrica padrão `r2` é selecionada.
 
     skip_runs: int, default=0
-        Skip last `skip_runs` runs of the successive halving.
+        Ignora as últimas `skip_runs` execuções do successive halving.
 
-    n_trials: int, dict or sequence, default=0
-        Maximum number of iterations for the [hyperparameter tuning][].
-        If 0, skip the tuning and fit the model on its default
-        parameters. If sequence, the n-th value applies to the n-th
-        model.
+    n_trials: int, dict ou sequence, default=0
+        Número máximo de iterações para o [ajuste de hiperparâmetros][].
+        Se 0, o ajuste é ignorado e o modelo é ajustado com seus parâmetros
+        padrão. Se sequence, o n-ésimo valor aplica-se ao n-ésimo modelo.
 
-    est_params: dict or None, default=None
-        Additional parameters for the models. See their corresponding
-        documentation for the available options. For multiple models,
-        use the acronyms as key (or 'all' for all models) and a dict
-        of the parameters as value. Add `_fit` to the parameter's name
-        to pass it to the estimator's fit method instead of the
-        constructor.
+    est_params: dict ou None, default=None
+        Parâmetros adicionais para os modelos. Consulte a documentação
+        correspondente para as opções disponíveis. Para múltiplos modelos,
+        use as siglas como chave (ou 'all' para todos) e um dict de parâmetros
+        como valor. Adicione `_fit` ao nome do parâmetro para passá-lo ao
+        método fit do estimador em vez do construtor.
 
-    ht_params: dict or None, default=None
-        Additional parameters for the hyperparameter tuning. If None,
-        it uses the same parameters as the first run. Can include:
+    ht_params: dict ou None, default=None
+        Parâmetros adicionais para o ajuste de hiperparâmetros. Se None,
+        usa os mesmos parâmetros da primeira execução. Pode incluir:
 
-        - **cv: int, cv-generator, dict or sequence, default=1**<br>
-          Cross-validation object or number of splits. If 1, the
-          data is randomly split in a subtrain and validation set.
-        - **plot: bool, dict or sequence, default=False**<br>
-          Whether to plot the optimization's progress as it runs.
-          Creates a canvas with two plots: the first plot shows the
-          score of every trial and the second shows the distance between
-          the last consecutive steps. See the [plot_trials][] method.
-        - **distributions: dict, sequence or None, default=None**<br>
-          Custom hyperparameter distributions. If None, it uses the
-          model's predefined distributions. Read more in the
-          [user guide][hyperparameter-tuning].
-        - **tags: dict, sequence or None, default=None**<br>
-          Custom tags for the model's trial and [mlflow run][tracking].
+        - **cv: int, cv-generator, dict ou sequence, default=1**<br>
+          Objeto de validação cruzada ou número de divisões. Se 1, os dados
+          são divididos aleatoriamente em subconjunto de treino e validação.
+        - **plot: bool, dict ou sequence, default=False**<br>
+          Se deve plotar o progresso da otimização em tempo real.
+          Cria um canvas com dois gráficos: o primeiro exibe a pontuação de
+          cada trial e o segundo mostra a distância entre os últimos passos
+          consecutivos. Consulte o método [plot_trials][].
+        - **distributions: dict, sequence ou None, default=None**<br>
+          Distribuições de hiperparâmetros personalizadas. Se None, usa as
+          distribuições predefinidas do modelo. Leia mais no
+          [guia do usuário][hyperparameter-tuning].
+        - **tags: dict, sequence ou None, default=None**<br>
+          Tags personalizadas para o trial e a [execução do mlflow][tracking].
         - **\*\*kwargs**<br>
-          Additional Keyword arguments for the constructor of the
-          [study][] class or the [optimize][] method.
+          Argumentos de palavra-chave adicionais para o construtor da classe
+          [study][] ou do método [optimize][].
 
-    n_bootstrap: int or sequence, default=0
-        Number of data sets to use for [bootstrapping][]. If 0, no
-        bootstrapping is performed. If sequence, the n-th value applies
-        to the n-th model.
+    n_bootstrap: int ou sequence, default=0
+        Número de conjuntos de dados usados para [bootstrapping][]. Se 0, nenhum
+        bootstrapping é realizado. Se sequence, o n-ésimo valor aplica-se
+        ao n-ésimo modelo.
 
     parallel: bool, default=False
-        Whether to train the models in a parallel or sequential
-        fashion. Using `parallel=True` turns off the verbosity of the
-        models during training. Note that many models also have
-        build-in parallelizations (often when the estimator has the
-        `n_jobs` parameter).
+        Se os modelos devem ser treinados em paralelo ou sequencialmente.
+        Usar `parallel=True` desativa a verbosidade dos modelos durante o
+        treinamento. Observe que muitos modelos também possuem paralelização
+        nativa (geralmente quando o estimador tem o parâmetro `n_jobs`).
 
     errors: str, default="skip"
-        How to handle exceptions encountered during model [training][].
-        Choose from:
+        Como lidar com exceções encontradas durante o [treinamento][training] dos modelos.
+        Escolha entre:
 
-        - "raise": Raise any encountered exception.
-        - "skip": Skip a failed model. This model is not accessible
-          after training.
-        - "keep": Keep the model in its state at failure. Note that
-          this model can break down many other methods after training.
-          This option is useful to be able to rerun hyperparameter
-          optimization after failure without losing previous successful
-          trials.
+        - "raise": Lança qualquer exceção encontrada.
+        - "skip": Ignora um modelo com falha. Este modelo não fica acessível
+          após o treinamento.
+        - "keep": Mantém o modelo no estado em que falhou. Este modelo pode
+          quebrar outros métodos após o treinamento. Esta opção é útil para
+          retomar a otimização de hiperparâmetros sem perder trials anteriores.
 
     n_jobs: int, default=1
-        Number of cores to use for parallel processing.
+        Número de núcleos a usar para processamento paralelo.
 
-        - If >0: Number of cores to use.
-        - If -1: Use all available cores.
-        - If <-1: Use number of cores - 1 + `n_jobs`.
+        - Se >0: Número de núcleos a usar.
+        - Se -1: Usa todos os núcleos disponíveis.
+        - Se <-1: Usa número de núcleos - 1 + `n_jobs`.
 
     device: str, default="cpu"
-        Device on which to run the estimators. Use any string that
-        follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        Dispositivo no qual executar os estimadores. Use qualquer string que
+        siga o seletor de filtro [SYCL_DEVICE_FILTER][], por exemplo,
+        `#!python device="gpu"` para usar a GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
-    engine: str, dict or None, default=None
-        Execution engine to use for [data][data-engines] and
-        [estimators][estimator-acceleration]. The value should be
-        one of the possible values to change one of the two engines,
-        or a dictionary with keys `data` and `estimator`, with their
-        corresponding choice as values to change both engines. If
-        None, the default values are used. Choose from:
+    engine: str, dict ou None, default=None
+        Engine de execução para [dados][data-engines] e
+        [estimadores][estimator-acceleration]. O valor deve ser
+        uma das opções possíveis para alterar uma das duas engines,
+        ou um dicionário com chaves `data` e `estimator`, com as
+        escolhas correspondentes como valores. Se None, os valores
+        padrão são usados. Escolha entre:
 
         - "data":
 
-            - "pandas" (default)
+            - "pandas" (padrão)
             - "pyarrow"
             - "modin"
 
         - "estimator":
 
-            - "sklearn" (default)
+            - "sklearn" (padrão)
             - "sklearnex"
             - "cuml"
 
     backend: str, default="loky"
-        Parallelization backend. Read more in the
-        [user guide][parallel-execution]. Choose from:
+        Backend de paralelização. Leia mais no
+        [guia do usuário][parallel-execution]. Escolha entre:
 
-        - "loky": Single-node, process-based parallelism.
-        - "multiprocessing": Legacy single-node, process-based
-          parallelism. Less robust than `loky`.
-        - "threading": Single-node, thread-based parallelism.
-        - "ray": Multi-node, process-based parallelism.
-        - "dask": Multi-node, process-based parallelism.
+        - "loky": Paralelismo baseado em processos, nó único.
+        - "multiprocessing": Paralelismo legado baseado em processos, nó único.
+          Menos robusto que `loky`.
+        - "threading": Paralelismo baseado em threads, nó único.
+        - "ray": Paralelismo baseado em processos, múltiplos nós.
+        - "dask": Paralelismo baseado em processos, múltiplos nós.
 
-    memory: bool, str, Path or Memory, default=False
-        Enables caching for memory optimization. Read more in the
-        [user guide][memory-considerations].
+    memory: bool, str, Path ou Memory, default=False
+        Habilita cache para otimização de memória. Leia mais no
+        [guia do usuário][memory-considerations].
 
-        - If False: No caching is performed.
-        - If True: A default temp directory is used.
-        - If str: Path to the caching directory.
-        - If Path: A [pathlib.Path][] to the caching directory.
-        - If Memory: Object with the [joblib.Memory][] interface.
+        - Se False: Nenhum cache é realizado.
+        - Se True: Um diretório temporário padrão é usado.
+        - Se str: Caminho para o diretório de cache.
+        - Se Path: Um [pathlib.Path][] para o diretório de cache.
+        - Se Memory: Objeto com a interface [joblib.Memory][].
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não imprimir nada.
+        - 1 para imprimir informações básicas.
+        - 2 para imprimir informações detalhadas.
 
-    warnings: bool or str, default=False
-        - If True: Default warning action (equal to "once").
-        - If False: Suppress all warnings (equal to "ignore").
-        - If str: One of python's [warnings filters][warnings].
+    warnings: bool ou str, default=False
+        - Se True: Ação padrão de aviso (equivalente a "once").
+        - Se False: Suprime todos os avisos (equivalente a "ignore").
+        - Se str: Um dos [filtros de aviso][warnings] do Python.
 
-        Changing this parameter affects the `PYTHONWarnings` environment.
-        ExperionML can't manage warnings that go from C/C++ code to stdout.
+        Alterar este parâmetro afeta o ambiente `PYTHONWarnings`.
+        O ExperionML não consegue gerenciar avisos que vão de código C/C++ para stdout.
 
-    logger: str, Logger or None, default=None
-        - If None: Logging isn't used.
-        - If str: Name of the log file. Use "auto" for automatic name.
-        - If Path: A [pathlib.Path][] to the log file.
-        - Else: Python `logging.Logger` instance.
+    logger: str, Logger ou None, default=None
+        - Se None: Logging não é usado.
+        - Se str: Nome do arquivo de log. Use "auto" para nome automático.
+        - Se Path: Um [pathlib.Path][] para o arquivo de log.
+        - Caso contrário: Instância de `logging.Logger` do Python.
 
-    experiment: str or None, default=None
-        Name of the [mlflow experiment][experiment] to use for tracking.
-        If None, no mlflow tracking is performed.
+    experiment: str ou None, default=None
+        Nome do [experimento mlflow][experiment] a usar para rastreamento.
+        Se None, nenhum rastreamento mlflow é realizado.
 
-    random_state: int or None, default=None
-        Seed used by the random number generator. If None, the random
-        number generator is the `RandomState` used by `np.random`.
+    random_state: int ou None, default=None
+        Semente usada pelo gerador de números aleatórios. Se None, o gerador
+        de números aleatórios é o `RandomState` usado por `np.random`.
 
-    See Also
-    --------
+    Veja também
+    -----------
     experionml.api:ExperionMLRegressor
     experionml.training:DirectRegressor
     experionml.training:TrainSizingRegressor
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml.training import SuccessiveHalvingRegressor
@@ -1798,7 +1757,7 @@ class SuccessiveHalvingRegressor(SuccessiveHalving):
     runner = SuccessiveHalvingRegressor(["OLS", "RF"], verbose=2)
     runner.run(train, test)
 
-    # Analyze the results
+    # Analisa os resultados
     runner.results
     ```
 
@@ -1854,195 +1813,189 @@ class SuccessiveHalvingRegressor(SuccessiveHalving):
 
 @beartype
 class TrainSizingClassifier(TrainSizing):
-    r"""Train and evaluate the models in a [train sizing][] fashion.
+    r"""Treina e avalia os modelos no formato [train sizing][].
 
-    The following steps are applied to every model (per iteration):
+    As etapas a seguir são aplicadas a cada modelo (por iteração):
 
-    1. Apply [hyperparameter tuning][] (optional).
-    2. Fit the model on the training set using the best combination
-       of hyperparameters found.
-    3. Evaluate the model on the test set.
-    4. Train the estimator on various [bootstrapped][bootstrapping]
-       samples of the training set and evaluate again on the test set
-       (optional).
+    1. Aplicar [ajuste de hiperparâmetros][] (opcional).
+    2. Ajustar o modelo no conjunto de treino com a melhor combinação
+       de hiperparâmetros encontrada.
+    3. Avaliar o modelo no conjunto de teste.
+    4. Treinar o estimador em amostras [bootstrapped][bootstrapping]
+       do conjunto de treino e avaliar novamente no teste (opcional).
 
-    Parameters
+    Parâmetros
     ----------
     models: str, estimator or sequence, default=None
-        Models to fit to the data. Allowed inputs are: an acronym from
-        any of the [predefined models][], an [ExperionMLModel][] or a custom
-        predictor as class or instance. If None, all the predefined
-        models are used.
+        Modelos a ajustar nos dados. As entradas permitidas são: uma sigla de
+        qualquer um dos [modelos predefinidos][], um [ExperionMLModel][] ou um
+        preditor personalizado como classe ou instância. Se None, todos os modelos
+        predefinidos são usados.
 
     metric: str, func, scorer, sequence or None, default=None
-        Metric on which to fit the models. Choose from any of sklearn's
-        [scorers][], a function with signature `function(y_true, y_pred,
-        **kwargs) -> score`, a scorer object or a sequence of these. If
-        None, a default metric is selected for every task:
+        Métrica para ajuste dos modelos. Escolha entre qualquer um dos [scorers][] do
+        sklearn, uma função com assinatura `function(y_true, y_pred, **kwargs) -> score`,
+        um objeto scorer ou uma sequência destes. Se None, uma métrica padrão é selecionada
+        para cada tarefa:
 
-        - "f1" for binary classification
-        - "f1_weighted" for multiclass(-multioutput) classification
-        - "average_precision" for multilabel classification
+        - "f1" para classificação binária
+        - "f1_weighted" para classificação multiclasse(-multioutput)
+        - "average_precision" para classificação multilabel
 
-    train_sizes: int or sequence, default=5
-        Training set sizes used to run the trainings.
+    train_sizes: int ou sequence, default=5
+        Tamanhos de conjuntos de treino usados nas execuções.
 
-        - If int: Number of equally distributed splits, i.e., for a
-          value `N`, it's equal to `np.linspace(1.0/N, 1.0, N)`.
-        - If sequence: Fraction of the training set when <=1, else
-          total number of samples.
+        - Se int: Número de divisões igualmente distribuídas, ou seja, para
+          valor `N`, equivale a `np.linspace(1.0/N, 1.0, N)`.
+        - Se sequence: Fração do conjunto de treino quando <=1; caso
+          contrário, número total de amostras.
 
-    n_trials: int, dict or sequence, default=0
-        Maximum number of iterations for the [hyperparameter tuning][].
-        If 0, skip the tuning and fit the model on its default
-        parameters. If sequence, the n-th value applies to the n-th
-        model.
+    n_trials: int, dict ou sequence, default=0
+        Número máximo de iterações para o [ajuste de hiperparâmetros][].
+        Se 0, o ajuste é ignorado e o modelo é ajustado com seus parâmetros
+        padrão. Se sequence, o n-ésimo valor aplica-se ao n-ésimo modelo.
 
-    est_params: dict or None, default=None
-        Additional parameters for the models. See their corresponding
-        documentation for the available options. For multiple models,
-        use the acronyms as key (or 'all' for all models) and a dict
-        of the parameters as value. Add `_fit` to the parameter's name
-        to pass it to the estimator's fit method instead of the
-        constructor.
+    est_params: dict ou None, default=None
+        Parâmetros adicionais para os modelos. Consulte a documentação
+        correspondente para as opções disponíveis. Para múltiplos modelos,
+        use as siglas como chave (ou 'all' para todos) e um dict de parâmetros
+        como valor. Adicione `_fit` ao nome do parâmetro para passá-lo ao
+        método fit do estimador em vez do construtor.
 
-    ht_params: dict or None, default=None
-        Additional parameters for the hyperparameter tuning. If None,
-        it uses the same parameters as the first run. Can include:
+    ht_params: dict ou None, default=None
+        Parâmetros adicionais para o ajuste de hiperparâmetros. Se None,
+        usa os mesmos parâmetros da primeira execução. Pode incluir:
 
-        - **cv: int, cv-generator, dict or sequence, default=1**<br>
-          Cross-validation object or number of splits. If 1, the
-          data is randomly split in a subtrain and validation set.
-        - **plot: bool, dict or sequence, default=False**<br>
-          Whether to plot the optimization's progress as it runs.
-          Creates a canvas with two plots: the first plot shows the
-          score of every trial and the second shows the distance between
-          the last consecutive steps. See the [plot_trials][] method.
-        - **distributions: dict, sequence or None, default=None**<br>
-          Custom hyperparameter distributions. If None, it uses the
-          model's predefined distributions. Read more in the
-          [user guide][hyperparameter-tuning].
-        - **tags: dict, sequence or None, default=None**<br>
-          Custom tags for the model's trial and [mlflow run][tracking].
+        - **cv: int, cv-generator, dict ou sequence, default=1**<br>
+          Objeto de validação cruzada ou número de divisões. Se 1, os dados
+          são divididos aleatoriamente em subconjunto de treino e validação.
+        - **plot: bool, dict ou sequence, default=False**<br>
+          Se deve plotar o progresso da otimização em tempo real.
+          Cria um canvas com dois gráficos: o primeiro exibe a pontuação de
+          cada trial e o segundo mostra a distância entre os últimos passos
+          consecutivos. Consulte o método [plot_trials][].
+        - **distributions: dict, sequence ou None, default=None**<br>
+          Distribuições de hiperparâmetros personalizadas. Se None, usa as
+          distribuições predefinidas do modelo. Leia mais no
+          [guia do usuário][hyperparameter-tuning].
+        - **tags: dict, sequence ou None, default=None**<br>
+          Tags personalizadas para o trial e a [execução do mlflow][tracking].
         - **\*\*kwargs**<br>
-          Additional Keyword arguments for the constructor of the
-          [study][] class or the [optimize][] method.
+          Argumentos de palavra-chave adicionais para o construtor da classe
+          [study][] ou do método [optimize][].
 
-    n_bootstrap: int or sequence, default=0
-        Number of data sets to use for [bootstrapping][]. If 0, no
-        bootstrapping is performed. If sequence, the n-th value applies
-        to the n-th model.
+    n_bootstrap: int ou sequence, default=0
+        Número de conjuntos de dados usados para [bootstrapping][]. Se 0, nenhum
+        bootstrapping é realizado. Se sequence, o n-ésimo valor aplica-se
+        ao n-ésimo modelo.
 
     parallel: bool, default=False
-        Whether to train the models in a parallel or sequential
-        fashion. Using `parallel=True` turns off the verbosity of the
-        models during training. Note that many models also have
-        build-in parallelizations (often when the estimator has the
-        `n_jobs` parameter).
+        Se os modelos devem ser treinados em paralelo ou sequencialmente.
+        Usar `parallel=True` desativa a verbosidade dos modelos durante o
+        treinamento. Observe que muitos modelos também possuem paralelização
+        nativa (geralmente quando o estimador tem o parâmetro `n_jobs`).
 
     errors: str, default="skip"
-        How to handle exceptions encountered during model [training][].
-        Choose from:
+        Como lidar com exceções encontradas durante o [treinamento][training] dos modelos.
+        Escolha entre:
 
-        - "raise": Raise any encountered exception.
-        - "skip": Skip a failed model. This model is not accessible
-          after training.
-        - "keep": Keep the model in its state at failure. Note that
-          this model can break down many other methods after training.
-          This option is useful to be able to rerun hyperparameter
-          optimization after failure without losing previous successful
-          trials.
+        - "raise": Lança qualquer exceção encontrada.
+        - "skip": Ignora um modelo com falha. Este modelo não fica acessível
+          após o treinamento.
+        - "keep": Mantém o modelo no estado em que falhou. Este modelo pode
+          quebrar outros métodos após o treinamento. Esta opção é útil para
+          retomar a otimização de hiperparâmetros sem perder trials anteriores.
 
     n_jobs: int, default=1
-        Number of cores to use for parallel processing.
+        Número de núcleos a usar para processamento paralelo.
 
-        - If >0: Number of cores to use.
-        - If -1: Use all available cores.
-        - If <-1: Use number of cores - 1 + `n_jobs`.
+        - Se >0: Número de núcleos a usar.
+        - Se -1: Usa todos os núcleos disponíveis.
+        - Se <-1: Usa número de núcleos - 1 + `n_jobs`.
 
     device: str, default="cpu"
-        Device on which to run the estimators. Use any string that
-        follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        Dispositivo no qual executar os estimadores. Use qualquer string que
+        siga o seletor de filtro [SYCL_DEVICE_FILTER][], por exemplo,
+        `#!python device="gpu"` para usar a GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
-    engine: str, dict or None, default=None
-        Execution engine to use for [data][data-engines] and
-        [estimators][estimator-acceleration]. The value should be
-        one of the possible values to change one of the two engines,
-        or a dictionary with keys `data` and `estimator`, with their
-        corresponding choice as values to change both engines. If
-        None, the default values are used. Choose from:
+    engine: str, dict ou None, default=None
+        Engine de execução para [dados][data-engines] e
+        [estimadores][estimator-acceleration]. O valor deve ser
+        uma das opções possíveis para alterar uma das duas engines,
+        ou um dicionário com chaves `data` e `estimator`, com as
+        escolhas correspondentes como valores. Se None, os valores
+        padrão são usados. Escolha entre:
 
         - "data":
 
-            - "pandas" (default)
+            - "pandas" (padrão)
             - "pyarrow"
             - "modin"
 
         - "estimator":
 
-            - "sklearn" (default)
+            - "sklearn" (padrão)
             - "sklearnex"
             - "cuml"
 
     backend: str, default="loky"
-        Parallelization backend. Read more in the
-        [user guide][parallel-execution]. Choose from:
+        Backend de paralelização. Leia mais no
+        [guia do usuário][parallel-execution]. Escolha entre:
 
-        - "loky": Single-node, process-based parallelism.
-        - "multiprocessing": Legacy single-node, process-based
-          parallelism. Less robust than `loky`.
-        - "threading": Single-node, thread-based parallelism.
-        - "ray": Multi-node, process-based parallelism.
-        - "dask": Multi-node, process-based parallelism.
+        - "loky": Paralelismo baseado em processos, nó único.
+        - "multiprocessing": Paralelismo legado baseado em processos, nó único.
+          Menos robusto que `loky`.
+        - "threading": Paralelismo baseado em threads, nó único.
+        - "ray": Paralelismo baseado em processos, múltiplos nós.
+        - "dask": Paralelismo baseado em processos, múltiplos nós.
 
-    memory: bool, str, Path or Memory, default=False
-        Enables caching for memory optimization. Read more in the
-        [user guide][memory-considerations].
+    memory: bool, str, Path ou Memory, default=False
+        Habilita cache para otimização de memória. Leia mais no
+        [guia do usuário][memory-considerations].
 
-        - If False: No caching is performed.
-        - If True: A default temp directory is used.
-        - If str: Path to the caching directory.
-        - If Path: A [pathlib.Path][] to the caching directory.
-        - If Memory: Object with the [joblib.Memory][] interface.
+        - Se False: Nenhum cache é realizado.
+        - Se True: Um diretório temporário padrão é usado.
+        - Se str: Caminho para o diretório de cache.
+        - Se Path: Um [pathlib.Path][] para o diretório de cache.
+        - Se Memory: Objeto com a interface [joblib.Memory][].
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não imprimir nada.
+        - 1 para imprimir informações básicas.
+        - 2 para imprimir informações detalhadas.
 
-    warnings: bool or str, default=False
-        - If True: Default warning action (equal to "once").
-        - If False: Suppress all warnings (equal to "ignore").
-        - If str: One of python's [warnings filters][warnings].
+    warnings: bool ou str, default=False
+        - Se True: Ação padrão de aviso (equivalente a "once").
+        - Se False: Suprime todos os avisos (equivalente a "ignore").
+        - Se str: Um dos [filtros de aviso][warnings] do Python.
 
-        Changing this parameter affects the `PYTHONWarnings` environment.
-        ExperionML can't manage warnings that go from C/C++ code to stdout.
+        Alterar este parâmetro afeta o ambiente `PYTHONWarnings`.
+        O ExperionML não consegue gerenciar avisos que vão de código C/C++ para stdout.
 
-    logger: str, Logger or None, default=None
-        - If None: Logging isn't used.
-        - If str: Name of the log file. Use "auto" for automatic name.
-        - If Path: A [pathlib.Path][] to the log file.
-        - Else: Python `logging.Logger` instance.
+    logger: str, Logger ou None, default=None
+        - Se None: Logging não é usado.
+        - Se str: Nome do arquivo de log. Use "auto" para nome automático.
+        - Se Path: Um [pathlib.Path][] para o arquivo de log.
+        - Caso contrário: Instância de `logging.Logger` do Python.
 
-    experiment: str or None, default=None
-        Name of the [mlflow experiment][experiment] to use for tracking.
-        If None, no mlflow tracking is performed.
+    experiment: str ou None, default=None
+        Nome do [experimento mlflow][experiment] a usar para rastreamento.
+        Se None, nenhum rastreamento mlflow é realizado.
 
-    random_state: int or None, default=None
-        Seed used by the random number generator. If None, the random
-        number generator is the `RandomState` used by `np.random`.
+    random_state: int ou None, default=None
+        Semente usada pelo gerador de números aleatórios. Se None, o gerador
+        de números aleatórios é o `RandomState` usado por `np.random`.
 
-    See Also
-    --------
+    Veja também
+    -----------
     experionml.api:ExperionMLRegressor
     experionml.training:DirectRegressor
     experionml.training:SuccessiveHalvingRegressor
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml.training import TrainSizingClassifier
@@ -2059,7 +2012,7 @@ class TrainSizingClassifier(TrainSizing):
     runner = TrainSizingClassifier(models="LR", verbose=2)
     runner.run(train, test)
 
-    # Analyze the results
+    # Analisa os resultados
     runner.results
     ```
 
@@ -2115,192 +2068,184 @@ class TrainSizingClassifier(TrainSizing):
 
 @beartype
 class TrainSizingForecaster(TrainSizing):
-    r"""Train and evaluate the models in a [train sizing][] fashion.
+    r"""Treina e avalia os modelos no formato [train sizing][].
 
-    The following steps are applied to every model (per iteration):
+    As etapas a seguir são aplicadas a cada modelo (por iteração):
 
-    1. Apply [hyperparameter tuning][] (optional).
-    2. Fit the model on the training set using the best combination
-       of hyperparameters found.
-    3. Evaluate the model on the test set.
-    4. Train the estimator on various [bootstrapped][bootstrapping]
-       samples of the training set and evaluate again on the test set
-       (optional).
+    1. Aplicar [ajuste de hiperparâmetros][] (opcional).
+    2. Ajustar o modelo no conjunto de treino com a melhor combinação
+       de hiperparâmetros encontrada.
+    3. Avaliar o modelo no conjunto de teste.
+    4. Treinar o estimador em amostras [bootstrapped][bootstrapping]
+       do conjunto de treino e avaliar novamente no teste (opcional).
 
-    Parameters
+    Parâmetros
     ----------
     models: str, estimator or sequence, default=None
-        Models to fit to the data. Allowed inputs are: an acronym from
-        any of the [predefined models][], an [ExperionMLModel][] or a custom
-        predictor as class or instance. If None, all the predefined
-        models are used.
+        Modelos a ajustar nos dados. As entradas permitidas são: uma sigla de
+        qualquer um dos [modelos predefinidos][], um [ExperionMLModel][] ou um
+        preditor personalizado como classe ou instância. Se None, todos os modelos
+        predefinidos são usados.
 
     metric: str, func, scorer, sequence or None, default=None
-        Metric on which to fit the models. Choose from any of sklearn's
-        [scorers][], a function with signature `function(y_true, y_pred,
-        **kwargs) -> score`, a scorer object or a sequence of these. If
-        None, the default metric `mean_absolute_percentage_error` is
-        selected.
+        Métrica para ajuste dos modelos. Escolha entre qualquer um dos [scorers][] do
+        sklearn, uma função com assinatura `function(y_true, y_pred, **kwargs) -> score`,
+        um objeto scorer ou uma sequência destes. Se None, a métrica padrão `mean_absolute_percentage_error` é selecionada.
 
-    train_sizes: int or sequence, default=5
-        Training set sizes used to run the trainings.
+    train_sizes: int ou sequence, default=5
+        Tamanhos de conjuntos de treino usados nas execuções.
 
-        - If int: Number of equally distributed splits, i.e., for a
-          value `N`, it's equal to `np.linspace(1.0/N, 1.0, N)`.
-        - If sequence: Fraction of the training set when <=1, else
-          total number of samples.
+        - Se int: Número de divisões igualmente distribuídas, ou seja, para
+          valor `N`, equivale a `np.linspace(1.0/N, 1.0, N)`.
+        - Se sequence: Fração do conjunto de treino quando <=1; caso
+          contrário, número total de amostras.
 
-    n_trials: int, dict or sequence, default=0
-        Maximum number of iterations for the [hyperparameter tuning][].
-        If 0, skip the tuning and fit the model on its default
-        parameters. If sequence, the n-th value applies to the n-th
-        model.
+    n_trials: int, dict ou sequence, default=0
+        Número máximo de iterações para o [ajuste de hiperparâmetros][].
+        Se 0, o ajuste é ignorado e o modelo é ajustado com seus parâmetros
+        padrão. Se sequence, o n-ésimo valor aplica-se ao n-ésimo modelo.
 
-    est_params: dict or None, default=None
-        Additional parameters for the models. See their corresponding
-        documentation for the available options. For multiple models,
-        use the acronyms as key (or 'all' for all models) and a dict
-        of the parameters as value. Add `_fit` to the parameter's name
-        to pass it to the estimator's fit method instead of the
-        constructor.
+    est_params: dict ou None, default=None
+        Parâmetros adicionais para os modelos. Consulte a documentação
+        correspondente para as opções disponíveis. Para múltiplos modelos,
+        use as siglas como chave (ou 'all' para todos) e um dict de parâmetros
+        como valor. Adicione `_fit` ao nome do parâmetro para passá-lo ao
+        método fit do estimador em vez do construtor.
 
-    ht_params: dict or None, default=None
-        Additional parameters for the hyperparameter tuning. If None,
-        it uses the same parameters as the first run. Can include:
+    ht_params: dict ou None, default=None
+        Parâmetros adicionais para o ajuste de hiperparâmetros. Se None,
+        usa os mesmos parâmetros da primeira execução. Pode incluir:
 
-        - **cv: int, cv-generator, dict or sequence, default=1**<br>
-          Cross-validation object or number of splits. If 1, the
-          data is randomly split in a subtrain and validation set.
-        - **plot: bool, dict or sequence, default=False**<br>
-          Whether to plot the optimization's progress as it runs.
-          Creates a canvas with two plots: the first plot shows the
-          score of every trial and the second shows the distance between
-          the last consecutive steps. See the [plot_trials][] method.
-        - **distributions: dict, sequence or None, default=None**<br>
-          Custom hyperparameter distributions. If None, it uses the
-          model's predefined distributions. Read more in the
-          [user guide][hyperparameter-tuning].
-        - **tags: dict, sequence or None, default=None**<br>
-          Custom tags for the model's trial and [mlflow run][tracking].
+        - **cv: int, cv-generator, dict ou sequence, default=1**<br>
+          Objeto de validação cruzada ou número de divisões. Se 1, os dados
+          são divididos aleatoriamente em subconjunto de treino e validação.
+        - **plot: bool, dict ou sequence, default=False**<br>
+          Se deve plotar o progresso da otimização em tempo real.
+          Cria um canvas com dois gráficos: o primeiro exibe a pontuação de
+          cada trial e o segundo mostra a distância entre os últimos passos
+          consecutivos. Consulte o método [plot_trials][].
+        - **distributions: dict, sequence ou None, default=None**<br>
+          Distribuições de hiperparâmetros personalizadas. Se None, usa as
+          distribuições predefinidas do modelo. Leia mais no
+          [guia do usuário][hyperparameter-tuning].
+        - **tags: dict, sequence ou None, default=None**<br>
+          Tags personalizadas para o trial e a [execução do mlflow][tracking].
         - **\*\*kwargs**<br>
-          Additional Keyword arguments for the constructor of the
-          [study][] class or the [optimize][] method.
+          Argumentos de palavra-chave adicionais para o construtor da classe
+          [study][] ou do método [optimize][].
 
-    n_bootstrap: int or sequence, default=0
-        Number of data sets to use for [bootstrapping][]. If 0, no
-        bootstrapping is performed. If sequence, the n-th value applies
-        to the n-th model.
+    n_bootstrap: int ou sequence, default=0
+        Número de conjuntos de dados usados para [bootstrapping][]. Se 0, nenhum
+        bootstrapping é realizado. Se sequence, o n-ésimo valor aplica-se
+        ao n-ésimo modelo.
 
     parallel: bool, default=False
-        Whether to train the models in a parallel or sequential
-        fashion. Using `parallel=True` turns off the verbosity of the
-        models during training. Note that many models also have
-        build-in parallelizations (often when the estimator has the
-        `n_jobs` parameter).
+        Se os modelos devem ser treinados em paralelo ou sequencialmente.
+        Usar `parallel=True` desativa a verbosidade dos modelos durante o
+        treinamento. Observe que muitos modelos também possuem paralelização
+        nativa (geralmente quando o estimador tem o parâmetro `n_jobs`).
 
     errors: str, default="skip"
-        How to handle exceptions encountered during model [training][].
-        Choose from:
+        Como lidar com exceções encontradas durante o [treinamento][training] dos modelos.
+        Escolha entre:
 
-        - "raise": Raise any encountered exception.
-        - "skip": Skip a failed model. This model is not accessible
-          after training.
-        - "keep": Keep the model in its state at failure. Note that
-          this model can break down many other methods after training.
-          This option is useful to be able to rerun hyperparameter
-          optimization after failure without losing previous successful
-          trials.
+        - "raise": Lança qualquer exceção encontrada.
+        - "skip": Ignora um modelo com falha. Este modelo não fica acessível
+          após o treinamento.
+        - "keep": Mantém o modelo no estado em que falhou. Este modelo pode
+          quebrar outros métodos após o treinamento. Esta opção é útil para
+          retomar a otimização de hiperparâmetros sem perder trials anteriores.
 
     n_jobs: int, default=1
-        Number of cores to use for parallel processing.
+        Número de núcleos a usar para processamento paralelo.
 
-        - If >0: Number of cores to use.
-        - If -1: Use all available cores.
-        - If <-1: Use number of cores - 1 + `n_jobs`.
+        - Se >0: Número de núcleos a usar.
+        - Se -1: Usa todos os núcleos disponíveis.
+        - Se <-1: Usa número de núcleos - 1 + `n_jobs`.
 
     device: str, default="cpu"
-        Device on which to run the estimators. Use any string that
-        follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        Dispositivo no qual executar os estimadores. Use qualquer string que
+        siga o seletor de filtro [SYCL_DEVICE_FILTER][], por exemplo,
+        `#!python device="gpu"` para usar a GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
-    engine: str, dict or None, default=None
-        Execution engine to use for [data][data-engines] and
-        [estimators][estimator-acceleration]. The value should be
-        one of the possible values to change one of the two engines,
-        or a dictionary with keys `data` and `estimator`, with their
-        corresponding choice as values to change both engines. If
-        None, the default values are used. Choose from:
+    engine: str, dict ou None, default=None
+        Engine de execução para [dados][data-engines] e
+        [estimadores][estimator-acceleration]. O valor deve ser
+        uma das opções possíveis para alterar uma das duas engines,
+        ou um dicionário com chaves `data` e `estimator`, com as
+        escolhas correspondentes como valores. Se None, os valores
+        padrão são usados. Escolha entre:
 
         - "data":
 
-            - "pandas" (default)
+            - "pandas" (padrão)
             - "pyarrow"
             - "modin"
 
         - "estimator":
 
-            - "sklearn" (default)
+            - "sklearn" (padrão)
             - "sklearnex"
             - "cuml"
 
     backend: str, default="loky"
-        Parallelization backend. Read more in the
-        [user guide][parallel-execution]. Choose from:
+        Backend de paralelização. Leia mais no
+        [guia do usuário][parallel-execution]. Escolha entre:
 
-        - "loky": Single-node, process-based parallelism.
-        - "multiprocessing": Legacy single-node, process-based
-          parallelism. Less robust than `loky`.
-        - "threading": Single-node, thread-based parallelism.
-        - "ray": Multi-node, process-based parallelism.
-        - "dask": Multi-node, process-based parallelism.
+        - "loky": Paralelismo baseado em processos, nó único.
+        - "multiprocessing": Paralelismo legado baseado em processos, nó único.
+          Menos robusto que `loky`.
+        - "threading": Paralelismo baseado em threads, nó único.
+        - "ray": Paralelismo baseado em processos, múltiplos nós.
+        - "dask": Paralelismo baseado em processos, múltiplos nós.
 
-    memory: bool, str, Path or Memory, default=False
-        Enables caching for memory optimization. Read more in the
-        [user guide][memory-considerations].
+    memory: bool, str, Path ou Memory, default=False
+        Habilita cache para otimização de memória. Leia mais no
+        [guia do usuário][memory-considerations].
 
-        - If False: No caching is performed.
-        - If True: A default temp directory is used.
-        - If str: Path to the caching directory.
-        - If Path: A [pathlib.Path][] to the caching directory.
-        - If Memory: Object with the [joblib.Memory][] interface.
+        - Se False: Nenhum cache é realizado.
+        - Se True: Um diretório temporário padrão é usado.
+        - Se str: Caminho para o diretório de cache.
+        - Se Path: Um [pathlib.Path][] para o diretório de cache.
+        - Se Memory: Objeto com a interface [joblib.Memory][].
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não imprimir nada.
+        - 1 para imprimir informações básicas.
+        - 2 para imprimir informações detalhadas.
 
-    warnings: bool or str, default=False
-        - If True: Default warning action (equal to "once").
-        - If False: Suppress all warnings (equal to "ignore").
-        - If str: One of python's [warnings filters][warnings].
+    warnings: bool ou str, default=False
+        - Se True: Ação padrão de aviso (equivalente a "once").
+        - Se False: Suprime todos os avisos (equivalente a "ignore").
+        - Se str: Um dos [filtros de aviso][warnings] do Python.
 
-        Changing this parameter affects the `PYTHONWarnings` environment.
-        ExperionML can't manage warnings that go from C/C++ code to stdout.
+        Alterar este parâmetro afeta o ambiente `PYTHONWarnings`.
+        O ExperionML não consegue gerenciar avisos que vão de código C/C++ para stdout.
 
-    logger: str, Logger or None, default=None
-        - If None: Logging isn't used.
-        - If str: Name of the log file. Use "auto" for automatic name.
-        - If Path: A [pathlib.Path][] to the log file.
-        - Else: Python `logging.Logger` instance.
+    logger: str, Logger ou None, default=None
+        - Se None: Logging não é usado.
+        - Se str: Nome do arquivo de log. Use "auto" para nome automático.
+        - Se Path: Um [pathlib.Path][] para o arquivo de log.
+        - Caso contrário: Instância de `logging.Logger` do Python.
 
-    experiment: str or None, default=None
-        Name of the [mlflow experiment][experiment] to use for tracking.
-        If None, no mlflow tracking is performed.
+    experiment: str ou None, default=None
+        Nome do [experimento mlflow][experiment] a usar para rastreamento.
+        Se None, nenhum rastreamento mlflow é realizado.
 
-    random_state: int or None, default=None
-        Seed used by the random number generator. If None, the random
-        number generator is the `RandomState` used by `np.random`.
+    random_state: int ou None, default=None
+        Semente usada pelo gerador de números aleatórios. Se None, o gerador
+        de números aleatórios é o `RandomState` usado por `np.random`.
 
-    See Also
-    --------
+    Veja também
+    -----------
     experionml.api:ExperionMLForecaster
     experionml.training:DirectForecaster
     experionml.training:SuccessiveHalvingForecaster
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml.training import TrainSizingForecaster
@@ -2314,7 +2259,7 @@ class TrainSizingForecaster(TrainSizing):
     runner = TrainSizingForecaster(["Croston", "PT"], verbose=2)
     runner.run(train, test)
 
-    # Analyze the results
+    # Analisa os resultados
     runner.results
     ```
 
@@ -2370,191 +2315,184 @@ class TrainSizingForecaster(TrainSizing):
 
 @beartype
 class TrainSizingRegressor(TrainSizing):
-    r"""Train and evaluate the models in a [train sizing][] fashion.
+    r"""Treina e avalia os modelos no formato [train sizing][].
 
-    The following steps are applied to every model (per iteration):
+    As etapas a seguir são aplicadas a cada modelo (por iteração):
 
-    1. Apply [hyperparameter tuning][] (optional).
-    2. Fit the model on the training set using the best combination
-       of hyperparameters found.
-    3. Evaluate the model on the test set.
-    4. Train the estimator on various [bootstrapped][bootstrapping]
-       samples of the training set and evaluate again on the test set
-       (optional).
+    1. Aplicar [ajuste de hiperparâmetros][] (opcional).
+    2. Ajustar o modelo no conjunto de treino com a melhor combinação
+       de hiperparâmetros encontrada.
+    3. Avaliar o modelo no conjunto de teste.
+    4. Treinar o estimador em amostras [bootstrapped][bootstrapping]
+       do conjunto de treino e avaliar novamente no teste (opcional).
 
-    Parameters
+    Parâmetros
     ----------
     models: str, estimator or sequence, default=None
-        Models to fit to the data. Allowed inputs are: an acronym from
-        any of the [predefined models][], an [ExperionMLModel][] or a custom
-        predictor as class or instance. If None, all the predefined
-        models are used.
+        Modelos a ajustar nos dados. As entradas permitidas são: uma sigla de
+        qualquer um dos [modelos predefinidos][], um [ExperionMLModel][] ou um
+        preditor personalizado como classe ou instância. Se None, todos os modelos
+        predefinidos são usados.
 
     metric: str, func, scorer, sequence or None, default=None
-        Metric on which to fit the models. Choose from any of sklearn's
-        [scorers][], a function with signature `function(y_true, y_pred,
-        **kwargs) -> score`, a scorer object or a sequence of these. If
-        None, the default metric `r2` is selected.
+        Métrica para ajuste dos modelos. Escolha entre qualquer um dos [scorers][] do
+        sklearn, uma função com assinatura `function(y_true, y_pred, **kwargs) -> score`,
+        um objeto scorer ou uma sequência destes. Se None, a métrica padrão `r2` é selecionada.
 
-    train_sizes: int or sequence, default=5
-        Training set sizes used to run the trainings.
+    train_sizes: int ou sequence, default=5
+        Tamanhos de conjuntos de treino usados nas execuções.
 
-        - If int: Number of equally distributed splits, i.e., for a
-          value `N`, it's equal to `np.linspace(1.0/N, 1.0, N)`.
-        - If sequence: Fraction of the training set when <=1, else
-          total number of samples.
+        - Se int: Número de divisões igualmente distribuídas, ou seja, para
+          valor `N`, equivale a `np.linspace(1.0/N, 1.0, N)`.
+        - Se sequence: Fração do conjunto de treino quando <=1; caso
+          contrário, número total de amostras.
 
-    n_trials: int, dict or sequence, default=0
-        Maximum number of iterations for the [hyperparameter tuning][].
-        If 0, skip the tuning and fit the model on its default
-        parameters. If sequence, the n-th value applies to the n-th
-        model.
+    n_trials: int, dict ou sequence, default=0
+        Número máximo de iterações para o [ajuste de hiperparâmetros][].
+        Se 0, o ajuste é ignorado e o modelo é ajustado com seus parâmetros
+        padrão. Se sequence, o n-ésimo valor aplica-se ao n-ésimo modelo.
 
-    est_params: dict or None, default=None
-        Additional parameters for the models. See their corresponding
-        documentation for the available options. For multiple models,
-        use the acronyms as key (or 'all' for all models) and a dict
-        of the parameters as value. Add `_fit` to the parameter's name
-        to pass it to the estimator's fit method instead of the
-        constructor.
+    est_params: dict ou None, default=None
+        Parâmetros adicionais para os modelos. Consulte a documentação
+        correspondente para as opções disponíveis. Para múltiplos modelos,
+        use as siglas como chave (ou 'all' para todos) e um dict de parâmetros
+        como valor. Adicione `_fit` ao nome do parâmetro para passá-lo ao
+        método fit do estimador em vez do construtor.
 
-    ht_params: dict or None, default=None
-        Additional parameters for the hyperparameter tuning. If None,
-        it uses the same parameters as the first run. Can include:
+    ht_params: dict ou None, default=None
+        Parâmetros adicionais para o ajuste de hiperparâmetros. Se None,
+        usa os mesmos parâmetros da primeira execução. Pode incluir:
 
-        - **cv: int, cv-generator, dict or sequence, default=1**<br>
-          Cross-validation object or number of splits. If 1, the
-          data is randomly split in a subtrain and validation set.
-        - **plot: bool, dict or sequence, default=False**<br>
-          Whether to plot the optimization's progress as it runs.
-          Creates a canvas with two plots: the first plot shows the
-          score of every trial and the second shows the distance between
-          the last consecutive steps. See the [plot_trials][] method.
-        - **distributions: dict, sequence or None, default=None**<br>
-          Custom hyperparameter distributions. If None, it uses the
-          model's predefined distributions. Read more in the
-          [user guide][hyperparameter-tuning].
-        - **tags: dict, sequence or None, default=None**<br>
-          Custom tags for the model's trial and [mlflow run][tracking].
+        - **cv: int, cv-generator, dict ou sequence, default=1**<br>
+          Objeto de validação cruzada ou número de divisões. Se 1, os dados
+          são divididos aleatoriamente em subconjunto de treino e validação.
+        - **plot: bool, dict ou sequence, default=False**<br>
+          Se deve plotar o progresso da otimização em tempo real.
+          Cria um canvas com dois gráficos: o primeiro exibe a pontuação de
+          cada trial e o segundo mostra a distância entre os últimos passos
+          consecutivos. Consulte o método [plot_trials][].
+        - **distributions: dict, sequence ou None, default=None**<br>
+          Distribuições de hiperparâmetros personalizadas. Se None, usa as
+          distribuições predefinidas do modelo. Leia mais no
+          [guia do usuário][hyperparameter-tuning].
+        - **tags: dict, sequence ou None, default=None**<br>
+          Tags personalizadas para o trial e a [execução do mlflow][tracking].
         - **\*\*kwargs**<br>
-          Additional Keyword arguments for the constructor of the
-          [study][] class or the [optimize][] method.
+          Argumentos de palavra-chave adicionais para o construtor da classe
+          [study][] ou do método [optimize][].
 
-    n_bootstrap: int or sequence, default=0
-        Number of data sets to use for [bootstrapping][]. If 0, no
-        bootstrapping is performed. If sequence, the n-th value applies
-        to the n-th model.
+    n_bootstrap: int ou sequence, default=0
+        Número de conjuntos de dados usados para [bootstrapping][]. Se 0, nenhum
+        bootstrapping é realizado. Se sequence, o n-ésimo valor aplica-se
+        ao n-ésimo modelo.
 
     parallel: bool, default=False
-        Whether to train the models in a parallel or sequential
-        fashion. Using `parallel=True` turns off the verbosity of the
-        models during training. Note that many models also have
-        build-in parallelizations (often when the estimator has the
-        `n_jobs` parameter).
+        Se os modelos devem ser treinados em paralelo ou sequencialmente.
+        Usar `parallel=True` desativa a verbosidade dos modelos durante o
+        treinamento. Observe que muitos modelos também possuem paralelização
+        nativa (geralmente quando o estimador tem o parâmetro `n_jobs`).
 
     errors: str, default="skip"
-        How to handle exceptions encountered during model [training][].
-        Choose from:
+        Como lidar com exceções encontradas durante o [treinamento][training] dos modelos.
+        Escolha entre:
 
-        - "raise": Raise any encountered exception.
-        - "skip": Skip a failed model. This model is not accessible
-          after training.
-        - "keep": Keep the model in its state at failure. Note that
-          this model can break down many other methods after training.
-          This option is useful to be able to rerun hyperparameter
-          optimization after failure without losing previous successful
-          trials.
+        - "raise": Lança qualquer exceção encontrada.
+        - "skip": Ignora um modelo com falha. Este modelo não fica acessível
+          após o treinamento.
+        - "keep": Mantém o modelo no estado em que falhou. Este modelo pode
+          quebrar outros métodos após o treinamento. Esta opção é útil para
+          retomar a otimização de hiperparâmetros sem perder trials anteriores.
 
     n_jobs: int, default=1
-        Number of cores to use for parallel processing.
+        Número de núcleos a usar para processamento paralelo.
 
-        - If >0: Number of cores to use.
-        - If -1: Use all available cores.
-        - If <-1: Use number of cores - 1 + `n_jobs`.
+        - Se >0: Número de núcleos a usar.
+        - Se -1: Usa todos os núcleos disponíveis.
+        - Se <-1: Usa número de núcleos - 1 + `n_jobs`.
 
     device: str, default="cpu"
-        Device on which to run the estimators. Use any string that
-        follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        Dispositivo no qual executar os estimadores. Use qualquer string que
+        siga o seletor de filtro [SYCL_DEVICE_FILTER][], por exemplo,
+        `#!python device="gpu"` para usar a GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
-    engine: str, dict or None, default=None
-        Execution engine to use for [data][data-engines] and
-        [estimators][estimator-acceleration]. The value should be
-        one of the possible values to change one of the two engines,
-        or a dictionary with keys `data` and `estimator`, with their
-        corresponding choice as values to change both engines. If
-        None, the default values are used. Choose from:
+    engine: str, dict ou None, default=None
+        Engine de execução para [dados][data-engines] e
+        [estimadores][estimator-acceleration]. O valor deve ser
+        uma das opções possíveis para alterar uma das duas engines,
+        ou um dicionário com chaves `data` e `estimator`, com as
+        escolhas correspondentes como valores. Se None, os valores
+        padrão são usados. Escolha entre:
 
         - "data":
 
-            - "pandas" (default)
+            - "pandas" (padrão)
             - "pyarrow"
             - "modin"
 
         - "estimator":
 
-            - "sklearn" (default)
+            - "sklearn" (padrão)
             - "sklearnex"
             - "cuml"
 
     backend: str, default="loky"
-        Parallelization backend. Read more in the
-        [user guide][parallel-execution]. Choose from:
+        Backend de paralelização. Leia mais no
+        [guia do usuário][parallel-execution]. Escolha entre:
 
-        - "loky": Single-node, process-based parallelism.
-        - "multiprocessing": Legacy single-node, process-based
-          parallelism. Less robust than `loky`.
-        - "threading": Single-node, thread-based parallelism.
-        - "ray": Multi-node, process-based parallelism.
-        - "dask": Multi-node, process-based parallelism.
+        - "loky": Paralelismo baseado em processos, nó único.
+        - "multiprocessing": Paralelismo legado baseado em processos, nó único.
+          Menos robusto que `loky`.
+        - "threading": Paralelismo baseado em threads, nó único.
+        - "ray": Paralelismo baseado em processos, múltiplos nós.
+        - "dask": Paralelismo baseado em processos, múltiplos nós.
 
-    memory: bool, str, Path or Memory, default=False
-        Enables caching for memory optimization. Read more in the
-        [user guide][memory-considerations].
+    memory: bool, str, Path ou Memory, default=False
+        Habilita cache para otimização de memória. Leia mais no
+        [guia do usuário][memory-considerations].
 
-        - If False: No caching is performed.
-        - If True: A default temp directory is used.
-        - If str: Path to the caching directory.
-        - If Path: A [pathlib.Path][] to the caching directory.
-        - If Memory: Object with the [joblib.Memory][] interface.
+        - Se False: Nenhum cache é realizado.
+        - Se True: Um diretório temporário padrão é usado.
+        - Se str: Caminho para o diretório de cache.
+        - Se Path: Um [pathlib.Path][] para o diretório de cache.
+        - Se Memory: Objeto com a interface [joblib.Memory][].
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não imprimir nada.
+        - 1 para imprimir informações básicas.
+        - 2 para imprimir informações detalhadas.
 
-    warnings: bool or str, default=False
-        - If True: Default warning action (equal to "once").
-        - If False: Suppress all warnings (equal to "ignore").
-        - If str: One of python's [warnings filters][warnings].
+    warnings: bool ou str, default=False
+        - Se True: Ação padrão de aviso (equivalente a "once").
+        - Se False: Suprime todos os avisos (equivalente a "ignore").
+        - Se str: Um dos [filtros de aviso][warnings] do Python.
 
-        Changing this parameter affects the `PYTHONWarnings` environment.
-        ExperionML can't manage warnings that go from C/C++ code to stdout.
+        Alterar este parâmetro afeta o ambiente `PYTHONWarnings`.
+        O ExperionML não consegue gerenciar avisos que vão de código C/C++ para stdout.
 
-    logger: str, Logger or None, default=None
-        - If None: Logging isn't used.
-        - If str: Name of the log file. Use "auto" for automatic name.
-        - If Path: A [pathlib.Path][] to the log file.
-        - Else: Python `logging.Logger` instance.
+    logger: str, Logger ou None, default=None
+        - Se None: Logging não é usado.
+        - Se str: Nome do arquivo de log. Use "auto" para nome automático.
+        - Se Path: Um [pathlib.Path][] para o arquivo de log.
+        - Caso contrário: Instância de `logging.Logger` do Python.
 
-    experiment: str or None, default=None
-        Name of the [mlflow experiment][experiment] to use for tracking.
-        If None, no mlflow tracking is performed.
+    experiment: str ou None, default=None
+        Nome do [experimento mlflow][experiment] a usar para rastreamento.
+        Se None, nenhum rastreamento mlflow é realizado.
 
-    random_state: int or None, default=None
-        Seed used by the random number generator. If None, the random
-        number generator is the `RandomState` used by `np.random`.
+    random_state: int ou None, default=None
+        Semente usada pelo gerador de números aleatórios. Se None, o gerador
+        de números aleatórios é o `RandomState` usado por `np.random`.
 
-    See Also
-    --------
+    Veja também
+    -----------
     experionml.api:ExperionMLRegressor
     experionml.training:DirectRegressor
     experionml.training:SuccessiveHalvingRegressor
 
-    Examples
+    Exemplos
     --------
     ```pycon
     from experionml.training import TrainSizingRegressor
@@ -2571,7 +2509,7 @@ class TrainSizingRegressor(TrainSizing):
     runner = TrainSizingRegressor(models="OLS", verbose=2)
     runner.run(train, test)
 
-    # Analyze the results
+    # Analisa os resultados
     runner.results
     ```
 

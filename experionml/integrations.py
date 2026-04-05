@@ -19,15 +19,15 @@ class Integrator(metaclass=ABCMeta):
 class DAGsHubIntegrator(Integrator):
     """DAGsHub integration class.
 
-    Read more in the [user guide][dagshub-integration].
+    Leia mais no [guia do usuário][dagshub-integration].
 
-    Parameters
+    Parâmetros
     ----------
     project_name: str
         The name of the project on DAGsHub. If the project does not exist,
         a new one is created.
 
-    Notes
+    Notas
     -----
     https://dagshub.com/
 

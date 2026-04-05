@@ -49,8 +49,8 @@ from experionml.utils.utils import (
 class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
     """Classe base abstrata para todos os métodos de plotagem.
 
-    This base class defines the properties that can be changed
-    to customize the plot's aesthetics.
+    Esta classe base define as propriedades que podem ser alteradas
+    para personalizar a estética dos gráficos.
 
     """
 
@@ -154,19 +154,19 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
     def _get_plot_index(obj: Pandas) -> pd.Index:
         """Retorna o índice do conjunto em um formato plottável.
 
-        Plotly only accepts JSON deserializable formats for the axes.
-        Use this utility method to convert to timestamp those indices
-        that can (e.g., pd.Period). Else, return as is.
+        O Plotly aceita apenas formatos desserializáveis por JSON para os eixos.
+        Use este método utilitário para converter para timestamp os índices
+        que permitem isso (ex.: pd.Period). Caso contrário, retorna como está.
 
-        Parameters
+        Parâmetros
         ----------
         obj: pd.Series or pd.DataFrame
-            Data set to get the index from.
+            Conjunto de dados de onde o índice será obtido.
 
-        Returns
+        Retorna
         -------
         pd.Index
-            Index in a JSON deserializable format.
+            Índice em formato desserializável por JSON.
 
         """
         if hasattr(obj.index, "to_timestamp"):
@@ -178,21 +178,21 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
     def _get_show(show: IntLargerZero | None, maximum: IntLargerZero = 200) -> Int:
         """Obtém o número de elementos a exibir.
 
-        Always limit the maximum elements shown to 200 to avoid
-        a maximum figsize error.
+        Sempre limita o máximo de elementos exibidos a 200 para evitar
+        um erro de tamanho máximo de figura.
 
-        Parameters
+        Parâmetros
         ----------
         show: int or None
-            Number of elements to show. If None, select up to 200.
+            Número de elementos a exibir. Se None, seleciona até 200.
 
         maximum: int, default=200
-            Maximum number of features allowed.
+            Número máximo de recursos permitidos.
 
-        Returns
+        Retorna
         -------
         int
-            Number of features to show.
+            Número de recursos a exibir.
 
         """
         if show is None or show > maximum:
@@ -208,22 +208,22 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
     ) -> Iterator[tuple[str, RowSelector]]:
         """Obtém a seleção de linhas.
 
-        Convert provided rows to a dict where the keys are the names of
-        the data sets, and the corresponding values are the selection
-        rows fed to branch._get_rows().
+        Converte as linhas fornecidas para um dict onde as chaves são os nomes
+        dos conjuntos de dados, e os valores correspondentes são as linhas de
+        seleção passadas para branch._get_rows().
 
-        Parameters
+        Parâmetros
         ----------
         rows: str, sequence or dict
-            Selection of rows to plot.
+            Seleção de linhas a plotar.
 
-        Yields
+        Produz
         ------
         str
-            Name of the row set.
+            Nome do conjunto de linhas.
 
         RowSelector
-            Selection of rows.
+            Seleção de linhas.
 
         """
         if isinstance(rows, sequence_t):
@@ -238,19 +238,19 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
     def _get_metric(self, metric: MetricSelector, *, max_one: Bool = False) -> list[str]:
         """Valida e retorna o índice de métrica fornecido.
 
-        Parameters
+        Parâmetros
         ----------
         metric: int, str, sequence or None
-            Metric to retrieve. If None, all metrics are returned.
+            Métrica a recuperar. Se None, todas as métricas são retornadas.
 
         max_one: bool, default=False
-            Whether one or multiple metrics are allowed. If True, raise
-            an exception if more than one metric is selected.
+            Se uma ou múltiplas métricas são permitidas. Se True, lança
+            uma exceção se mais de uma métrica for selecionada.
 
-        Returns
+        Retorna
         -------
         list of str
-            Names of the selected metrics.
+            Nomes das métricas selecionadas.
 
         """
         if metric is None:
@@ -296,28 +296,27 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
     ) -> list[Model]:
         """Se um gráfico for chamado a partir de um modelo, adapta o parâmetro `models`.
 
-        Parameters
+        Parâmetros
         ----------
         func: func or None
-            Function to decorate. When the decorator is called with no
-            optional arguments, the function is passed as the first
-            argument, and the decorator just returns the decorated
-            function.
+            Função a decorar. Quando o decorador é chamado sem argumentos
+            opcionais, a função é passada como primeiro argumento e o
+            decorador apenas retorna a função decorada.
 
         max_one: bool, default=False
-            Whether one or multiple models are allowed. If True, raise
-            an exception if more than one model is selected.
+            Se um ou múltiplos modelos são permitidos. Se True, lança
+            uma exceção se mais de um modelo for selecionado.
 
         ensembles: bool, default=True
-            If False, drop ensemble models from selection.
+            Se False, remove modelos ensemble da seleção.
 
         check_fitted: bool, default=True
-            Raise an exception if the runner isn't fitted (has no models).
+            Lança uma exceção se o runner não estiver ajustado (sem modelos).
 
-        Returns
+        Retorna
         -------
         list
-            Models to plot.
+            Modelos a plotar.
 
         """
         if hasattr(self, "_get_models"):
@@ -365,24 +364,24 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
         *,
         create_figure: Bool = True,
     ) -> go.Figure | plt.Figure | None:
-        """Return an existing figure if in canvas, else a new figure.
+        """Retorna uma figura existente se estiver no canvas, caso contrário cria uma nova.
 
-        Every time this method is called from a canvas, the plot
-        index is raised by one to keep track of which subplot the
-        BaseFigure is at.
+        Cada vez que este método é chamado a partir de um canvas, o índice
+        do gráfico é incrementado em um para rastrear em qual subplot o
+        BaseFigure se encontra.
 
-        Parameters
+        Parâmetros
         ----------
         backend: str, default="plotly"
-            Figure's backend. Choose between plotly or matplotlib.
+            Backend da figura. Escolha entre plotly ou matplotlib.
 
         create_figure: bool, default=True
-            Whether to create a new figure.
+            Se uma nova figura deve ser criada.
 
-        Returns
+        Retorna
         -------
         [go.Figure][], [plt.Figure][] or None
-            Existing figure or newly created. Returns None if kwarg
+            Figura existente ou recém-criada. Retorna None se o argumento
             `create_figure=False`.
 
         """
@@ -398,25 +397,25 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
 
     @staticmethod
     def _draw_diagonal_line(values: tuple, xaxis: str, yaxis: str):
-        """Draw a diagonal line across the axis.
+        """Desenha uma linha diagonal ao longo do eixo.
 
-        The line should be used as a reference. It's not added to the
-        legend and doesn't show any information on hover.
+        A linha deve ser usada como referência. Não é adicionada à
+        legenda e não exibe nenhuma informação ao passar o cursor.
 
-        Parameters
+        Parâmetros
         ----------
         values: tuple of sequence
-            Values of the data points required to determine the ranges in
-            format (x, y).
+            Valores dos pontos de dados necessários para determinar os intervalos,
+            no formato (x, y).
 
         xaxis: str
-            Name of the x-axis to draw in.
+            Nome do eixo x onde será desenhada.
 
         yaxis: str
-            Name of the y-axis to draw in.
+            Nome do eixo y onde será desenhada.
 
         """
-        # Get the ranges with a 5% margin, except when the range is exactly 0-1
+        # Obtém os intervalos com margem de 5%, exceto quando o intervalo é exatamente 0-1
         y_min, y_max = min(values[1]), max(values[1])
         if np.issubdtype(type(y_min), np.number) and y_min != 0 and y_max != 1:
             margin = (y_max - y_min) * 0.05
@@ -442,26 +441,26 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
         legend: Legend | dict[str, Any] | None = None,
         **kwargs,
     ):
-        """Draw a line on the current figure.
+        """Desenha uma linha na figura atual.
 
-        Unify the style to draw a line, where parent and child
-        (e.g., model - data set or column - distribution) keep the
-        same style (color or dash). A legendgroup title is only added
-        when there is a child element.
+        Unifica o estilo para desenhar uma linha, onde parent e child
+        (ex.: modelo - conjunto de dados ou coluna - distribuição) mantêm
+        o mesmo estilo (cor ou traço). Um título de legendgroup é adicionado
+        apenas quando há um elemento filho.
 
-        Parameters
+        Parâmetros
         ----------
         parent: str
-            Name of the head attribute.
+            Nome do atributo principal.
 
         child: str or None, default=None
-            Name of the secondary attribute.
+            Nome do atributo secundário.
 
         legend: str, dict or None, default=None
-            Legend argument provided by the user.
+            Argumento de legenda fornecido pelo usuário.
 
         **kwargs
-            Additional keyword arguments for the trace.
+            Argumentos de palavra-chave adicionais para o trace.
 
         """
         BasePlot._fig.figure.add_scatter(
@@ -506,41 +505,41 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
         ax: plt.Axes | tuple[str, str] | None = None,
         **kwargs,
     ) -> go.Figure | plt.Figure | None:
-        """Make the plot.
+        """Gera o gráfico.
 
-        Customize the axes to the default layout and plot the figure
-        if it's not part of a canvas.
+        Personaliza os eixos para o layout padrão e plota a figura
+        se não for parte de um canvas.
 
-        Parameters
+        Parâmetros
         ----------
         fig: go.Figure, plt.Figure or None
-            Current figure. If None, use `plt.gcf()`.
+            Figura atual. Se None, usa `plt.gcf()`.
 
         ax: plt.Axes, tuple or None, default=None
-            Axis object or names of the axes to update. If None, ignore
-            their update.
+            Objeto de eixo ou nomes dos eixos a atualizar. Se None, ignora
+            a atualização.
 
         **kwargs
-            Keyword arguments containing the figure's parameters.
+            Argumentos de palavra-chave contendo os parâmetros da figura.
 
-            - title: Name of the title or custom configuration.
-            - legend: Whether to show the legend or custom configuration.
-            - xlabel: Label for the x-axis.
-            - ylabel: Label for the y-axis.
-            - xlim: Limits for the x-axis.
-            - ylim: Limits for the y-axis.
-            - figsize: Size of the figure.
-            - filename: Name of the saved file.
-            - plotname: Name of the plot.
-            - display: Whether to show the plot. If None, return the figure.
+            - title: Nome do título ou configuração personalizada.
+            - legend: Se deve exibir a legenda ou configuração personalizada.
+            - xlabel: Rótulo do eixo x.
+            - ylabel: Rótulo do eixo y.
+            - xlim: Limites do eixo x.
+            - ylim: Limites do eixo y.
+            - figsize: Tamanho da figura.
+            - filename: Nome do arquivo salvo.
+            - plotname: Nome do gráfico.
+            - display: Se deve exibir o gráfico. Se None, retorna a figura.
 
-        Returns
+        Retorna
         -------
         plt.Figure, go.Figure or None
-            Created figure. Only returned if `display=None`.
+            Figura criada. Retornada apenas se `display=None`.
 
         """
-        # Set a Path with which to save the file
+        # Define um Path para salvar o arquivo
         if kwargs.get("filename"):
             if (path := Path(kwargs["filename"])).name == "auto":
                 path = path.with_name(kwargs["plotname"])
@@ -550,7 +549,7 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
         fig = fig or BasePlot._fig.figure
         if isinstance(fig, go.Figure):
             if isinstance(ax, tuple):
-                # Hide the axis' label and ticks from non-border subplots
+                # Oculta o rótulo e as marcações dos eixos em subplots não-bordas
                 if not BasePlot._fig.sharex or self._fig.grid[0] == self._fig.rows:
                     fig.update_layout(
                         {
@@ -585,7 +584,7 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
                 )
 
                 if BasePlot._fig.is_canvas and (title := kwargs.get("title")):
-                    # Add a subtitle to a plot in the canvas
+                    # Adiciona um subtítulo a um gráfico no canvas
                     default_title = {
                         "x": BasePlot._fig.pos[ax[0][5:] or "1"][0],
                         "y": BasePlot._fig.pos[ax[0][5:] or "1"][1] + 0.005,
@@ -651,7 +650,7 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
                 elif isinstance(legend, dict):
                     legend = default_legend | legend
 
-                # Update layout with predefined settings
+                # Atualiza o layout com as configurações predefinidas
                 space1 = self.title_fontsize if title.get("text") else 10
                 space2 = self.title_fontsize * int(bool(fig.layout.annotations))
                 fig.update_layout(
@@ -665,7 +664,7 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
                     height=kwargs["figsize"][1],
                 )
 
-                # Update plot with custom settings
+                # Atualiza o gráfico com configurações personalizadas
                 fig.update_traces(**self._custom_traces)
                 fig.update_layout(**self._custom_layout)
 
@@ -675,7 +674,7 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
                     else:
                         fig.write_image(path)
 
-                # Log plot to mlflow run of every model visualized
+                # Registra o gráfico na execução do mlflow para cada modelo visualizado
                 if getattr(self, "experiment", None) and self.log_plots:
                     for m in set(BasePlot._fig.used_models):
                         MlflowClient().log_figure(
@@ -700,14 +699,14 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
                 ax.tick_params(axis="both", labelsize=self.tick_fontsize)
 
             if size := kwargs.get("figsize"):
-                # Convert from pixels to inches
+                # Converte de pixels para polegadas
                 fig.set_size_inches(size[0] // fig.get_dpi(), size[1] // fig.get_dpi())
 
             plt.tight_layout()
             if kwargs.get("filename"):
                 fig.savefig(path.with_suffix(".png"))
 
-            # Log plot to mlflow run of every model visualized
+            # Registra o gráfico na execução do mlflow para cada modelo visualizado
             if self.experiment and self.log_plots:
                 for m in set(BasePlot._fig.used_models):
                     MlflowClient().log_figure(
@@ -720,7 +719,7 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
             if kwargs.get("display") is None:
                 return fig
 
-        return None  # display!=None or not final figures
+        return None  # display!=None ou não são figuras finais
 
     @composed(beartype, contextmanager, crash)
     def canvas(
@@ -738,68 +737,68 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
         filename: str | Path | None = None,
         display: Bool = True,
     ):
-        """Create a figure with multiple plots.
+        """Cria uma figura com múltiplos gráficos.
 
-        This `@contextmanager` allows you to draw many plots in one
-        figure. The default option is to add two plots side by side.
-        See the [user guide][canvas] for an example.
+        Este `@contextmanager` permite desenhar muitos gráficos em uma
+        única figura. A opção padrão é adicionar dois gráficos lado a lado.
+        Consulte o [guia do usuário][canvas] para um exemplo.
 
-        Parameters
+        Parâmetros
         ----------
         rows: int, default=1
-            Number of plots in length.
+            Número de gráficos na altura.
 
         cols: int, default=2
-            Number of plots in width.
+            Número de gráficos na largura.
 
         sharex: bool, default=False
-            If True, hide the label and ticks from non-border subplots
-            on the x-axis.
+            Se True, oculta o rótulo e as marcações dos subplots não-bordas
+            no eixo x.
 
         sharey: bool, default=False
-            If True, hide the label and ticks from non-border subplots
-            on the y-axis.
+            Se True, oculta o rótulo e as marcações dos subplots não-bordas
+            no eixo y.
 
         hspace: float, default=0.05
-            Space between subplot rows in normalized plot coordinates.
-            The spacing is relative to the figure's size.
+            Espaço entre linhas de subplot em coordenadas normalizadas.
+            O espaçamento é relativo ao tamanho da figura.
 
         vspace: float, default=0.07
-            Space between subplot cols in normalized plot coordinates.
-            The spacing is relative to the figure's size.
+            Espaço entre colunas de subplot em coordenadas normalizadas.
+            O espaçamento é relativo ao tamanho da figura.
 
         title: str, dict or None, default=None
-            Title for the plot.
+            Título do gráfico.
 
-            - If None, no title is shown.
-            - If str, text for the title.
-            - If dict, [title configuration][parameters].
+            - Se None, nenhum título é exibido.
+            - Se str, texto do título.
+            - Se dict, [configuração do título][parameters].
 
         legend: bool, str or dict, default="out"
-            Legend for the plot. See the [user guide][parameters] for
-            an extended description of the choices.
+            Legenda do gráfico. Consulte o [guia do usuário][parameters] para
+            uma descrição detalhada das opções.
 
-            - If None: No legend is shown.
-            - If str: Position to display the legend.
-            - If dict: Legend configuration.
+            - Se None: Nenhuma legenda é exibida.
+            - Se str: Posição para exibir a legenda.
+            - Se dict: Configuração da legenda.
 
         figsize: tuple or None, default=None
-            Figure's size in pixels, format as (x, y). If None, it
-            adapts the size to the number of plots in the canvas.
+            Tamanho da figura em pixels, no formato (x, y). Se None,
+            adapta o tamanho ao número de gráficos no canvas.
 
         filename: str, Path or None, default=None
-            Save the plot using this name. Use "auto" for automatic
-            naming. The type of the file depends on the provided name
-            (.html, .png, .pdf, etc...). If `filename` has no file type,
-            the plot is saved as html. If None, the plot is not saved.
+            Salva o gráfico com este nome. Use "auto" para nomeação
+            automática. O tipo do arquivo depende do nome fornecido
+            (.html, .png, .pdf, etc...). Se `filename` não tiver extensão,
+            o gráfico é salvo como html. Se None, o gráfico não é salvo.
 
         display: bool, default=True
-            Whether to render the plot.
+            Se deve renderizar o gráfico.
 
-        Yields
+        Produz
         ------
         [go.Figure][]
-            Plot object.
+            Objeto do gráfico.
 
         """
         BasePlot._fig = BaseFigure(
@@ -816,7 +815,7 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
         try:
             yield BasePlot._fig.figure
         finally:
-            BasePlot._fig.is_canvas = False  # Close the canvas
+            BasePlot._fig.is_canvas = False  # Fecha o canvas
             self._plot(
                 groupclick="togglegroup",
                 title=title,
@@ -829,7 +828,7 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
 
     @classmethod
     def reset_aesthetics(cls):
-        """Reset the plot [aesthetics][] to their default values."""
+        """Redefine os [aesthetics][] do gráfico para seus valores padrão."""
         cls._custom_layout = {}
         cls._custom_traces = {}
         cls._aesthetics = Aesthetics(
@@ -843,30 +842,30 @@ class BasePlot(BaseTransformer, BaseTracker, metaclass=ABCMeta):
 
     @classmethod
     def update_layout(cls, **kwargs):
-        """Update the properties of the plot's layout.
+        """Atualiza as propriedades do layout do gráfico.
 
-        Recursively update the structure of the original layout with
-        the values in the arguments.
+        Atualiza recursivamente a estrutura do layout original com
+        os valores dos argumentos.
 
-        Parameters
+        Parâmetros
         ----------
         **kwargs
-            Keyword arguments for the figure's [update_layout][] method.
+            Argumentos de palavra-chave para o método [update_layout][] da figura.
 
         """
         cls._custom_layout = kwargs
 
     @classmethod
     def update_traces(cls, **kwargs):
-        """Update the properties of the plot's traces.
+        """Atualiza as propriedades dos traces do gráfico.
 
-        Recursively update the structure of the original traces with
-        the values in the arguments.
+        Atualiza recursivamente a estrutura dos traces originais com
+        os valores dos argumentos.
 
-        Parameters
+        Parâmetros
         ----------
         **kwargs
-            Keyword arguments for the figure's [update_traces][] method.
+            Argumentos de palavra-chave para o método [update_traces][] da figura.
 
         """
         cls._custom_traces = kwargs

@@ -31,13 +31,13 @@ from experionml.utils.utils import (
 
 
 class BaseTrainer(BaseRunner, RunnerPlot, metaclass=ABCMeta):
-    """Base class for trainers.
+    """Classe base para trainers.
 
-    Implements methods to check the validity of the parameters,
-    create models and metrics, run hyperparameter tuning, model
-    training, bootstrap, and display the final results.
+    Implementa métodos para verificar a validade dos parâmetros,
+    criar modelos e métricas, executar otimização de hiperparâmetros,
+    treinamento de modelos, bootstrap e exibir os resultados finais.
 
-    See training.py for a description of the parameters.
+    Veja training.py para a descrição dos parâmetros.
 
     """
 
@@ -93,28 +93,28 @@ class BaseTrainer(BaseRunner, RunnerPlot, metaclass=ABCMeta):
         self._ht_params = {"distributions": {}, "cv": 1, "plot": False, "tags": {}}
 
     def _check_param(self, param: str, value: Any) -> dict:
-        """Check the validity of one parameter.
+        """Verifica a validade de um parâmetro.
 
-        Parameters accept three formats:
+        Os parâmetros aceitam três formatos:
 
-        - dict: Each key is the name of a model, and the value applies
-          only to that model.
-        - sequence: The N-th element applies to the N-th model. Has to
-          have the same length as the models.
-        - value: Same value applies to all models.
+        - dict: Cada chave é o nome de um modelo e o valor se aplica
+          apenas a ele.
+        - sequência: O N-ésimo elemento se aplica ao N-ésimo modelo. Deve
+          ter o mesmo comprimento que a lista de modelos.
+        - valor: O mesmo valor é aplicado a todos os modelos.
 
-        Parameters
+        Parâmetros
         ----------
         param: str
-            Name of the parameter to check.
+            Nome do parâmetro a verificar.
 
         value: Any
-            Value of the parameter.
+            Valor do parâmetro.
 
-        Returns
+        Retorna
         -------
         dict
-            Parameter with model names as keys.
+            Parâmetro com nomes dos modelos como chaves.
 
         """
         if isinstance(value, sequence_t):
@@ -131,31 +131,31 @@ class BaseTrainer(BaseRunner, RunnerPlot, metaclass=ABCMeta):
         return value
 
     def _prepare_parameters(self):
-        """Check the validity of the input parameters.
+        """Verifica a validade dos parâmetros de entrada.
 
-        Creates the models, assigns a metric, prepares the estimator's
-        parameters and the parameters for hyperparameter tuning.
+        Cria os modelos, atribui uma métrica, prepara os parâmetros do
+        estimador e os parâmetros para otimização de hiperparâmetros.
 
         """
-        # Define metric ============================================ >>
+        # Define métrica ============================================ >>
 
-        # Assign default scorer
+        # Atribui scorer padrão
         if not self._metric:
             if self.task.is_classification:
                 if self.task is Task.binary_classification:
-                    # Binary classification
+                    # Classificação binária
                     scorer = get_custom_scorer("f1", pos_label=self._config.pos_label)
                 elif self.task.is_multiclass:
-                    # Multiclass, multiclass-multioutput classification
+                    # Classificação multiclasse e multiclasse-multioutput
                     scorer = get_custom_scorer("f1_weighted", pos_label=self._config.pos_label)
                 elif self.task is Task.multilabel_classification:
-                    # Multilabel classification
+                    # Classificação multilabel
                     scorer = get_custom_scorer("ap", pos_label=self._config.pos_label)
             elif self.task.is_regression:
-                # Regression, multioutput regression
+                # Regressão e regressão multioutput
                 scorer = get_custom_scorer("r2", pos_label=self._config.pos_label)
             elif self.task.is_forecast:
-                # Forecasting
+                # Previsão de séries temporais
                 scorer = get_custom_scorer("mape", pos_label=self._config.pos_label)
 
             self._metric = ClassMap(scorer)
@@ -172,7 +172,7 @@ class BaseTrainer(BaseRunner, RunnerPlot, metaclass=ABCMeta):
                 get_custom_scorer(m, pos_label=self._config.pos_label) for m in metrics
             )
 
-        # Define models ============================================ >>
+        # Define modelos =========================================== >>
 
         kwargs = {
             "goal": self._goal,
@@ -213,7 +213,7 @@ class BaseTrainer(BaseRunner, RunnerPlot, metaclass=ABCMeta):
                             )
                         ) from None
 
-                    # Check if libraries for non-sklearn models are available
+                    # Verifica se as dependências de modelos não-sklearn estão disponíveis
                     dependencies = {
                         "BATS": "tbats",
                         "CatB": "catboost",
@@ -225,7 +225,7 @@ class BaseTrainer(BaseRunner, RunnerPlot, metaclass=ABCMeta):
                     if cls.acronym in dependencies:
                         check_dependency(dependencies[cls.acronym])
 
-                    # Check if the model supports the task
+                    # Verifica se o modelo suporta a tarefa
                     if self._goal.name not in cls._estimators:
                         # Forecast task can use regression models
                         if self._goal is not Goal.forecast or "regression" not in cls._estimators:
@@ -236,10 +236,10 @@ class BaseTrainer(BaseRunner, RunnerPlot, metaclass=ABCMeta):
 
                     inc.append(cls(name=f"{cls.acronym}{tag}", **kwargs))
 
-            elif isinstance(model, Model):  # For new instances or reruns
+            elif isinstance(model, Model):  # Para novas instâncias ou re-execuções
                 inc.append(model)
 
-            else:  # Model is a custom estimator
+            else:  # O modelo é um estimador personalizado
                 inc.append(create_custom_model(estimator=model, **kwargs))
 
         if inc and exc:
@@ -263,16 +263,16 @@ class BaseTrainer(BaseRunner, RunnerPlot, metaclass=ABCMeta):
                 if self._goal.name in model._estimators and model.acronym.lower() not in exc
             )
 
-        # Prepare est_params ======================================= >>
+        # Prepara est_params ======================================= >>
 
         if self.est_params is not None:
             for model in self._models:
                 params = {}
                 for key, value in self.est_params.items():
-                    # Parameters for this model only
+                    # Parâmetros apenas para este modelo
                     if key.lower() == model.name.lower() or key.lower() == "all":
                         params.update(value)
-                    # Parameters for all models
+                    # Parâmetros para todos os modelos
                     elif key not in self._models:
                         params.update({key: value})
 
@@ -282,7 +282,7 @@ class BaseTrainer(BaseRunner, RunnerPlot, metaclass=ABCMeta):
                     else:
                         model._est_params[key] = value
 
-        # Prepare ht parameters ==================================== >>
+        # Prepara parâmetros de HT =================================== >>
 
         self._n_trials = self._check_param("n_trials", self.n_trials)
         self._n_bootstrap = self._check_param("n_bootstrap", self.n_bootstrap)
@@ -302,10 +302,10 @@ class BaseTrainer(BaseRunner, RunnerPlot, metaclass=ABCMeta):
                 self._ht_params[key] = {name: {} for name in self._models.keys()}
                 for name in self._models.keys():
                     if not isinstance(value, dict):
-                        # If sequence, it applies to all models
+                        # Se for sequência, aplica a todos os modelos
                         self._ht_params[key][name] = {k: None for k in lst(value)}
                     else:
-                        # Either one distribution for all or per model
+                        # Uma distribuição para todos ou uma por modelo
                         for k, v in value.items():
                             if k.lower() == name.lower() or k.lower() == "all":
                                 if isinstance(v, dict):
@@ -324,32 +324,32 @@ class BaseTrainer(BaseRunner, RunnerPlot, metaclass=ABCMeta):
                 )
 
     def _core_iteration(self):
-        """Fit and evaluate all models and displays final results."""
+        """Treina e avalia todos os modelos e exibe os resultados finais."""
 
         def execute_model(m: Model, verbose: Verbose | None = None) -> Model | None:
-            """Execute a single model.
+            """Executa um único modelo.
 
-            Runs hyperparameter tuning, training and bootstrap for one
-            model. Function needed for parallelization.
+            Realiza otimização de hiperparâmetros, treinamento e bootstrap
+            para um modelo. Função necessária para paralelização.
 
-            Parameters
+            Parâmetros
             ----------
             m: Model
-                Model to train and evaluate.
+                Modelo a treinar e avaliar.
 
             verbose: int or None, default=None
-                Verbosity level for the estimator. If None, it leaves it to
-                its original verbosity.
+                Nível de verbosidade para o estimador. Se None, mantém a
+                verbosidade original.
 
-            Returns
+            Retorna
             -------
             Model or None
-                Trained model. Returns None when the model raised an
-                exception and error=="skip".
+                Modelo treinado. Retorna None quando o modelo lança uma
+                excessão e errors=="skip".
 
             """
             try:
-                # Set BaseTransformer params in new nodes
+                # Define parâmetros do BaseTransformer em novos nós
                 self.experiment = self.experiment  # Set mlflow experiment
                 self.logger = self.logger  # Reassign logger's handlers
                 m.logger = m.logger
@@ -389,16 +389,15 @@ class BaseTrainer(BaseRunner, RunnerPlot, metaclass=ABCMeta):
                 else:
                     raise ex
 
-        t = dt.now()  # Measure the time the whole pipeline takes
+        t = dt.now()  # Mede o tempo total do pipeline
 
         if self.parallel and len(self._models) > 1:
             if self.backend == "ray":
                 import ray
 
-                # This implementation is more efficient than through joblib's
-                # ray backend. The difference is that in this one you start N
-                # tasks, and in the other, you start N actors and then have them
-                # each run the function
+                # Esta implementação é mais eficiente do que via backend ray
+                # do joblib. A diferença é que aqui iniciamos N tarefas, enquanto
+                # na outra abordagem, N atores são criados para executar a função
                 execute_remote = ray.remote(num_cpus=self.n_jobs)(execute_model)
                 models = ray.get([execute_remote.remote(m, 0) for m in self._models])
             elif self.backend == "dask":
@@ -427,7 +426,7 @@ class BaseTrainer(BaseRunner, RunnerPlot, metaclass=ABCMeta):
         maxlen = 0
         names, scores = [], []
         for m in self._models:
-            # Add the model name for repeated model classes
+            # Adiciona o nome do modelo para classes com nomes repetidos
             if len(list(filter(lambda x: x.acronym == m.acronym, self._models))) > 1:
                 names.append(f"{m.fullname} ({m.name})")
             else:
@@ -435,7 +434,7 @@ class BaseTrainer(BaseRunner, RunnerPlot, metaclass=ABCMeta):
 
             try:
                 scores.append(m._best_score())
-            except (ValueError, AttributeError):  # Fails when errors="keep"
+            except (ValueError, AttributeError):  # Falha quando errors="keep"
                 scores.append(-np.inf)
 
             maxlen = max(maxlen, len(names[-1]))

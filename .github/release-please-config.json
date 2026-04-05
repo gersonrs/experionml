@@ -77,7 +77,11 @@
       "pull-request-title-pattern": "chore: release ${version}",
       "release-type": "python",
       "extra-files": [
-        "pyproject.toml"
+        "pyproject.toml",
+        {
+          "type": "python",
+          "path": "experionml/utils/constants.py"
+        }
       ]
     }
   }

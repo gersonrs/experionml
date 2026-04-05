@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import re
@@ -46,11 +45,7 @@ from sklearn.model_selection import (
     TunedThresholdClassifierCV,
 )
 from sklearn.model_selection._validation import cross_validate
-from sklearn.multioutput import (
-    ClassifierChain,
-    MultiOutputClassifier,
-    MultiOutputRegressor,
-)
+from sklearn.multioutput import ClassifierChain, MultiOutputClassifier, MultiOutputRegressor
 from sklearn.utils import resample
 from sklearn.utils.metaestimators import available_if
 from sklearn.utils.validation import _check_response_method
@@ -138,56 +133,55 @@ if TYPE_CHECKING:
     from starlette.requests import Request
 
 
-# Disable optuna info logs (ExperionML already displays the same info)
+# Desabilita logs de info do optuna (ExperionML já exibe as mesmas informações)
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 
 class BaseModel(RunnerPlot):
-    """Base class for all models.
+    """Classe base para todos os modelos.
 
-    Parameters
+    Parâmetros
     ----------
     goal: Goal
-        Model's goal (classification, regression or forecast).
+        Objetivo do modelo (classificação, regressão ou previsão).
 
     name: str or None, default=None
-        Name for the model. If None, the name is the same as the
-        model's acronym.
+        Nome para o modelo. Se None, o nome é igual ao acrônimo do modelo.
 
     config: DataConfig or None, default=None
-        Data configuration. If None, use the default config values.
+        Configuração dos dados. Se None, usa os valores padrão de configuração.
 
     branches: BranchManager or None, default=None
         BranchManager.
 
     metric: ClassMap or None, default=None
-        Metric on which to fit the model.
+        Métrica na qual o modelo será ajustado.
 
     n_jobs: int, default=1
-        Number of cores to use for parallel processing.
+        Número de núcleos a usar para processamento paralelo.
 
-        - If >0: Number of cores to use.
-        - If -1: Use all available cores.
-        - If <-1: Use number of cores - 1 + `n_jobs`.
+        - Se >0: Número de núcleos a usar.
+        - Se -1: Usa todos os núcleos disponíveis.
+        - Se <-1: Usa número de núcleos - 1 + `n_jobs`.
 
     device: str, default="cpu"
-        Device on which to run the estimators. Use any string that
-        follows the [SYCL_DEVICE_FILTER][] filter selector, e.g.
-        `#!python device="gpu"` to use the GPU. Read more in the
-        [user guide][gpu-acceleration].
+        Dispositivo no qual executar os estimadores. Use qualquer string que
+        siga o seletor de filtro [SYCL_DEVICE_FILTER][], por ex.,
+        `#!python device="gpu"` para usar a GPU. Leia mais no
+        [guia do usuário][gpu-acceleration].
 
     engine: str, dict or None, default=None
-        Execution engine to use for [data][data-engines] and
-        [estimators][estimator-acceleration]. The value should be
-        one of the possible values to change one of the two engines,
-        or a dictionary with keys `data` and `estimator`, with their
-        corresponding choice as values to change both engines. If
-        None, the default values are used. Choose from:
+        Motor de execução a usar para [dados][data-engines] e
+        [estimadores][estimator-acceleration]. O valor deve ser
+        um dos possíveis valores para alterar um dos dois motores,
+        ou um dicionário com chaves `data` e `estimator`, com suas
+        escolhas correspondentes como valores para alterar ambos os motores. Se
+        None, os valores padrão são usados. Escolha entre:
 
         - "data":
 
             - "numpy"
-            - "pandas" (default)
+            - "pandas" (padrão)
             - "pandas-pyarrow"
             - "polars"
             - "polars-lazy"
@@ -199,59 +193,59 @@ class BaseModel(RunnerPlot):
 
         - "estimator":
 
-            - "sklearn" (default)
+            - "sklearn" (padrão)
             - "sklearnex"
             - "cuml"
 
     backend: str, default="loky"
-        Parallelization backend. Read more in the
-        [user guide][parallel-execution]. Choose from:
+        Backend de paralelização. Leia mais no
+        [guia do usuário][parallel-execution]. Escolha entre:
 
-        - "loky": Single-node, process-based parallelism.
-        - "multiprocessing": Legacy single-node, process-based
-          parallelism. Less robust than `loky`.
-        - "threading": Single-node, thread-based parallelism.
-        - "ray": Multi-node, process-based parallelism.
-        - "dask": Multi-node, process-based parallelism.
+        - "loky": Paralelismo baseado em processos, nó único.
+        - "multiprocessing": Paralelismo legado baseado em processos, nó único.
+          Menos robusto que `loky`.
+        - "threading": Paralelismo baseado em threads, nó único.
+        - "ray": Paralelismo baseado em processos, múltiplos nós.
+        - "dask": Paralelismo baseado em processos, múltiplos nós.
 
     memory: bool, str, Path or Memory, default=False
-        Enables caching for memory optimization. Read more in the
-        [user guide][memory-considerations].
+        Habilita o cache para otimização de memória. Leia mais no
+        [guia do usuário][memory-considerations].
 
-        - If False: No caching is performed.
-        - If True: A default temp directory is used.
-        - If str: Path to the caching directory.
-        - If Path: A [pathlib.Path][] to the caching directory.
-        - If Memory: Object with the [joblib.Memory][] interface.
+        - Se False: Nenhum cache é realizado.
+        - Se True: Um diretório temporário padrão é usado.
+        - Se str: Caminho para o diretório de cache.
+        - Se Path: Um [pathlib.Path][] para o diretório de cache.
+        - Se Memory: Objeto com a interface [joblib.Memory][].
 
     verbose: int, default=0
-        Verbosity level of the class. Choose from:
+        Nível de verbosidade da classe. Escolha entre:
 
-        - 0 to not print anything.
-        - 1 to print basic information.
-        - 2 to print detailed information.
+        - 0 para não imprimir nada.
+        - 1 para imprimir informações básicas.
+        - 2 para imprimir informações detalhadas.
 
     warnings: bool or str, default=False
-        - If True: Default warning action (equal to "once").
-        - If False: Suppress all warnings (equal to "ignore").
-        - If str: One of python's [warnings filters][warnings].
+        - Se True: Ação de aviso padrão (equivalente a "once").
+        - Se False: Suprime todos os avisos (equivalente a "ignore").
+        - Se str: Um dos [filtros de aviso][warnings] do Python.
 
-        Changing this parameter affects the `PYTHONWarnings` environment.
-        ExperionML can't manage warnings that go from C/C++ code to stdout.
+        Alterar este parâmetro afeta o ambiente `PYTHONWarnings`.
+        O ExperionML não consegue gerenciar avisos que passam de código C/C++ para stdout.
 
     logger: str, Logger or None, default=None
-        - If None: Logging isn't used.
-        - If str: Name of the log file. Use "auto" for automatic name.
-        - If Path: A [pathlib.Path][] to the log file.
-        - Else: Python `logging.Logger` instance.
+        - Se None: O registro em log não é usado.
+        - Se str: Nome do arquivo de log. Use "auto" para nome automático.
+        - Se Path: Um [pathlib.Path][] para o arquivo de log.
+        - Caso contrário: Instância de `logging.Logger` do Python.
 
     experiment: str or None, default=None
-        Name of the [mlflow experiment][experiment] to use for tracking.
-        If None, no mlflow tracking is performed.
+        Nome do [experimento mlflow][experiment] a usar para rastreamento.
+        Se None, nenhum rastreamento mlflow é realizado.
 
     random_state: int or None, default=None
-        Seed used by the random number generator. If None, the random
-        number generator is the `RandomState` used by `np.random`.
+        Semente usada pelo gerador de números aleatórios. Se None, o gerador
+        de números aleatórios é o `RandomState` usado por `np.random`.
 
     """
 
@@ -303,11 +297,11 @@ class BaseModel(RunnerPlot):
         self._evals: dict[str, list[Float]] = defaultdict(list)
         self._shap_explanation: ShapExplanation | None = None
 
-        # Parameter attributes
+        # Atributos de parâmetros
         self._est_params: dict[str, Any] = {}
         self._est_params_fit: dict[str, Any] = {}
 
-        # Hyperparameter tuning attributes
+        # Atributos de ajuste de hiperparâmetros
         self._ht: HT = {"distributions": {}, "cv": 1, "plot": False, "tags": {}}
         self._study: Study | None = None
         self._best_trial: FrozenTrial | None = None
@@ -318,17 +312,17 @@ class BaseModel(RunnerPlot):
         self._bootstrap: pd.DataFrame | None = None
         self._time_bootstrap = 0.0
 
-        # Inject goal-specific methods from ForecastModel
+        # Injeta métodos específicos do objetivo do ForecastModel
         if goal is Goal.forecast and ClassRegModel in self.__class__.__bases__:
             for n, m in vars(ForecastModel).items():
                 if hasattr(m, "__get__"):
                     setattr(self, n, m.__get__(self, ForecastModel))
 
-        # Skip this part if only initialized for the estimator
+        # Ignora esta parte se inicializado apenas para o estimador
         if branches:
             self._og = branches.og
             self._branch = branches.current
-            self._train_idx = len(self.branch._data.train_idx)  # Can change for sh and ts
+            self._train_idx = len(self.branch._data.train_idx)  # Pode mudar para sh e ts
 
             if getattr(self, "needs_scaling", None) and not self.branch.check_scaling():
                 self.scaler = Scaler(
@@ -338,66 +332,66 @@ class BaseModel(RunnerPlot):
                 ).fit(self.X_train)
 
     def __repr__(self) -> str:
-        """Display class name."""
+        """Exibe o nome da classe."""
         return f"{self.__class__.__name__}()"
 
     def __dir__(self) -> list[str]:
-        """Add additional attrs from __getattr__ to the dir."""
-        # Exclude from _available_if conditions
+        """Adiciona atributos adicionais de __getattr__ ao dir."""
+        # Exclui das condições _available_if
         attrs = [x for x in super().__dir__() if hasattr(self, x)]
 
         if "_branch" in self.__dict__:
-            # Add additional attrs from the branch
+            # Adiciona atributos adicionais do branch
             attrs += self.branch._get_shared_attrs()
 
-            # Add additional attrs from the dataset
+            # Adiciona atributos adicionais do dataset
             attrs += [x for x in DF_ATTRS if hasattr(self.dataset, x)]
 
-            # Add column names (excluding those with spaces)
+            # Adiciona nomes de colunas (excluindo os que contêm espaços)
             attrs += [c for c in self.columns if re.fullmatch(r"\w+$", c)]
 
         return attrs
 
     def __getattr__(self, item: str) -> Any:
-        """Get attributes from branch or data."""
+        """Obtém atributos do branch ou dos dados."""
         if "_branch" in self.__dict__:
             if item in self.branch._get_shared_attrs():
-                return getattr(self.branch, item)  # Get attr from branch
+                return getattr(self.branch, item)  # Obtém atributo do branch
             elif item in self.branch.columns:
-                return self.branch.dataset[item]  # Get column
+                return self.branch.dataset[item]  # Obtém coluna
             elif item in DF_ATTRS:
-                return getattr(self.branch.dataset, item)  # Get attr from dataset
+                return getattr(self.branch.dataset, item)  # Obtém atributo do dataset
 
         raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{item}'.")
 
     def __contains__(self, item: str) -> bool:
-        """Whether the item is a column in the dataset."""
+        """Verifica se o item é uma coluna no dataset."""
         return item in self.dataset
 
     def __getitem__(self, item: Int | str | list) -> Pandas:
-        """Get a subset from the dataset."""
+        """Obtém um subconjunto do dataset."""
         if isinstance(item, int_t):
             return self.dataset[self.columns[int(item)]]
         else:
-            return self.dataset[item]  # Get a subset of the dataset
+            return self.dataset[item]  # Obtém um subconjunto do dataset
 
     @property
     def fullname(self) -> str:
-        """Return the model's class name."""
+        """Retorna o nome da classe do modelo."""
         return self.__class__.__name__
 
     @cached_property
     def _est_class(self) -> type[Predictor]:
-        """Return the estimator's class (not instance).
+        """Retorna a classe do estimador (não a instância).
 
-        This property checks which estimator engine is enabled and
-        retrieves the model's estimator from the right library.
+        Esta propriedade verifica qual motor de estimador está habilitado e
+        recupera o estimador do modelo da biblioteca correta.
 
         """
         locator = self._estimators.get(self._goal.name, self._estimators.get("regression"))
         module, est_name = locator.rsplit(".", 1)
 
-        # Try engine, else import from the default module
+        # Tenta o motor, senão importa do módulo padrão
         try:
             mod = import_module(f"{self.engine.estimator}.{module.split('.', 1)[1]}")
         except (ModuleNotFoundError, AttributeError, IndexError):
@@ -407,7 +401,7 @@ class BaseModel(RunnerPlot):
 
     @property
     def _shap(self) -> ShapExplanation:
-        """Return the ShapExplanation instance for this model."""
+        """Retorna a instância ShapExplanation para este modelo."""
         if not self._shap_explanation:
             self._shap_explanation = ShapExplanation(
                 estimator=self.estimator,
@@ -419,60 +413,60 @@ class BaseModel(RunnerPlot):
         return self._shap_explanation
 
     def _check_est_params(self):
-        """Check that the parameters are valid for the estimator.
+        """Verifica se os parâmetros são válidos para o estimador.
 
-        A parameter is always accepted if the method accepts kwargs.
+        Um parâmetro é sempre aceito se o método aceitar kwargs.
 
         """
         for param in self._est_params:
             if all(p not in sign(self._est_class) for p in (param, "kwargs")):
                 raise ValueError(
-                    "Invalid value for the est_params parameter. Got unknown "
-                    f"parameter {param} for estimator {self._est_class.__name__}."
+                    "Valor inválido para o parâmetro est_params. Parâmetro desconhecido "
+                    f"{param} fornecido para o estimador {self._est_class.__name__}."
                 )
 
         for param in self._est_params_fit:
             if all(p not in sign(self._est_class.fit) for p in (param, "kwargs")):
                 raise ValueError(
-                    f"Invalid value for the est_params parameter. Got "
-                    f"unknown parameter {param} for the fit method of "
-                    f"estimator {self._est_class.__name__}."
+                    f"Valor inválido para o parâmetro est_params. "
+                    f"Parâmetro desconhecido {param} fornecido para o método fit do "
+                    f"estimador {self._est_class.__name__}."
                 )
 
     def _get_param(self, name: str, params: dict[str, Any]) -> Any:
-        """Get a parameter from est_params or the objective func.
+        """Obtém um parâmetro de est_params ou da função objetivo.
 
-        Parameters
+        Parâmetros
         ----------
         name: str
-            Name of the parameter.
+            Nome do parâmetro.
 
         params: dict
-            Parameters in the current trial.
+            Parâmetros no trial atual.
 
-        Returns
+        Retorna
         -------
         Any
-            Parameter value.
+            Valor do parâmetro.
 
         """
         return self._est_params.get(name) or params.get(name)
 
     def _get_parameters(self, trial: Trial) -> dict[str, Any]:
-        """Get the trial's hyperparameters.
+        """Obtém os hiperparâmetros do trial.
 
-        This method fetches the suggestions from the trial and
-        rounds floats to the fourth digit.
+        Este método busca as sugestões do trial e
+        arredonda os floats para o quarto dígito.
 
-        Parameters
+        Parâmetros
         ----------
         trial: [Trial][]
-            Current trial.
+            Trial atual.
 
-        Returns
+        Retorna
         -------
         dict
-            Trial's hyperparameters.
+            Hiperparâmetros do trial.
 
         """
         return {
@@ -481,49 +475,48 @@ class BaseModel(RunnerPlot):
         }
 
     def _trial_to_est(self, params: dict[str, Any]) -> dict[str, Any]:
-        """Convert trial's parameters to parameters for the estimator.
+        """Converte os parâmetros do trial para parâmetros do estimador.
 
-        Some models, such as MLP, use different hyperparameters for the
-        study as for the estimator (this is the case when the estimator's
-        parameter cannot be modeled according to an integer, float or
-        categorical distribution). This method converts the parameters
-        from the trial to those that can be ingested by the estimator.
-        This method is overriden by implementations in the child classes.
-        The base method just returns the parameters as is.
+        Alguns modelos, como MLP, usam hiperparâmetros diferentes para o
+        estudo e para o estimador (isso ocorre quando o parâmetro do estimador
+        não pode ser modelado segundo uma distribuição inteira, float ou
+        categórica). Este método converte os parâmetros do trial para aqueles
+        que podem ser ingeridos pelo estimador.
+        Este método é sobrescrito nas classes filho. O método base
+        simplesmente retorna os parâmetros como estão.
 
-        Parameters
+        Parâmetros
         ----------
         params: dict
-            Trial's hyperparameters.
+            Hiperparâmetros do trial.
 
-        Returns
+        Retorna
         -------
         dict
-            Copy of the estimator's hyperparameters.
+            Cópia dos hiperparâmetros do estimador.
 
         """
         return deepcopy(params)
 
     def _get_cv(self, cv: Int | BaseCrossValidator, max_length: Int) -> BaseCrossValidator:
-        """Return a cross-validator class.
+        """Retorna uma classe de validador cruzado.
 
-        The cross-validator is selected based on the task and the
-        presence/absence of groups and stratification.
+        O validador cruzado é selecionado com base na tarefa e na
+        presença/ausência de grupos e estratificação.
 
-        Parameters
+        Parâmetros
         ----------
         cv: int or CrossValidator
-            Number of folds or cv object. If cv object, it is returned
-            as is.
+            Número de folds ou objeto cv. Se objeto cv, é retornado como está.
 
         total_length: int
-            Total length of the dataset. Only used for forecasting
-            tasks when cv > 1.
+            Comprimento total do dataset. Usado apenas para tarefas de
+            previsão quando cv > 1.
 
-        Returns
+        Retorna
         -------
         CrossValidator
-            Cross-validator class.
+            Classe de validador cruzado.
 
         """
         if isinstance(cv, int_t):
@@ -580,26 +573,26 @@ class BaseModel(RunnerPlot):
             return cv
 
     def _get_est(self, params: dict[str, Any]) -> Predictor:
-        """Get the estimator instance.
+        """Obtém a instância do estimador.
 
-        Use the multioutput meta-estimator if the estimator has
-        no native support for multioutput.
+        Usa o meta-estimador multioutput se o estimador não tiver
+        suporte nativo para múltiplas saídas.
 
-        Use sktime's [make_reduction][] function for regressors
-        in forecast tasks.
+        Usa a função [make_reduction][] do sktime para regressores
+        em tarefas de previsão.
 
-        Parameters
+        Parâmetros
         ----------
         params: dict
-            Hyperparameters for the estimator.
+            Hiperparâmetros para o estimador.
 
-        Returns
+        Retorna
         -------
         Predictor
-            Estimator instance.
+            Instância do estimador.
 
         """
-        # Separate the params for the estimator from those in sub-estimators
+        # Separa os parâmetros do estimador daqueles nos sub-estimadores
         base_params, sub_params = {}, {}
         for name, value in params.items():
             if "__" not in name:
@@ -614,7 +607,7 @@ class BaseModel(RunnerPlot):
             if self.task.is_forecast and self._goal.name not in self._estimators:
                 fixed = tuple(f"estimator__{f}" for f in fixed)
 
-                # Forecasting task with a regressor
+                # Tarefa de previsão com um regressor
                 if self.task.is_multioutput:
                     estimator = make_reduction(estimator, strategy="multioutput")
                 else:
@@ -641,32 +634,32 @@ class BaseModel(RunnerPlot):
         validation: tuple[pd.DataFrame, Pandas] | None = None,
         trial: Trial | None = None,
     ) -> Predictor:
-        """Fit the estimator and perform in-training validation.
+        """Ajusta o estimador e realiza validação durante o treinamento.
 
-        In-training evaluation is performed on models with the
-        `partial_fit` method. After every partial fit, the estimator
-        is evaluated (using only the main metric) on the validation
-        data and, optionally, pruning is performed.
+        A avaliação durante o treinamento é realizada em modelos com o
+        método `partial_fit`. Após cada ajuste parcial, o estimador
+        é avaliado (usando apenas a métrica principal) nos dados de validação
+        e, opcionalmente, a poda é realizada.
 
-        Parameters
+        Parâmetros
         ----------
         estimator: Predictor
-            Instance to fit.
+            Instância a ser ajustada.
 
         data: tuple
-            Training data of the form (X, y).
+            Dados de treinamento no formato (X, y).
 
         validation: tuple or None
-            Validation data of the form (X, y). If None, no validation
-            is performed.
+            Dados de validação no formato (X, y). Se None, nenhuma validação
+            é realizada.
 
         trial: [Trial][] or None
-            Active trial (during hyperparameter tuning).
+            Trial ativo (durante o ajuste de hiperparâmetros).
 
-        Returns
+        Retorna
         -------
         Predictor
-            Fitted instance.
+            Instância ajustada.
 
         """
         kwargs: dict[str, Any] = {}
@@ -707,7 +700,7 @@ class BaseModel(RunnerPlot):
                         self._score_from_est(self._metric[0], estimator, *validation)
                     )
 
-                # Multi-objective optimization doesn't support pruning
+                # Otimização multi-objetivo não suporta poda
                 if trial and len(self._metric) == 1:
                     trial.report(
                         value=float(self._score_from_est(self._metric[0], estimator, *validation)),
@@ -715,7 +708,7 @@ class BaseModel(RunnerPlot):
                     )
 
                     if trial.should_prune():
-                        # Hacky solution to add the pruned step to the output
+                        # Solução alternativa para adicionar o passo podado à saída
                         if self.validation in trial.params:
                             trial.params[self.validation] = f"{step}/{steps}"
 
@@ -725,7 +718,7 @@ class BaseModel(RunnerPlot):
         else:
             if isinstance(estimator, BaseForecaster):
                 if estimator.get_tag("requires-fh-in-fit") and "fh" not in self._est_params_fit:
-                    # Add the forecasting horizon to sktime estimators when required
+                    # Adiciona o horizonte de previsão aos estimadores sktime quando necessário
                     kwargs["fh"] = self.test.index
 
                 estimator.fit(data[1], X=check_empty(data[0]), **self._est_params_fit, **kwargs)
@@ -735,21 +728,21 @@ class BaseModel(RunnerPlot):
         return estimator
 
     def _best_score(self, metric: str | None = None) -> Scalar:
-        """Return the best score for the model.
+        """Retorna a melhor pontuação para o modelo.
 
-        The best score is the bootstrap or test score, checked in
-        that order.
+        A melhor pontuação é a pontuação de bootstrap ou de teste, verificadas
+        nessa ordem.
 
-        Parameters
+        Parâmetros
         ----------
         metric: str or None, default=None
-            Name of the metric to use (for multi-metric runs). If None,
-            the main metric is selected.
+            Nome da métrica a usar (para execuções com múltiplas métricas). Se None,
+            a métrica principal é selecionada.
 
-        Returns
+        Retorna
         -------
         float
-            Best score.
+            Melhor pontuação.
 
         """
         if self._bootstrap is None:
@@ -758,14 +751,14 @@ class BaseModel(RunnerPlot):
             return self.results[f"{metric or self._metric[0].name}_bootstrap"]
 
     def _final_output(self) -> str:
-        """Return the model's final output as a string.
+        """Retorna a saída final do modelo como string.
 
-        If [bootstrapping][] was used, use the format: mean +- std.
+        Se [bootstrapping][] foi usado, usa o formato: média +- desvio.
 
-        Returns
+        Retorna
         -------
         str
-            Final score representation.
+            Representação da pontuação final.
 
         """
         try:
@@ -783,13 +776,13 @@ class BaseModel(RunnerPlot):
                 )
 
             if not self.task.is_forecast:
-                # Annotate if model overfitted when train 20% > test on the main metric
+                # Anota se o modelo superajustou quando treino 20% > teste na métrica principal
                 score_train = self.results[f"{self._metric[0].name}_train"]
                 score_test = self.results[f"{self._metric[0].name}_test"]
                 if (1.2 if score_train < 0 else 0.8) * score_train > score_test:
                     out += " ~"
 
-        except (TypeError, AttributeError):  # Fails when errors="keep"
+        except (TypeError, AttributeError):  # Falha quando errors="keep"
             out = "FAIL"
 
         return out
@@ -801,34 +794,32 @@ class BaseModel(RunnerPlot):
         target: TargetSelector | None = None,
         method: PredictionMethods | Sequence[PredictionMethods] = "predict",
     ) -> tuple[Pandas, Pandas]:
-        """Get the true and predicted values for a column.
+        """Obtém os valores reais e previstos para uma coluna.
 
-        Predictions are made using the `decision_function` or
-        `predict_proba` attributes whenever available, checked in
-        that order.
+        As previsões são feitas usando os atributos `decision_function` ou
+        `predict_proba` sempre que disponíveis, verificados nessa ordem.
 
-        Parameters
+        Parâmetros
         ----------
         rows: hashable, segment, sequence or dataframe
-            [Selection of rows][row-and-column-selection] for which to
-            get the predictions.
+            [Seleção de linhas][row-and-column-selection] para as quais obter
+            as previsões.
 
         target: str or None, default=None
-            Target column to look at. Only for [multioutput tasks][].
-            If None, all columns are returned.
+            Coluna alvo a verificar. Apenas para [tarefas multioutput][].
+            Se None, todas as colunas são retornadas.
 
         method: str or sequence, default="predict"
-            Response method(s) used to get predictions. If sequence,
-            the order provided states the order in which the methods
-            are tried.
+            Método(s) de resposta usados para obter previsões. Se sequença,
+            a ordem fornecida define a ordem em que os métodos são tentados.
 
-        Returns
+        Retorna
         -------
         series or dataframe
-            True values.
+            Valores reais.
 
         series or dataframe
-            Predicted values.
+            Valores previstos.
 
         """
         method_caller = _check_response_method(self.estimator, method).__name__
@@ -844,9 +835,9 @@ class BaseModel(RunnerPlot):
                 if X.empty:
                     exog = None
                 else:
-                    # Statsmodels models such as SARIMAX and DF require all
-                    # exogenous data after the last row of the train set
-                    # Other models accept this format
+                    # Modelos Statsmodels como SARIMAX e DF requerem todos os
+                    # dados exógenos após a última linha do conjunto de treino
+                    # Outros modelos aceitam este formato
                     Xe = pd.concat([self.test, self.holdout])
                     exog = Xe.loc[Xe.index <= X.index.max(), self.features]  # type: ignore[index]
 
@@ -858,10 +849,10 @@ class BaseModel(RunnerPlot):
                 )
 
             except (ValueError, NotImplementedError) as ex:
-                # Can fail for models that don't allow in-sample predictions
+                # Pode falhar para modelos que não permitem previsões in-sample
                 self._log(
-                    f"Failed to get predictions for model {self.name} "
-                    f"on rows {rows}. Returning NaN. Exception: {ex}.",
+                    f"Falha ao obter previsões para o modelo {self.name} "
+                    f"nas linhas {rows}. Retornando NaN. Exceção: {ex}.",
                     3,
                 )
                 y_pred = pd.Series([np.nan] * len(X), index=X.index)
@@ -886,29 +877,29 @@ class BaseModel(RunnerPlot):
         y: Pandas,
         sample_weight: Sequence[Scalar] | None = None,
     ) -> Float:
-        """Calculate the metric score from an estimator.
+        """Calcula a pontuação da métrica a partir de um estimador.
 
-        Parameters
+        Parâmetros
         ----------
         scorer: Scorer
-            Metric to calculate.
+            Métrica a calcular.
 
         estimator: Predictor
-            Estimator instance to get the score from.
+            Instância do estimador para obter a pontuação.
 
         X: pd.DataFrame
-            Feature set.
+            Conjunto de features.
 
         y: pd.Series or pd.DataFrame
-            Target column(s) corresponding to `X`.
+            Coluna(s) alvo correspondente(s) a `X`.
 
         sample_weight: sequence or None, default=None
-            Sample weights for the `score` method.
+            Pesos de amostra para o método `score`.
 
-        Returns
+        Retorna
         -------
         float
-            Calculated score.
+            Pontuação calculada.
 
         """
         if self.task.is_forecast:
@@ -919,7 +910,7 @@ class BaseModel(RunnerPlot):
                 index=y.index,
             )
             if isinstance(y_pred, pd.DataFrame) and self.task is Task.binary_classification:
-                y_pred = y_pred.iloc[:, 1]  # Return probability of the positive class
+                y_pred = y_pred.iloc[:, 1]  # Retorna a probabilidade da classe positiva
 
         return self._score_from_pred(scorer, y, y_pred, sample_weight=sample_weight)
 
@@ -930,31 +921,30 @@ class BaseModel(RunnerPlot):
         y_pred: Pandas,
         sample_weight: Sequence[Scalar] | None = None,
     ) -> Float:
-        """Calculate the metric score from predicted values.
+        """Calcula a pontuação da métrica a partir de valores previstos.
 
-        Since sklearn metrics don't support multiclass-multioutput
-        tasks, it calculates the mean of the scores over the target
-        columns for such tasks.
+        Como as métricas do sklearn não suportam tarefas multiclass-multioutput,
+        calcula a média das pontuações sobre as colunas alvo para tais tarefas.
 
-        Parameters
+        Parâmetros
         ----------
         scorer: Scorer
-            Metric to calculate.
+            Métrica a calcular.
 
         y_true: pd.Series or pd.DataFrame
-            True values in the target column(s).
+            Valores reais nas coluna(s) alvo.
 
         y_pred: pd.Series or pd.DataFrame
-            Predicted values corresponding to y_true.
+            Valores previstos correspondentes a y_true.
 
         sample_weight: sequence or None, default=None
-            Sample weights for the `score` method. If not provided but available
-            in the metadata, use those.
+            Pesos de amostra para o método `score`. Se não fornecido mas
+            disponível nos metadados, esses são usados.
 
-        Returns
+        Retorna
         -------
         float
-            Calculated score.
+            Pontuação calculada.
 
         """
         kwargs: dict[str, Any] = {}
@@ -968,8 +958,8 @@ class BaseModel(RunnerPlot):
 
         func = lambda y1, y2: scorer._score_func(y1, y2, **scorer._kwargs, **kwargs)
 
-        # Forecasting models can have NaN predictions, for example, when
-        # using internally a boxcox transformation on negative predictions
+        # Modelos de previsão podem ter previsões NaN, por exemplo, quando
+        # usam internamente uma transformação boxcox em previsões negativas
         if self.task.is_forecast:
             y_pred = y_pred.dropna()
             y_true = y_true.loc[y_pred.index]
@@ -978,7 +968,7 @@ class BaseModel(RunnerPlot):
             return np.nan
 
         if self.task is Task.multiclass_multioutput_classification:
-            # Get the mean of the scores over the target columns
+            # Obtém a média das pontuações sobre as colunas alvo
             return np.mean(
                 [
                     scorer._sign * func(y_true[col1], y_pred[col2])
@@ -990,27 +980,27 @@ class BaseModel(RunnerPlot):
             return scorer._sign * func(y_true, y_pred)
 
     def _get_score(self, scorer: Scorer, rows: RowSelector) -> Scalar:
-        """Calculate a metric score.
+        """Calcula uma pontuação de métrica.
 
-        Parameters
+        Parâmetros
         ----------
         scorer: Scorer
-            Metrics to calculate. If None, a selection of the most
-            common metrics per task are used.
+            Métricas a calcular. Se None, uma seleção das métricas mais
+            comuns por tarefa é usada.
 
         rows: hashable, segment, sequence or dataframe
-            [Selection of rows][row-and-column-selection] on which to
-            calculate the metric.
+            [Seleção de linhas][row-and-column-selection] na qual
+            calcular a métrica.
 
-        Returns
+        Retorna
         -------
         int or float
-            Metric score on the selected data set.
+            Pontuação da métrica no conjunto de dados selecionado.
 
         """
         y_true, y_pred = self._get_pred(rows, method=scorer._response_method)
         result = rnd(self._score_from_pred(scorer, y_true, y_pred))
-        # Log metric to mlflow run for predictions on data sets
+        # Registra a métrica na execução mlflow para previsões nos conjuntos de dados
         if self.experiment and isinstance(rows, str):
             MlflowClient().log_metric(
                 run_id=self.run.info.run_id,
@@ -1022,35 +1012,35 @@ class BaseModel(RunnerPlot):
 
     @composed(crash, method_to_log, beartype)
     def hyperparameter_tuning(self, n_trials: Int, *, reset: Bool = False):
-        """Run the hyperparameter tuning algorithm.
+        """Executa o algoritmo de ajuste de hiperparâmetros.
 
-        Search for the best combination of hyperparameters. The function
-        to optimize is evaluated either with a K-fold cross-validation
-        on the training set or using a random train and validation split
-        every trial. Use this method to continue the optimization.
+        Busca a melhor combinação de hiperparâmetros. A função
+        a otimizar é avaliada com uma validação cruzada K-fold
+        no conjunto de treino ou usando uma divisão aleatória de treino e
+        validação a cada trial. Use este método para continuar a otimização.
 
-        Parameters
+        Parâmetros
         ----------
         n_trials: int
-            Number of trials for the hyperparameter tuning.
+            Número de trials para o ajuste de hiperparâmetros.
 
         reset: bool, default=False
-            Whether to start a new study or continue the existing one.
+            Se deve iniciar um novo estudo ou continuar o existente.
 
         """
 
         def objective(trial: Trial) -> list[float]:
-            """Objective function for hyperparameter tuning.
+            """Função objetivo para ajuste de hiperparâmetros.
 
-            Parameters
+            Parâmetros
             ----------
             trial: optuna.trial.Trial
-               Model's hyperparameters used in this call of the BO.
+               Hiperparâmetros do modelo usados nesta chamada do BO.
 
-            Returns
+            Retorna
             -------
             list of float
-                Scores of the estimator in this trial.
+                Pontuações do estimador neste trial.
 
             """
 
@@ -1059,33 +1049,33 @@ class BaseModel(RunnerPlot):
                 train_idx: np.ndarray,
                 val_idx: np.ndarray,
             ) -> tuple[Predictor, list[Float]]:
-                """Fit the model. Function for parallelization.
+                """Ajusta o modelo. Função para paralelização.
 
-                Divide the training set in a (sub) train and validation
-                set for this fit. The sets are created from the original
-                dataset to avoid data leakage since the training set is
-                transformed using the pipeline fitted on the same set.
-                Fit the model on custom_fit if exists, else normally.
-                Return the score on the validation set.
+                Divide o conjunto de treino em um (sub) treino e validação
+                para este ajuste. Os conjuntos são criados a partir do dataset original
+                para evitar vazamento de dados, pois o conjunto de treino é
+                transformado usando o pipeline ajustado no mesmo conjunto.
+                Ajusta o modelo em custom_fit se existir, senão normalmente.
+                Retorna a pontuação no conjunto de validação.
 
-                Parameters
+                Parâmetros
                 ----------
                 estimator: Predictor
-                    Model's estimator to fit.
+                    Estimador do modelo a ajustar.
 
                 train_idx: np.array
-                    Indices for the subtrain set.
+                    Índices para o subconjunto de treino.
 
                 val_idx: np.array
-                    Indices for the validation set.
+                    Índices para o conjunto de validação.
 
-                Returns
+                Retorna
                 -------
                 Predictor
-                    Fitted estimator.
+                    Estimador ajustado.
 
                 list of float
-                    Scores of the estimator on the validation set.
+                    Pontuações do estimador no conjunto de validação.
 
                 """
                 X_sub = self.og.X_train.iloc[train_idx]
@@ -1093,7 +1083,7 @@ class BaseModel(RunnerPlot):
                 X_val = self.og.X_train.iloc[val_idx]
                 y_val = self.og.y_train.iloc[val_idx]
 
-                # Transform subsets if there is a pipeline
+                # Transforma os subconjuntos se houver um pipeline
                 if len(pl := clone(self.pipeline)) > 0:
                     X_sub, y_sub = pl.fit_transform(X_sub, y_sub)
                     X_val, y_val = pl.transform(X_val, y_val)
@@ -1111,37 +1101,37 @@ class BaseModel(RunnerPlot):
 
                 return estimator, scores
 
-            # Start trial ========================================== >>
+            # Inicia o trial ========================================== >>
 
             params = self._get_parameters(trial)
 
-            # Since the suggested values are not the exact same values used
-            # in the estimator (rounded by _get_parameters), we implement
-            # this hacky method to overwrite the params in storage
+            # Como os valores sugeridos não são os valores exatos usados
+            # no estimador (arredondados por _get_parameters), implementamos
+            # este método alternativo para sobrescrever os params no armazenamento
             if isinstance(self.study._storage, InMemoryStorage):
                 trial._cached_frozen_trial.params = params
                 frozen_trial = self.study._storage._get_trial(trial.number)
                 frozen_trial.params = params
                 self.study._storage._set_trial(trial.number, frozen_trial)
 
-            # Store user defined tags
+            # Armazena tags definidas pelo usuário
             for key, value in self._ht["tags"].items():
                 trial.set_user_attr(key, value)
 
-            # Create estimator instance with trial-specific hyperparameters
+            # Cria instância do estimador com hiperparâmetros específicos do trial
             estimator = self._get_est(self._est_params | self._trial_to_est(params))
 
-            # Check if the same parameters have already been evaluated
+            # Verifica se os mesmos parâmetros já foram avaliados
             for t in trial.study.get_trials(deepcopy=False, states=(TrialState.COMPLETE,))[::-1]:
                 if trial.params == t.params:
-                    # Get same estimator and score as previous evaluation
+                    # Obtém o mesmo estimador e pontuação da avaliação anterior
                     estimator = deepcopy(t.user_attrs["estimator"])
                     score = t.value if len(self._metric) == 1 else t.values
                     break
             else:
                 splitter = self._get_cv(self._ht["cv"], max_length=len(self.og.train))
 
-                # Follow the same splitting strategy as experionml
+                # Segue a mesma estratégia de divisão que o experionml
                 stratify = self._config.get_stratify_column(self.og.train)
                 groups = self._config.get_metadata(self.og.train).get("groups")
 
@@ -1151,7 +1141,7 @@ class BaseModel(RunnerPlot):
                 if groups is not None:
                     kwargs["groups"] = groups
 
-                # Parallel loop over fit_model
+                # Loop paralelo sobre fit_model
                 results = Parallel(n_jobs=self.n_jobs)(
                     delayed(fit_model)(estimator, i, j) for i, j in splitter.split(**kwargs)
                 )
@@ -1167,20 +1157,20 @@ class BaseModel(RunnerPlot):
 
             return score
 
-        # Running hyperparameter tuning ============================ >>
+        # Executando ajuste de hiperparâmetros ============================ >>
 
-        self._log(f"Running hyperparameter tuning for {self.fullname}...", 1)
+        self._log(f"Executando ajuste de hiperparâmetros para {self.fullname}...", 1)
 
-        # Check the validity of the provided parameters
+        # Verifica a validade dos parâmetros fornecidos
         self._check_est_params()
 
-        # Assign custom distributions or use predefined
+        # Atribui distribuições personalizadas ou usa as predefinidas
         dist = self._get_distributions() if hasattr(self, "_get_distributions") else {}
         if self._ht.get("distributions"):
             # Select default distributions
             inc, exc = [], []
             for name in [k for k, v in self._ht["distributions"].items() if v is None]:
-                # If it's a name, use the predefined dimension
+                # Se for um nome, usa a dimensão predefinida
                 if name.startswith("!"):
                     exc.append(n := name[1:])
                 else:
@@ -1188,34 +1178,34 @@ class BaseModel(RunnerPlot):
 
                 if n not in dist:
                     raise ValueError(
-                        "Invalid value for the distributions parameter. "
-                        f"Parameter {n} is not a predefined hyperparameter "
-                        f"of the {self.fullname} model. See the model's "
-                        "documentation for an overview of the available "
-                        "hyperparameters and their distributions."
+                        "Valor inválido para o parâmetro distributions. "
+                        f"O parâmetro {n} não é um hiperparâmetro predefinido "
+                        f"do modelo {self.fullname}. Consulte a documentação do modelo "
+                        "para uma visão geral dos hiperparâmetros disponíveis "
+                        "e suas distribuições."
                     )
 
             if inc and exc:
                 raise ValueError(
-                    "Invalid value for the distributions parameter. You can either "
-                    "include or exclude hyperparameters, not combinations of these."
+                    "Valor inválido para o parâmetro distributions. Você pode incluir "
+                    "ou excluir hiperparâmetros, mas não combinações de ambos."
                 )
             elif exc:
-                # If distributions were excluded with `!`, select all but those
+                # Se distribuições foram excluídas com `!`, seleciona todas exceto essas
                 self._ht["distributions"] = {k: v for k, v in dist.items() if k not in exc}
             elif inc:
                 self._ht["distributions"] = {k: v for k, v in dist.items() if k in inc}
         else:
             self._ht["distributions"] = dist
 
-        # Drop hyperparameter if already defined in est_params
+        # Remove hiperparâmetro se já definido em est_params
         self._ht["distributions"] = {
             k: v for k, v in self._ht["distributions"].items() if k not in self._est_params
         }
 
-        # If no hyperparameters to optimize, skip ht
+        # Se não houver hiperparâmetros a otimizar, ignora ht
         if not self._ht["distributions"]:
-            self._log(" --> Skipping study. No hyperparameters to optimize.", 2)
+            self._log(" --> Ignorando estudo. Nenhum hiperparâmetro a otimizar.", 2)
             return
 
         if not self._study or reset:
@@ -1233,7 +1223,7 @@ class BaseModel(RunnerPlot):
         kw = {k: v for k, v in self._ht.items() if k in sign(Study.optimize)}
         n_jobs = kw.pop("n_jobs", 1)
 
-        # Initialize live study plot
+        # Inicializa o gráfico ao vivo do estudo
         if self._ht.get("plot", False) and n_jobs == 1:
             plot_callback = PlotCallback(
                 name=self.fullname,
@@ -1258,46 +1248,46 @@ class BaseModel(RunnerPlot):
         if len(self.study.get_trials(states=[TrialState.COMPLETE])) == 0:
             self._study = None
             self._log(
-                "The study didn't complete any trial successfully. "
-                "Skipping hyperparameter tuning.",
+                "O estudo não completou nenhum trial com sucesso. "
+                "Ignorando o ajuste de hiperparâmetros.",
                 1,
                 severity="warning",
             )
             return
 
-        self._log(f"Hyperparameter tuning {'-' * 27}", 1)
-        self._log(f"Best trial --> {self.best_trial.number}", 1)
-        self._log("Best parameters:", 1)
+        self._log(f"Ajuste de hiperparâmetros {'-' * 27}", 1)
+        self._log(f"Melhor trial --> {self.best_trial.number}", 1)
+        self._log("Melhores parâmetros:", 1)
         self._log("\n".join([f" --> {k}: {v}" for k, v in self.best_params.items()]), 1)
         out = [
             f"{met}: {rnd(self.trials.loc[self.best_trial.number, met])}"
             for met in self._metric.keys()
         ]
-        self._log(f"Best evaluation --> {'   '.join(out)}", 1)
-        self._log(f"Time elapsed: {time_to_str(self.trials.iat[-1, -2])}", 1)
+        self._log(f"Melhor avaliação --> {'   '.join(out)}", 1)
+        self._log(f"Tempo decorrido: {time_to_str(self.trials.iat[-1, -2])}", 1)
 
     @composed(crash, method_to_log, beartype)
     def fit(self, X: pd.DataFrame | None = None, y: Pandas | None = None, *, prefit: bool = False):
-        """Fit and validate the model.
+        """Ajusta e valida o modelo.
 
-        The estimator is fitted using the best hyperparameters found
-        during hyperparameter tuning. Afterwards, the estimator is
-        evaluated on the test set. Only use this method to re-fit the
-        model after having continued the study.
+        O estimador é ajustado usando os melhores hiperparâmetros encontrados
+        durante o ajuste de hiperparâmetros. Em seguida, o estimador é
+        avaliado no conjunto de teste. Use este método apenas para reajustar o
+        modelo após ter continuado o estudo.
 
-        Parameters
+        Parâmetros
         ----------
         X: pd.DataFrame or None
-            Feature set with shape=(n_samples, n_features). If None,
-            `self.X_train` is used.
+            Conjunto de features com shape=(n_amostras, n_features). Se None,
+            `self.X_train` é usado.
 
         y: pd.Series, pd.DataFrame or None
-            Target column(s) corresponding to `X`. If None, `self.y_train`
-            is used.
+            Coluna(s) alvo correspondente(s) a `X`. Se None, `self.y_train`
+            é usado.
 
         prefit: bool, default=False
-            Whether the estimator is already fitted. If True, only evaluate
-            the model.
+            Se o estimador já está ajustado. Se True, apenas avalia
+            o modelo.
 
         """
         t_init = dt.now()
@@ -1307,7 +1297,7 @@ class BaseModel(RunnerPlot):
         if y is None:
             y = self.y_train
 
-        self.clear()  # Reset model's state
+        self.clear()  # Reinicia o estado do modelo
 
         if self._study is None:
             self._log(f"Results for {self.fullname}:", 1)
@@ -1327,15 +1317,15 @@ class BaseModel(RunnerPlot):
 
         for ds in ("train", "test"):
             out = [f"{met.name}: {self._get_score(met, ds)}" for met in self._metric]
-            self._log(f"T{ds[1:]} evaluation --> {'   '.join(out)}", 1)
+            self._log(f"T{ds[1:]} avaliação --> {'   '.join(out)}", 1)
 
-        # Get duration and print to log
+        # Obtém a duração e imprime no log
         self._time_fit += (dt.now() - t_init).total_seconds()
-        self._log(f"Time elapsed: {time_to_str(self._time_fit)}", 1)
+        self._log(f"Tempo decorrido: {time_to_str(self._time_fit)}", 1)
 
-        # Track results in mlflow ================================== >>
+        # Rastreia resultados no mlflow ================================== >>
 
-        # Log parameters, metrics, model and data to mlflow
+        # Registra parâmetros, métricas, modelo e dados no mlflow
         if self.experiment:
             with mlflow.start_run(run_id=self.run.info.run_id):
                 mlflow.set_tags(
@@ -1347,18 +1337,18 @@ class BaseModel(RunnerPlot):
                     }
                 )
 
-                # Mlflow only accepts params with char length <250
+                # Mlflow só aceita params com comprimento de char <250
                 mlflow.log_params(
                     {k: v for k, v in self.estimator.get_params().items() if len(str(v)) <= 250}
                 )
 
-                # Save evals for models with in-training validation
+                # Salva evals para modelos com validação durante o treinamento
                 if self.evals:
                     for key, value in self.evals.items():
                         for step in range(len(value)):
                             mlflow.log_metric(f"evals_{key}", value[step], step=step)
 
-                # The rest of the metrics are tracked when calling _get_score
+                # O restante das métricas é rastreado ao chamar _get_score
                 mlflow.log_metric("time_fit", self._time_fit)
 
                 mlflow.sklearn.log_model(
@@ -1388,18 +1378,18 @@ class BaseModel(RunnerPlot):
 
     @composed(crash, method_to_log, beartype)
     def bootstrapping(self, n_bootstrap: Int, *, reset: Bool = False):
-        """Apply a bootstrap algorithm.
+        """Aplica um algoritmo de bootstrap.
 
-        Take bootstrapped samples from the training set and test them
-        on the test set to get a distribution of the model's results.
+        Extrai amostras bootstrap do conjunto de treino e as testa
+        no conjunto de teste para obter uma distribuição dos resultados do modelo.
 
-        Parameters
+        Parâmetros
         ----------
         n_bootstrap: int
-           Number of bootstrapped samples to fit on.
+           Número de amostras bootstrap para ajustar.
 
         reset: bool, default=False
-            Whether to start a new run or continue the existing one.
+            Se deve iniciar uma nova execução ou continuar a existente.
 
         """
         t_init = dt.now()
@@ -1410,7 +1400,7 @@ class BaseModel(RunnerPlot):
             self._time_bootstrap = 0
 
         for i in range(n_bootstrap):
-            # Create stratified samples with replacement
+            # Cria amostras estratificadas com reposição
             sample_x, sample_y = resample(
                 self.X_train,
                 self.y_train,
@@ -1419,10 +1409,10 @@ class BaseModel(RunnerPlot):
                 stratify=self.y_train,
             )
 
-            # Fit on a bootstrapped set
+            # Ajusta no conjunto bootstrap
             estimator = self._fit_estimator(self.estimator, data=(sample_x, sample_y))
 
-            # Get scores on the test set
+            # Obtém pontuações no conjunto de teste
             scores = pd.DataFrame(
                 {
                     m.name: [self._score_from_est(m, estimator, self.X_test, self.y_test)]
@@ -1437,21 +1427,21 @@ class BaseModel(RunnerPlot):
             f"{m.name}: {rnd(self.bootstrap.mean()[i])} \u00b1 {rnd(self.bootstrap.std()[i])}"
             for i, m in enumerate(self._metric)
         ]
-        self._log(f"Evaluation --> {'   '.join(out)}", 1)
+        self._log(f"Avaliação --> {'   '.join(out)}", 1)
 
         self._time_bootstrap += (dt.now() - t_init).total_seconds()
-        self._log(f"Time elapsed: {time_to_str(self._time_bootstrap)}", 1)
+        self._log(f"Tempo decorrido: {time_to_str(self._time_bootstrap)}", 1)
 
-    # Utility properties =========================================== >>
+    # Propriedades Utilitárias =========================================== >>
 
     @property
     def name(self) -> str:
-        """Name of the model.
+        """Nome do modelo.
 
-        Use the property's `@setter` to change the model's name. The
-        acronym always stays at the beginning of the model's name. If
-        the model is being tracked by [mlflow][tracking], the name of
-        the corresponding run also changes.
+        Use o `@setter` da propriedade para alterar o nome do modelo. O
+        acrônimo sempre permanece no início do nome do modelo. Se
+        o modelo estiver sendo rastreado pelo [mlflow][tracking], o nome da
+        execução correspondente também muda.
 
         """
         return self._name
@@ -1459,81 +1449,81 @@ class BaseModel(RunnerPlot):
     @name.setter
     @beartype
     def name(self, value: str):
-        """Change the model's name."""
-        # Drop the acronym if provided by the user
+        """Altera o nome do modelo."""
+        # Remove o acrônimo se fornecido pelo usuário
         if re.match(f"{self.acronym}_", value, re.I):
             value = value[len(self.acronym) + 1 :]
 
-        # Add the acronym in front (with right capitalization)
+        # Adiciona o acrônimo na frente (com capitalização correta)
         self._name = f"{self.acronym}{f'_{value}' if value else ''}"
 
-        if self.experiment:  # Change name in mlflow's run
+        if self.experiment:  # Muda o nome na execução do mlflow
             MlflowClient().set_tag(self.run.info.run_id, "mlflow.runName", self.name)
 
-        self._log(f"Model {self.name} successfully renamed to {self._name}.", 1)
+        self._log(f"Modelo {self.name} renomeado com sucesso para {self._name}.", 1)
 
     @cached_property
     def task(self) -> Task:
-        """Dataset's [task][] type."""
+        """Tipo de [tarefa][task] do dataset."""
         return self._goal.infer_task(self.y)
 
     @property
     def og(self) -> Branch:
-        """Branch containing the original dataset.
+        """Branch contendo o dataset original.
 
-        This branch contains the data prior to any transformations.
-        It redirects to the current branch if its pipeline is empty
-        to not have the same data in memory twice.
+        Este branch contém os dados antes de qualquer transformação.
+        Redireciona para o branch atual se seu pipeline estiver vazio
+        para não ter os mesmos dados na memória duas vezes.
 
         """
         return self._og
 
     @property
     def branch(self) -> Branch:
-        """Current active branch."""
+        """Branch ativo atual."""
         return self._branch
 
     @property
     def run(self) -> Run:
-        """Mlflow run corresponding to this model.
+        """Execução mlflow correspondente a este modelo.
 
-        This property is only available for models that with mlflow
-        [tracking][] enabled.
+        Esta propriedade só está disponível para modelos com mlflow
+        [tracking][] habilitado.
 
         """
         if self.experiment:
             return self._run
 
-        raise AttributeError("This model has no mlflow experiment.")
+        raise AttributeError("Este modelo não possui experimento mlflow.")
 
     @property
     def study(self) -> Study:
-        """Optuna study used for hyperparameter tuning.
+        """Estudo Optuna usado para ajuste de hiperparâmetros.
 
-        This property is only available for models that ran
-        [hyperparameter tuning][].
+        Esta propriedade só está disponível para modelos que executaram
+        [ajuste de hiperparâmetros][hyperparameter tuning].
 
         """
         if self._study is not None:
             return self._study
 
-        raise AttributeError("This model didn't run hyperparameter tuning.")
+        raise AttributeError("Este modelo não executou ajuste de hiperparâmetros.")
 
     @property
     def trials(self) -> pd.DataFrame:
-        """Overview of the trials' results.
+        """Visão geral dos resultados dos trials.
 
-        This property is only available for models that ran
-        [hyperparameter tuning][]. All durations are in seconds.
-        Columns include:
+        Esta propriedade só está disponível para modelos que executaram
+        [ajuste de hiperparâmetros][hyperparameter tuning]. Todas as durações estão em segundos.
+        As colunas incluem:
 
-        - **[param_name]:** Parameter value used in this trial.
-        - **estimator:** Estimator used in this trial.
-        - **[metric_name]:** Metric score of the trial.
-        - **[best_metric_name]:** Best score so far in this study.
-        - **time_trial:** Duration of the trial.
-        - **time_ht:** Duration of the hyperparameter tuning.
-        - **state:** Trial's state (COMPLETE, PRUNED, FAIL).
+        - **[param_name]:** Valor do parâmetro usado neste trial.
+        - **estimator:** Estimador usado neste trial.
+        - **[metric_name]:** Pontuação da métrica do trial.
+        - **[best_metric_name]:** Melhor pontuação até agora neste estudo.
+        - **time_trial:** Duração do trial.
+        - **time_ht:** Duração do ajuste de hiperparâmetros.
+        - **state:** Estado do trial (COMPLETE, PRUNED, FAIL).
 
         """
         if self._study is not None:
@@ -1558,17 +1548,17 @@ class BaseModel(RunnerPlot):
 
             return pd.DataFrame(data).set_index("trial")
 
-        raise AttributeError("The model didn't run hyperparameter tuning.")
+        raise AttributeError("O modelo não executou ajuste de hiperparâmetros.")
 
     @property
     def best_trial(self) -> FrozenTrial:
-        """Trial that returned the highest score.
+        """Trial que retornou a maior pontuação.
 
-        For [multi-metric runs][], the best trial is the trial that
-        performed best on the main metric. Use the property's `@setter`
-        to change the best trial. See [here][example-hyperparameter-tuning]
-        an example. This property is only available for models that
-        ran [hyperparameter tuning][].
+        Para [execuções com múltiplas métricas][multi-metric runs], o melhor trial é aquele que
+        obteve melhor desempenho na métrica principal. Use o `@setter` da propriedade
+        para alterar o melhor trial. Veja [aqui][example-hyperparameter-tuning]
+        um exemplo. Esta propriedade só está disponível para modelos que
+        executaram [ajuste de hiperparâmetros][hyperparameter tuning].
 
         """
         if self._study is not None:
@@ -1585,29 +1575,29 @@ class BaseModel(RunnerPlot):
     @best_trial.setter
     @beartype
     def best_trial(self, value: IntLargerEqualZero | None):
-        """Assign the study's best trial.
+        """Atribui o melhor trial do estudo.
 
-        The hyperparameters selected in this trial are used to train
-        the estimator. This property is only available for models that
-        ran [hyperparameter tuning][].
+        Os hiperparâmetros selecionados neste trial são usados para treinar
+        o estimador. Esta propriedade só está disponível para modelos que
+        executaram [ajuste de hiperparâmetros][hyperparameter tuning].
 
         """
         if value is None:
-            self._best_trial = None  # Reset best trial selection
+            self._best_trial = None  # Reinicia a seleção do melhor trial
         elif value not in self.trials.index:
             raise ValueError(
-                "Invalid value for the best_trial. The "
-                f"value should be a trial number, got {value}."
+                "Valor inválido para best_trial. O "
+                f"valor deve ser um número de trial, recebido {value}."
             )
         else:
             self._best_trial = self.study.trials[value]
 
     @property
     def best_params(self) -> dict[str, Any]:
-        """Estimator's parameters in the [best trial][self-best_trial].
+        """Parâmetros do estimador no [melhor trial][self-best_trial].
 
-        This property is only available for models that ran
-        [hyperparameter tuning][].
+        Esta propriedade só está disponível para modelos que executaram
+        [ajuste de hiperparâmetros][hyperparameter tuning].
 
         """
         if self._study is not None:
@@ -1617,53 +1607,53 @@ class BaseModel(RunnerPlot):
 
     @property
     def estimator(self) -> Predictor:
-        """Estimator fitted on the training set."""
+        """Estimador ajustado no conjunto de treino."""
         if self._estimator is not None:
             return self._estimator
 
-        raise AttributeError("This model hasn't been fitted yet.")
+        raise AttributeError("Este modelo ainda não foi ajustado.")
 
     @property
     def evals(self) -> dict[str, list[Float]]:
-        """Scores obtained per iteration of the training.
+        """Pontuações obtidas por iteração do treinamento.
 
-        Only the scores of the [main metric][metric] are tracked.
-        Included keys are: train and test. This property is only
-        available for models with [in-training-validation][].
+        Apenas as pontuações da [métrica principal][metric] são rastreadas.
+        As chaves incluídas são: train e test. Esta propriedade só
+        está disponível para modelos com [validação-durante-o-treinamento][in-training-validation].
 
         """
         return self._evals
 
     @property
     def bootstrap(self) -> pd.DataFrame:
-        """Overview of the bootstrapping scores.
+        """Visão geral das pontuações de bootstrapping.
 
-        The dataframe has shape=(n_bootstrap, metric) and shows the
-        score obtained by every bootstrapped sample for every metric.
-        Using `experionml.bootstrap.mean()` yields the same values as
-        `[metric]_bootstrap`. This property is only available for
-        models that ran [bootstrapping][].
+        O dataframe tem shape=(n_bootstrap, metric) e mostra a
+        pontuação obtida por cada amostra bootstrap para cada métrica.
+        Usar `experionml.bootstrap.mean()` retorna os mesmos valores que
+        `[metric]_bootstrap`. Esta propriedade só está disponível para
+        modelos que executaram [bootstrapping][].
 
         """
         if self._bootstrap is not None:
             return self._bootstrap
 
-        raise AttributeError("This model didn't run bootstrapping.")
+        raise AttributeError("Este modelo não executou bootstrapping.")
 
     @property
     def results(self) -> pd.Series:
-        """Overview of the model results.
+        """Visão geral dos resultados do modelo.
 
-        All durations are in seconds. Possible values include:
+        Todas as durações estão em segundos. Os possíveis valores incluem:
 
-        - **[metric]_ht:** Score obtained by the hyperparameter tuning.
-        - **time_ht:** Duration of the hyperparameter tuning.
-        - **[metric]_train:** Metric score on the train set.
-        - **[metric]_test:** Metric score on the test set.
-        - **time_fit:** Duration of the model fitting on the train set.
-        - **[metric]_bootstrap:** Mean score on the bootstrapped samples.
-        - **time_bootstrap:** Duration of the bootstrapping.
-        - **time:** Total duration of the run.
+        - **[metric]_ht:** Pontuação obtida pelo ajuste de hiperparâmetros.
+        - **time_ht:** Duração do ajuste de hiperparâmetros.
+        - **[metric]_train:** Pontuação da métrica no conjunto de treino.
+        - **[metric]_test:** Pontuação da métrica no conjunto de teste.
+        - **time_fit:** Duração do ajuste do modelo no conjunto de treino.
+        - **[metric]_bootstrap:** Pontuação média nas amostras bootstrap.
+        - **time_bootstrap:** Duração do bootstrapping.
+        - **time:** Duração total da execução.
 
         """
         data = {}
@@ -1684,13 +1674,13 @@ class BaseModel(RunnerPlot):
 
     @property
     def feature_importance(self) -> pd.Series:
-        """Normalized feature importance scores.
+        """Pontuações de importância de features normalizadas.
 
-        The sum of importances for all features is 1. The scores are
-        extracted from the estimator's `scores_`, `coef_` or
-        `feature_importances_` attribute, checked in that order.
-        This property is only available for estimators with at least
-        one of those attributes.
+        A soma das importâncias de todas as features é 1. As pontuações são
+        extraídas dos atributos `scores_`, `coef_` ou
+        `feature_importances_` do estimador, verificados nessa ordem.
+        Esta propriedade só está disponível para estimadores com pelo menos
+        um desses atributos.
 
         """
         data: np.ndarray | None = None
@@ -1699,7 +1689,7 @@ class BaseModel(RunnerPlot):
             if hasattr(self.estimator, attr):
                 data = getattr(self.estimator, attr)
 
-        # Get the mean value for meta-estimators
+        # Obtém o valor médio para meta-estimadores
         if data is None and hasattr(self.estimator, "estimators_"):
             estimators = self.estimator.estimators_
             if all(hasattr(x, "feature_importances_") for x in estimators):
@@ -1710,15 +1700,15 @@ class BaseModel(RunnerPlot):
                     for fi in estimators
                 ]
             else:
-                # For ensembles that mix attributes
+                # Para ensembles que misturam atributos
                 raise ValueError(
-                    "Failed to calculate the feature importance for meta-estimator "
-                    f"{self._est_class.__name__}. The underlying estimators have a "
-                    "mix of feature_importances_ and coef_ attributes."
+                    "Falha ao calcular a importância de features para o meta-estimador "
+                    f"{self._est_class.__name__}. Os estimadores subjacentes possuem "
+                    "uma mistura de atributos feature_importances_ e coef_."
                 )
 
-            # Trim each coef to the number of features in the 1st estimator
-            # ClassifierChain adds features to subsequent estimators
+            # Trunca cada coef ao número de features no 1º estimador
+            # ClassifierChain adiciona features aos estimadores subsequentes
             min_length = np.min([len(c) for c in data_l])
             data = np.mean([c[:min_length] for c in data_l], axis=0)
 
@@ -1731,22 +1721,22 @@ class BaseModel(RunnerPlot):
             ).sort_values(ascending=False)
         else:
             raise AttributeError(
-                "Failed to calculate the feature importance for estimator "
-                f"{self._est_class.__name__}. The estimator doesn't have the"
-                f"scores_, coef_ nor feature_importances_ attribute."
+                "Falha ao calcular a importância de features para o estimador "
+                f"{self._est_class.__name__}. O estimador não possui o"
+                f"atributo scores_, coef_ nem feature_importances_."
             )
 
-    # Data Properties ============================================== >>
+    # Propriedades de Dados ============================================== >>
 
     @property
     def pipeline(self) -> Pipeline:
-        """Pipeline of transformers.
+        """Pipeline de transformadores.
 
-        Models that used [automated feature scaling][] have the scaler
-        added.
+        Modelos que usaram [escalonamento automático de features][] têm o escalonador
+        adicionado.
 
         !!! tip
-            Use the [plot_pipeline][] method to visualize the pipeline.
+            Use o método [plot_pipeline][] para visualizar o pipeline.
 
         """
         if self.scaler:
@@ -1759,22 +1749,22 @@ class BaseModel(RunnerPlot):
 
     @property
     def dataset(self) -> pd.DataFrame:
-        """Complete data set."""
+        """Conjunto de dados completo."""
         return merge(self.X, self.y)
 
     @property
     def train(self) -> pd.DataFrame:
-        """Training set."""
+        """Conjunto de treino."""
         return merge(self.X_train, self.y_train)
 
     @property
     def test(self) -> pd.DataFrame:
-        """Test set."""
+        """Conjunto de teste."""
         return merge(self.X_test, self.y_test)
 
     @property
     def holdout(self) -> pd.DataFrame | None:
-        """Holdout set."""
+        """Conjunto holdout."""
         if (holdout := self.branch.holdout) is not None:
             if self.scaler:
                 return merge(self.scaler.transform(holdout[self.features]), holdout[self.target])
@@ -1785,17 +1775,17 @@ class BaseModel(RunnerPlot):
 
     @property
     def X(self) -> pd.DataFrame:
-        """Feature set."""
+        """Conjunto de features."""
         return pd.concat([self.X_train, self.X_test])
 
     @property
     def y(self) -> Pandas:
-        """Target column(s)."""
+        """Coluna(s) alvo."""
         return pd.concat([self.y_train, self.y_test])
 
     @property
     def X_train(self) -> pd.DataFrame:
-        """Features of the training set."""
+        """Features do conjunto de treino."""
         exclude = self.branch.features.isin(self._config.ignore)
         X_train = self.branch.X_train.iloc[-self._train_idx :, ~exclude]
         if self.scaler:
@@ -1805,12 +1795,12 @@ class BaseModel(RunnerPlot):
 
     @property
     def y_train(self) -> Pandas:
-        """Target column of the training set."""
+        """Coluna alvo do conjunto de treino."""
         return self.branch.y_train[-self._train_idx :]
 
     @property
     def X_test(self) -> pd.DataFrame:
-        """Features of the test set."""
+        """Features do conjunto de teste."""
         exclude = self.branch.features.isin(self._config.ignore)
         X_test = self.branch.X_test.iloc[:, ~exclude]
         if self.scaler:
@@ -1820,7 +1810,7 @@ class BaseModel(RunnerPlot):
 
     @property
     def X_holdout(self) -> pd.DataFrame | None:
-        """Features of the holdout set."""
+        """Features do conjunto holdout."""
         if self.holdout is not None:
             return self.holdout[self.features]
         else:
@@ -1828,7 +1818,7 @@ class BaseModel(RunnerPlot):
 
     @property
     def y_holdout(self) -> Pandas | None:
-        """Target column of the holdout set."""
+        """Coluna alvo do conjunto holdout."""
         if self.holdout is not None:
             return self.holdout[self.branch.target]
         else:
@@ -1836,40 +1826,39 @@ class BaseModel(RunnerPlot):
 
     @property
     def shape(self) -> tuple[Int, Int]:
-        """Shape of the dataset (n_rows, n_columns)."""
+        """Shape do dataset (n_linhas, n_colunas)."""
         return self.dataset.shape
 
     @property
     def columns(self) -> pd.Index:
-        """Name of all the columns."""
+        """Nome de todas as colunas."""
         return self.dataset.columns
 
     @property
     def n_columns(self) -> int:
-        """Number of columns."""
+        """Número de colunas."""
         return len(self.columns)
 
     @property
     def features(self) -> pd.Index:
-        """Name of the features."""
+        """Nome das features."""
         return self.columns[: -self.branch._data.n_targets]
 
     @property
     def n_features(self) -> int:
-        """Number of features."""
+        """Número de features."""
         return len(self.features)
 
     @property
     def _all(self) -> pd.DataFrame:
         """Dataset + holdout.
 
-        Note that calling this property triggers the holdout set
-        calculation.
+        Observe que chamar esta propriedade dispara o cálculo do conjunto holdout.
 
         """
         return pd.concat([self.dataset, self.holdout])
 
-    # Utility methods ============================================== >>
+    # Métodos Utilitários ============================================== >>
 
     @available_if(has_task("classification"))
     @composed(crash, method_to_log)
@@ -1879,36 +1868,36 @@ class BaseModel(RunnerPlot):
         *,
         train_on_test: bool = False,
     ):
-        """Calibrate and retrain the model.
+        """Calibrar e retreinar o modelo.
 
-        Uses sklearn's [CalibratedClassifierCV][] to apply probability
-        calibration on the model. The new classifier replaces the
-        `estimator` attribute. If there is an active mlflow experiment,
-        a new run is started using the name `[model_name]_calibrate`.
-        Since the estimator changed, the model is [cleared][self-clear].
-        Only for classifiers.
+        Usa o [CalibratedClassifierCV][] do sklearn para aplicar
+        calibração de probabilidade no modelo. O novo classificador substitui o
+        atributo `estimator`. Se houver um experimento mlflow ativo,
+        uma nova execução é iniciada com o nome `[model_name]_calibrate`.
+        Como o estimador foi alterado, o modelo é [limpo][self-clear].
+        Somente para classificadores.
 
         !!! note
-            By default, the calibration is optimized using the training
-            set (which is already used for the initial training). This
-            approach is subject to undesired overfitting. It's preferred
-            to use `train_on_test=True`, which uses the test set for
-            calibration, but only if there is another, independent set
-            for testing ([holdout set][data-sets]).
+            Por padrão, a calibração é otimizada usando o conjunto de
+            treinamento (que já é usado para o treinamento inicial). Esta
+            abordagem está sujeita a overfitting indesejado. É preferível
+            usar `train_on_test=True`, que usa o conjunto de teste para
+            calibração, mas somente se houver outro conjunto independente
+            para teste ([conjunto holdout][data-sets]).
 
-        Parameters
+        Parâmetros
         ----------
         method: str, default="sigmoid"
-            The method to use for calibration. Choose from:
+            O método a ser usado para calibração. Escolha entre:
 
-            - "sigmoid": Corresponds to [Platt's method][plattsmethod]
-              (i.e., a logistic regression model).
-            - "isotonic": Non-parametric approach. It's not advised
-              to use this calibration method with too few samples (<1000)
-              since it tends to overfit.
+            - "sigmoid": Corresponde ao [método de Platt][plattsmethod]
+              (i.e., um modelo de regressão logística).
+            - "isotonic": Abordagem não-paramétrica. Não é recomendado
+              usar este método de calibração com poucos exemplos (<1000)
+              pois tende a sofrer overfitting.
 
         train_on_test: bool, default=False
-            Whether to train the calibrator on the test set.
+            Se deve treinar o calibrador no conjunto de teste.
 
         """
         self._estimator = CalibratedClassifierCV(
@@ -1918,7 +1907,7 @@ class BaseModel(RunnerPlot):
             n_jobs=self.n_jobs,
         )
 
-        # Assign a mlflow run to the new estimator
+        # Atribui uma execução mlflow ao novo estimador
         if self.experiment:
             self._run = mlflow.start_run(run_name=f"{self.name}_calibrate")
             mlflow.end_run()
@@ -1930,19 +1919,19 @@ class BaseModel(RunnerPlot):
 
     @composed(crash, method_to_log)
     def clear(self):
-        """Reset attributes and clear cache from the model.
+        """Redefinir atributos e limpar o cache do modelo.
 
-        Reset certain model attributes to their initial state, deleting
-        potentially large data arrays. Use this method to free some
-        memory before [saving][experionmlclassifier-save] the instance. The
-        affected attributes are:
+        Redefine certos atributos do modelo para seu estado inicial, excluindo
+        potencialmente grandes arrays de dados. Use este método para liberar
+        memória antes de [salvar][experionmlclassifier-save] a instância. Os
+        atributos afetados são:
 
-        - [In-training validation][] scores
-        - [Cached predictions][predicting].
-        - [Shap values][shap]
-        - [App instance][self-create_app]
-        - [Dashboard instance][self-create_dashboard]
-        - Calculated [holdout data sets][data-sets]
+        - Pontuações de [validação em treinamento][In-training validation]
+        - [Previsões em cache][predicting].
+        - [Valores Shap][shap]
+        - [Instância do App][self-create_app]
+        - [Instância do Dashboard][self-create_dashboard]
+        - [Conjuntos de dados holdout][data-sets] calculados
 
         """
         self._evals = defaultdict(list)
@@ -1954,33 +1943,33 @@ class BaseModel(RunnerPlot):
 
     @composed(crash, method_to_log)
     def create_app(self, **kwargs):
-        """Create an interactive app to test model predictions.
+        """Criar um aplicativo interativo para testar previsões do modelo.
 
-        Demo your machine learning model with a friendly web interface.
-        This app launches directly in the notebook or on an external
-        browser page. The created [Interface][] instance can be accessed
-        through the `app` attribute.
+        Demonstre seu modelo de machine learning com uma interface web amigável.
+        Este aplicativo é iniciado diretamente no notebook ou em uma página
+        de navegador externo. A instância [Interface][] criada pode ser acessada
+        através do atributo `app`.
 
-        Parameters
+        Parâmetros
         ----------
         **kwargs
-            Additional keyword arguments for the [Interface][] instance
-            or the [Interface.launch][launch] method.
+            Argumentos de palavra-chave adicionais para a instância [Interface][]
+            ou para o método [Interface.launch][launch].
 
         """
 
         def inference(*X) -> Scalar | str | list[Scalar | str]:
-            """Apply inference on the row provided by the app.
+            """Aplicar inferência na linha fornecida pelo aplicativo.
 
-            Parameters
+            Parâmetros
             ----------
             *X
-                Features provided by the user in the app.
+                Features fornecidas pelo usuário no aplicativo.
 
-            Returns
+            Retorna
             -------
             int, float, str or list
-                Original label or list of labels for multioutput tasks.
+                Rótulo original ou lista de rótulos para tarefas multioutput.
 
             """
             conv = lambda elem: elem.item() if hasattr(elem, "item") else elem
@@ -1997,7 +1986,7 @@ class BaseModel(RunnerPlot):
         from gradio import Interface
         from gradio.components import Dropdown, Textbox
 
-        self._log("Launching app...", 1)
+        self._log("Iniciando aplicativo...", 1)
 
         inputs = []
         for name, column in self.og.X.items():
@@ -2025,66 +2014,62 @@ class BaseModel(RunnerPlot):
         filename: str | Path | None = None,
         **kwargs,
     ):
-        """Create an interactive dashboard to analyze the model.
+        """Criar um dashboard interativo para analisar o modelo.
 
-        ExperionML uses the [explainerdashboard][explainerdashboard_package]
-        package to provide a quick and easy way to analyze and explain
-        the predictions and workings of the model. The dashboard allows
-        you to investigate SHAP values, permutation importances,
-        interaction effects, partial dependence plots, all kinds of
-        performance plots, and even individual decision trees.
+        O ExperionML usa o pacote [explainerdashboard][explainerdashboard_package]
+        para fornecer uma maneira rápida e fácil de analisar e explicar
+        as previsões e o funcionamento do modelo. O dashboard permite
+        investigar valores SHAP, importâncias de permutação,
+        efeitos de interação, gráficos de dependência parcial, todos os tipos de
+        gráficos de desempenho, e até árvores de decisão individuais.
 
-        By default, the dashboard renders in a new tab in your default
-        browser, but if preferable, you can render it inside the
-        notebook using the `mode="inline"` parameter. The created
-        [ExplainerDashboard][] instance can be accessed through the
-        `dashboard` attribute. This method is not available for
-        [multioutput tasks][].
+        Por padrão, o dashboard é renderizado em uma nova aba no seu navegador
+        padrão, mas se preferir, você pode renderizá-lo dentro do
+        notebook usando o parâmetro `mode="inline"`. A instância
+        [ExplainerDashboard][] criada pode ser acessada através do
+        atributo `dashboard`. Este método não está disponível para
+        [tarefas multioutput][multioutput tasks].
 
         !!! note
-            Plots displayed by the dashboard are not created by ExperionML and
-            can differ from those retrieved through this package.
+            Os gráficos exibidos pelo dashboard não são criados pelo ExperionML e
+            podem diferir dos obtidos através deste pacote.
 
-        Parameters
+        Parâmetros
         ----------
         rows: hashable, segment, sequence or dataframe, default="test"
-            [Selection of rows][row-and-column-selection] to get the
-            report from.
+            [Seleção de linhas][row-and-column-selection] para obter o
+            relatório.
 
         filename: str, Path or None, default=None
-            Filename or [pathlib.Path][] of the file to save. None to not
-            save anything.
+            Nome do arquivo ou [pathlib.Path][] para salvar. None para não
+            salvar nada.
 
         **kwargs
-            Additional keyword arguments for the [ExplainerDashboard][]
-            instance.
+            Argumentos de palavra-chave adicionais para a instância
+            [ExplainerDashboard][].
 
         """
         check_dependency("explainerdashboard")
-        from explainerdashboard import (
-            ClassifierExplainer,
-            ExplainerDashboard,
-            RegressionExplainer,
-        )
+        from explainerdashboard import ClassifierExplainer, ExplainerDashboard, RegressionExplainer
 
-        self._log("Creating dashboard...", 1)
+        self._log("Criando dashboard...", 1)
 
         Xt, yt = self.branch._get_rows(rows, return_X_y=True)
 
         if self.scaler:
             Xt = cast(pd.DataFrame, self.scaler.transform(Xt))
 
-        # Get shap values from the internal ShapExplanation object
+        # Obtém valores shap do objeto ShapExplanation interno
         exp = self._shap.get_explanation(Xt, target=(0,))
 
-        # Explainerdashboard requires all the target classes
+        # Explainerdashboard requer todas as classes alvo
         if self.task.is_classification:
             if self.task.is_binary:
                 if exp.values.shape[-1] != 2:
                     exp.base_values = [np.array(1 - exp.base_values), exp.base_values]
                     exp.values = [np.array(1 - exp.values), exp.values]
             else:
-                # Explainer expects a list of np.array with shap values for each class
+                # Explainer espera uma lista de np.array com valores shap para cada classe
                 exp.values = list(np.moveaxis(exp.values, -1, 0))
 
         params = {"permutation_metric": self._metric, "n_jobs": self.n_jobs}
@@ -2107,42 +2092,41 @@ class BaseModel(RunnerPlot):
                 path = path.with_suffix(".html")
 
             self.dashboard.save_html(path)
-            self._log("Dashboard successfully saved.", 1)
+            self._log("Dashboard salvo com sucesso.", 1)
 
     @composed(crash, method_to_log)
     def cross_validate(self, *, include_holdout: Bool = False, **kwargs) -> Styler:
-        """Evaluate the model using cross-validation.
+        """Avaliar o modelo usando validação cruzada.
 
-        This method cross-validates the whole pipeline on the complete
-        dataset. Use it to assess the robustness of the model's
-        performance. If the scoring method is not specified in `kwargs`,
-        it uses experionml's metric. The results of the cross-validation are
-        stored in the model's `cv` attribute.
+        Este método aplica validação cruzada em todo o pipeline no conjunto de
+        dados completo. Use-o para avaliar a robustez do desempenho do modelo.
+        Se o método de pontuação não for especificado em `kwargs`,
+        usa a métrica do experionml. Os resultados da validação cruzada são
+        armazenados no atributo `cv` do modelo.
 
         !!! tip
-            This method returns a pandas' [Styler][] object. Convert
-            the result back to a regular dataframe using its `data`
-            attribute.
+            Este método retorna um objeto [Styler][] do pandas. Converta
+            o resultado de volta para um dataframe regular usando seu atributo `data`.
 
-        Parameters
+        Parâmetros
         ----------
         include_holdout: bool, default=False
-            Whether to include the holdout set (if available) in the
-            cross-validation.
+            Se deve incluir o conjunto holdout (se disponível) na
+            validação cruzada.
 
         **kwargs
-            Additional keyword arguments for one of these functions.
+            Argumentos de palavra-chave adicionais para uma destas funções.
 
-            - For forecast tasks: [evaluate][sktimeevaluate].
-            - Else: [cross_validate][sklearncrossvalidate].
+            - Para tarefas de previsão: [evaluate][sktimeevaluate].
+            - Caso contrário: [cross_validate][sklearncrossvalidate].
 
-        Returns
+        Retorna
         -------
         [Styler][]
-            Overview of the results.
+            Visão geral dos resultados.
 
         """
-        self._log("Applying cross-validation...", 1)
+        self._log("Aplicando validação cruzada...", 1)
 
         if not include_holdout:
             X = self.og.X
@@ -2151,7 +2135,7 @@ class BaseModel(RunnerPlot):
             X = self.og._all[self.og.features]
             y = self.og._all[self.og.target]
 
-        # Assign scoring from experionml if not specified
+        # Atribui pontuação do experionml se não especificada
         if kwargs.get("scoring"):
             scorer = get_custom_scorer(kwargs.pop("scoring"), pos_label=self._config.pos_label)
             scoring = {scorer.name: scorer}
@@ -2179,13 +2163,13 @@ class BaseModel(RunnerPlot):
         else:
             if "groups" in kwargs:
                 raise ValueError(
-                    "The parameter groups can not be passed directly to cross_validate. "
-                    "ExperionML uses metadata routing to manage data groups. Pass the groups to "
-                    "experionml's 'metadata' parameter in the constructor."
+                    "O parâmetro groups não pode ser passado diretamente para cross_validate. "
+                    "O ExperionML usa roteamento de metadados para gerenciar grupos de dados. Passe os grupos para "
+                    "o parâmetro 'metadata' do experionml no construtor."
                 )
 
-            # Monkey patch sklearn's _fit_and_score function to allow
-            # for pipelines that drop samples during transformation
+            # Monkey patch da função _fit_and_score do sklearn para permitir
+            # pipelines que descartam amostras durante a transformação
             with patch("sklearn.model_selection._validation._fit_and_score", fit_and_score):
                 self.cv = cross_validate(
                     estimator=self.export_pipeline(),
@@ -2216,30 +2200,30 @@ class BaseModel(RunnerPlot):
 
     @composed(crash, beartype)
     def evaluate(self, metric: MetricConstructor = None, rows: RowSelector = "test") -> pd.Series:
-        """Get the model's scores for the provided metrics.
+        """Obter as pontuações do modelo para as métricas fornecidas.
 
         !!! tip
-            Use the [get_best_threshold][self-get_best_threshold] or
-            [plot_threshold][] method to determine a suitable threshold
-            for a binary classifier.
+            Use o método [get_best_threshold][self-get_best_threshold] ou
+            [plot_threshold][] para determinar um threshold adequado
+            para um classificador binário.
 
-        Parameters
+        Parâmetros
         ----------
         metric: str, func, scorer, sequence or None, default=None
-            Metrics to calculate. If None, a selection of the most
-            common metrics per task is used.
+            Métricas a calcular. Se None, uma seleção das métricas mais
+            comuns por tarefa é usada.
 
         rows: hashable, segment, sequence or dataframe, default="test"
-            [Selection of rows][row-and-column-selection] to calculate
-            metric on.
+            [Seleção de linhas][row-and-column-selection] para calcular
+            a métrica.
 
-        Returns
+        Retorna
         -------
         pd.Series
-            Scores of the model.
+            Pontuações do modelo.
 
         """
-        # Predefined metrics to show
+        # Métricas predefinidas para exibir
         if metric is None:
             if self.task.is_classification:
                 if self.task is Task.binary_classification:
@@ -2274,7 +2258,7 @@ class BaseModel(RunnerPlot):
                         "auc",
                     ]
             else:
-                # No msle since it fails for negative values
+                # Sem msle pois falha para valores negativos
                 metric = ["mae", "mape", "mse", "r2", "rmse"]
 
         scores = pd.Series(name=self.name, dtype=float)
@@ -2286,16 +2270,16 @@ class BaseModel(RunnerPlot):
 
     @crash
     def export_pipeline(self) -> Pipeline:
-        """Export the transformer pipeline with final estimator.
+        """Exportar o pipeline de transformadores com o estimador final.
 
-        The returned pipeline is already fitted on the training set.
-        Note that if the model used [automated feature scaling][],
-        the [Scaler][] is added to the pipeline.
+        O pipeline retornado já está ajustado no conjunto de treinamento.
+        Note que se o modelo usou [escalonamento automático de features][],
+        o [Scaler][] é adicionado ao pipeline.
 
-        Returns
+        Retorna
         -------
         [Pipeline][]
-            Current branch as a sklearn-like Pipeline object.
+            Branch atual como um objeto Pipeline similar ao sklearn.
 
         """
         pipeline = deepcopy(self.pipeline)
@@ -2304,32 +2288,32 @@ class BaseModel(RunnerPlot):
 
     @composed(crash, method_to_log, beartype)
     def full_train(self, *, include_holdout: Bool = False):
-        """Train the estimator on the complete dataset.
+        """Treinar o estimador no conjunto de dados completo.
 
-        In some cases, it might be desirable to use all available data
-        to train a final model. Note that doing this means that the
-        estimator can no longer be evaluated on the test set. The newly
-        retrained estimator will replace the `estimator` attribute. If
-        there is an active mlflow experiment, a new run is started
-        with the name `[model_name]_full_train`. Since the estimator
-        changed, the model is cleared.
+        Em alguns casos, pode ser desejável usar todos os dados disponíveis
+        para treinar um modelo final. Note que fazer isso significa que o
+        estimador não pode mais ser avaliado no conjunto de teste. O
+        estimador retreinado substituirá o atributo `estimator`. Se
+        houver um experimento mlflow ativo, uma nova execução é iniciada
+        com o nome `[model_name]_full_train`. Como o estimador foi
+        alterado, o modelo é limpo.
 
         !!! warning
-            Although the model is trained on the complete dataset, the
-            pipeline is not. To get a fully trained pipeline, use:
+            Embora o modelo seja treinado no conjunto de dados completo, o
+            pipeline não é. Para obter um pipeline totalmente treinado, use:
             `pipeline = experionml.export_pipeline().fit(experionml.X, experionml.y)`.
 
-        Parameters
+        Parâmetros
         ----------
         include_holdout: bool, default=False
-            Whether to include the holdout set (if available) in the
-            training of the estimator. It's discouraged to use this
-            option since it means the model can no longer be evaluated
-            on any set.
+            Se deve incluir o conjunto holdout (se disponível) no
+            treinamento do estimador. É desencorajado usar esta
+            opção pois significa que o modelo não pode mais ser avaliado
+            em nenhum conjunto.
 
         """
         if include_holdout and self.holdout is None:
-            raise ValueError("No holdout data set available.")
+            raise ValueError("Nenhum conjunto holdout disponível.")
 
         if not include_holdout:
             X, y = self.X, self.y
@@ -2337,7 +2321,7 @@ class BaseModel(RunnerPlot):
             X = pd.concat([self.X, self.X_holdout])
             y = pd.concat([self.y, self.y_holdout])
 
-        # Assign a mlflow run to the new estimator
+        # Atribui uma execução mlflow ao novo estimador
         if self.experiment:
             self._run = mlflow.start_run(run_name=f"{self.name}_full_train")
             mlflow.end_run()
@@ -2352,40 +2336,41 @@ class BaseModel(RunnerPlot):
         *,
         train_on_test: bool = False,
     ) -> Float:
-        """Get the threshold that maximizes a metric.
+        """Obter o threshold que maximiza uma métrica.
 
-        Uses sklearn's [TunedThresholdClassifierCV][] to post-tune the
-        decision threshold (cut-off point) that is used for converting
-        posterior probability estimates (i.e., output of `predict_proba`)
-        or decision scores (i.e., output of `decision_function`) into a
-        class label. The tuning is done by optimizing one of experionml's
-        metrics. The tuning estimator is stored under the `tuned_threshold`
-        attribute. Only available for binary classifiers.
+        Usa o [TunedThresholdClassifierCV][] do sklearn para ajustar
+        posteriormente o threshold de decisão (ponto de corte) usado para
+        converter estimativas de probabilidade posterior (i.e., saída de
+        `predict_proba`) ou pontuações de decisão (i.e., saída de
+        `decision_function`) em um rótulo de classe. O ajuste é feito
+        otimizando uma das métricas do experionml. O estimador ajustado é
+        armazenado no atributo `tuned_threshold`. Disponível apenas para
+        classificadores binários.
 
         !!! note
-            By default, the threshold is optimized using the training
-            set (which is already used for the initial training). This
-            approach is subject to undesired overfitting. It's preferred
-            to use `train_on_test=True`, which uses the test set for
-            tuning, but only if there is another, independent set for
-            testing ([holdout set][data-sets]).
+            Por padrão, o threshold é otimizado usando o conjunto de
+            treinamento (que já é usado para o treinamento inicial). Esta
+            abordagem está sujeita a overfitting indesejado. É preferível
+            usar `train_on_test=True`, que usa o conjunto de teste para
+            ajuste, mas somente se houver outro conjunto independente para
+            teste ([conjunto holdout][data-sets]).
 
         !!! tip
-            Use the [plot_threshold][] method to visualize the effect
-            of different thresholds on a metric.
+            Use o método [plot_threshold][] para visualizar o efeito
+            de diferentes thresholds em uma métrica.
 
-        Parameters
+        Parâmetros
         ----------
         metric: int, str or None, default=None
-            Metric to optimize on. If None, the main metric is used.
+            Métrica para otimizar. Se None, a métrica principal é usada.
 
         train_on_test: bool, default=False
-            Whether to train the calibrator on the test set.
+            Se deve treinar o calibrador no conjunto de teste.
 
-        Returns
+        Retorna
         -------
         float
-            Optimized threshold value.
+            Valor de threshold otimizado.
 
         """
         if metric is None:
@@ -2415,43 +2400,43 @@ class BaseModel(RunnerPlot):
         *,
         verbose: Verbose | None = None,
     ) -> YReturn | tuple[XReturn, YReturn]:
-        """Inversely transform new data through the pipeline.
+        """Transformar inversamente novos dados pelo pipeline.
 
-        Transformers that are only applied on the training set are
-        skipped. The rest should all implement an `inverse_transform`
-        method. If only `X` or only `y` is provided, it ignores
-        transformers that require the other parameter. This can be
-        of use to, for example, inversely transform only the target
-        column. If called from a model that used automated feature
-        scaling, the scaling is inverted as well.
+        Transformadores aplicados apenas no conjunto de treinamento são
+        ignorados. Os demais devem implementar o método `inverse_transform`.
+        Se apenas `X` ou apenas `y` for fornecido, ignora transformadores
+        que exigem o outro parâmetro. Isso pode ser útil para, por exemplo,
+        transformar inversamente apenas a coluna alvo. Se chamado a partir
+        de um modelo que usou escalonamento automático de features, o
+        escalonamento também é invertido.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like or None, default=None
-            Transformed feature set with shape=(n_samples, n_features).
-            If None, `X` is ignored in the transformers.
+            Conjunto de features transformado com shape=(n_samples, n_features).
+            Se None, `X` é ignorado nos transformadores.
 
         y: int, str, sequence, dataframe-like or None, default=None
-            Target column(s) corresponding to `X`.
+            Coluna(s) alvo correspondente(s) a `X`.
 
-            - If None: `y` is ignored.
-            - If int: Position of the target column in `X`.
-            - If str: Name of the target column in `X`.
-            - If sequence: Target column with shape=(n_samples,) or
-              sequence of column names or positions for multioutput tasks.
-            - If dataframe-like: Target columns for multioutput tasks.
+            - If None: `y` é ignorado.
+            - If int: Posição da coluna alvo em `X`.
+            - If str: Nome da coluna alvo em `X`.
+            - If sequence: Coluna alvo com shape=(n_samples,) ou
+              sequência de nomes ou posições de colunas para tarefas multioutput.
+            - If dataframe-like: Colunas alvo para tarefas multioutput.
 
         verbose: int or None, default=None
-            Verbosity level for the transformers in the pipeline. If
-            None, it uses the pipeline's verbosity.
+            Nível de verbosidade para os transformadores no pipeline. Se
+            None, usa a verbosidade do pipeline.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Original feature set. Only returned if provided.
+            Conjunto de features original. Retornado apenas se fornecido.
 
         series or dataframe
-            Original target column. Only returned if provided.
+            Coluna alvo original. Retornada apenas se fornecida.
 
         """
         Xt, yt = self._check_input(X, y, columns=self.branch.features, name=self.branch.target)
@@ -2467,31 +2452,30 @@ class BaseModel(RunnerPlot):
         *,
         archive_existing_versions: Bool = False,
     ):
-        """Register the model in [mlflow's model registry][registry].
+        """Registrar o modelo no [registro de modelos do mlflow][registry].
 
-        This method is only available when model [tracking][] is
-        enabled using one of the following URI schemes: databricks,
-        http, https, postgresql, mysql, sqlite, mssql.
+        Este método só está disponível quando o [rastreamento][tracking] do
+        modelo está habilitado usando um dos seguintes esquemas de URI:
+        databricks, http, https, postgresql, mysql, sqlite, mssql.
 
-        Parameters
+        Parâmetros
         ----------
         name: str or None, default=None
-            Name for the registered model. If None, the model's full name
-            is used. If the name of the model already exists, a new model
-            version is created.
+            Nome para o modelo registrado. Se None, o nome completo do modelo
+            é usado. Se o nome do modelo já existir, uma nova versão é criada.
 
         stage: str, default="None"
-            New desired stage for the model.
+            Novo estágio desejado para o modelo.
 
         archive_existing_versions: bool, default=False
-            Whether all existing model versions in the `stage` will be
-            moved to the "Archived" stage. Only valid when `stage` is
-            "Staging" or "Production", otherwise an error will be raised.
+            Se todas as versões existentes do modelo no `stage` serão movidas
+            para o estágio "Archived". Válido apenas quando `stage` é
+            "Staging" ou "Production", caso contrário um erro será lançado.
 
         """
         if not self.experiment:
             raise PermissionError(
-                "The register method is only available when " "there is a mlflow experiment active."
+                "O método register só está disponível quando " "há um experimento mlflow ativo."
             )
 
         model = mlflow.register_model(
@@ -2509,13 +2493,13 @@ class BaseModel(RunnerPlot):
 
     @composed(crash, method_to_log, beartype)
     def save_estimator(self, filename: str | Path = "auto"):
-        """Save the estimator to a pickle file.
+        """Salvar o estimador em um arquivo pickle.
 
-        Parameters
+        Parâmetros
         ----------
         filename: str or Path, default="auto"
-            Filename or [pathlib.Path][] of the file to save. Use
-            "auto" for automatic naming.
+            Nome do arquivo ou [pathlib.Path][] para salvar. Use
+            "auto" para nomeação automática.
 
         """
         if (path := Path(filename)).suffix != ".pkl":
@@ -2527,26 +2511,26 @@ class BaseModel(RunnerPlot):
         with open(path, "wb") as f:
             pickle.dump(self.estimator, f)
 
-        self._log(f"{self.fullname} estimator successfully saved.", 1)
+        self._log(f"Estimador {self.fullname} salvo com sucesso.", 1)
 
     @composed(crash, method_to_log, beartype)
     def serve(self, method: str = "predict"):
-        """Serve the model as rest API endpoint for inference.
+        """Servir o modelo como endpoint REST para inferência.
 
-        The complete pipeline is served with the model. The inference
-        data must be supplied as json to the HTTP request, e.g.
+        O pipeline completo é servido junto com o modelo. Os dados de
+        inferência devem ser fornecidos como json na requisição HTTP, ex.:
         `requests.get("http://127.0.0.1:8000/", json=X.to_json())`.
-        The deployment is done on a [ray][] cluster. The default `host`
-        and `port` parameters deploy to localhost.
+        O deployment é feito em um cluster [ray][]. Os parâmetros padrão
+        `host` e `port` fazem o deploy em localhost.
 
         !!! tip
-            Use `import ray; ray.serve.shutdown()` to close the
-            endpoint after finishing.
+            Use `import ray; ray.serve.shutdown()` para encerrar o
+            endpoint ao terminar.
 
-        Parameters
+        Parâmetros
         ----------
         method: str, default="predict"
-            Estimator's method to do inference on.
+            Método do estimador para realizar a inferência.
 
         """
         check_dependency("ray")
@@ -2555,15 +2539,15 @@ class BaseModel(RunnerPlot):
 
         @deployment
         class ServeModel:
-            """Model deployment class.
+            """Classe de deployment do modelo.
 
-            Parameters
+            Parâmetros
             ----------
             pipeline: Pipeline
-                Transformers + estimator to make inference on.
+                Transformadores + estimador para realizar inferência.
 
             method: str, default="predict"
-                Estimator's method to do inference on.
+                Método do estimador para realizar a inferência.
 
             """
 
@@ -2572,18 +2556,18 @@ class BaseModel(RunnerPlot):
                 self.method = method
 
             async def __call__(self, request: Request) -> np.ndarray:
-                """Inference call.
+                """Chamada de inferência.
 
-                Parameters
+                Parâmetros
                 ----------
                 request: Request.
-                    HTTP request. It Should contain the rows to
-                    predict in a json body.
+                    Requisição HTTP. Deve conter as linhas a prever
+                    em um corpo json.
 
-                Returns
+                Retorna
                 -------
                 np.ndarray
-                    Model predictions.
+                    Previsões do modelo.
 
                 """
                 payload = await request.json()
@@ -2594,33 +2578,33 @@ class BaseModel(RunnerPlot):
 
         run(ServeModel.bind(pipeline=self.export_pipeline(), method=method))
 
-        self._log(f"Serving model {self.fullname}...", 1)
+        self._log(f"Servindo modelo {self.fullname}...", 1)
 
     @available_if(lambda self: self.task is Task.binary_classification)
     @composed(crash, method_to_log)
     def set_threshold(self, threshold: Float):
-        """Set the binary threshold of the estimator.
+        """Definir o threshold binário do estimador.
 
-        A new classifier using the new threshold replaces the `estimator`
-        attribute. If there is an active mlflow experiment, a new run is
-        started using the name `[model_name]_threshold_X`. Since the
-        estimator changed, the model is [cleared][self-clear]. Only for
-        binary classifiers.
+        Um novo classificador com o novo threshold substitui o atributo
+        `estimator`. Se houver um experimento mlflow ativo, uma nova
+        execução é iniciada com o nome `[model_name]_threshold_X`. Como
+        o estimador foi alterado, o modelo é [limpo][self-clear]. Apenas
+        para classificadores binários.
 
         !!! tip
-            Use the [get_best_threshold][self-get_best_threshold] method
-            to find the optimal threshold for a specific metric.
+            Use o método [get_best_threshold][self-get_best_threshold]
+            para encontrar o threshold ideal para uma métrica específica.
 
-        Parameters
+        Parâmetros
         ----------
         threshold: float
-            Binary threshold to classify the positive class.
+            Threshold binário para classificar a classe positiva.
 
         """
         if not 0 < threshold < 1:
             raise ValueError(
-                "Invalid value for the threshold parameter. The value "
-                f"should lie between 0 and 1, got {threshold}."
+                "Valor inválido para o parâmetro threshold. O valor "
+                f"deve estar entre 0 e 1, obtido {threshold}."
             )
 
         self._estimator = FixedThresholdClassifier(
@@ -2629,10 +2613,10 @@ class BaseModel(RunnerPlot):
             pos_label=self._config.pos_label,
         )
 
-        # Add fitted estimator manually to avoid refitting
+        # Adiciona o estimador ajustado manualmente para evitar retreinamento
         self._estimator.estimator_ = est  # type: ignore[union-attr]
 
-        # Assign a mlflow run to the new estimator
+        # Atribui uma execução mlflow ao novo estimador
         if self.experiment:
             self._run = mlflow.start_run(run_name=f"{self.name}_threshold_{threshold}")
             mlflow.end_run()
@@ -2647,42 +2631,42 @@ class BaseModel(RunnerPlot):
         *,
         verbose: Verbose | None = None,
     ) -> YReturn | tuple[XReturn, YReturn]:
-        """Transform new data through the pipeline.
+        """Transformar novos dados pelo pipeline.
 
-        Transformers that are only applied on the training set are
-        skipped. If only `X` or only `y` is provided, it ignores
-        transformers that require the other parameter. This can be
-        of use to, for example, transform only the target column. If
-        called from a model that used automated feature scaling, the
-        data is scaled as well.
+        Transformadores aplicados apenas no conjunto de treinamento são
+        ignorados. Se apenas `X` ou apenas `y` for fornecido, ignora
+        transformadores que exigem o outro parâmetro. Isso pode ser útil
+        para, por exemplo, transformar apenas a coluna alvo. Se chamado
+        a partir de um modelo que usou escalonamento automático de
+        features, os dados também são escalados.
 
-        Parameters
+        Parâmetros
         ----------
         X: dataframe-like or None, default=None
-            Feature set with shape=(n_samples, n_features). If None,
-            `X` is ignored. If None, `X` is ignored in the transformers.
+            Conjunto de features com shape=(n_samples, n_features). Se None,
+            `X` é ignorado nos transformadores.
 
         y: int, str, sequence, dataframe-like or None, default=None
-            Target column(s) corresponding to `X`.
+            Coluna(s) alvo correspondente(s) a `X`.
 
-            - If None: `y` is ignored.
-            - If int: Position of the target column in `X`.
-            - If str: Name of the target column in `X`.
-            - If sequence: Target column with shape=(n_samples,) or
-              sequence of column names or positions for multioutput tasks.
-            - If dataframe-like: Target columns for multioutput tasks.
+            - If None: `y` é ignorado.
+            - If int: Posição da coluna alvo em `X`.
+            - If str: Nome da coluna alvo em `X`.
+            - If sequence: Coluna alvo com shape=(n_samples,) ou
+              sequência de nomes ou posições de colunas para tarefas multioutput.
+            - If dataframe-like: Colunas alvo para tarefas multioutput.
 
         verbose: int or None, default=None
-            Verbosity level for the transformers in the pipeline. If
-            None, it uses the pipeline's verbosity.
+            Nível de verbosidade para os transformadores no pipeline. Se
+            None, usa a verbosidade do pipeline.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Transformed feature set. Only returned if provided.
+            Conjunto de features transformado. Retornado apenas se fornecido.
 
         series or dataframe
-            Transformed target column. Only returned if provided.
+            Coluna alvo transformada. Retornada apenas se fornecida.
 
         """
         Xt, yt = self._check_input(X, y, columns=self.og.features, name=self.og.target)
@@ -2692,19 +2676,19 @@ class BaseModel(RunnerPlot):
 
 
 class ClassRegModel(BaseModel):
-    """Classification and regression models."""
+    """Modelos de classificação e regressão."""
 
     @crash
     def get_tags(self) -> dict[str, Any]:
-        """Get the model's tags.
+        """Obter as tags do modelo.
 
-        Return class parameters that provide general information about
-        the model's characteristics.
+        Retorna parâmetros da classe que fornecem informações gerais sobre
+        as características do modelo.
 
-        Returns
+        Retorna
         -------
         dict
-            Model's tags.
+            Tags do modelo.
 
         """
         return {
@@ -2757,51 +2741,50 @@ class ClassRegModel(BaseModel):
         verbose: Verbose | None = None,
         method: PredictionMethods = "predict",
     ) -> Float | Pandas:
-        """Get predictions on new data or existing rows.
+        """Obtém previsões em novos dados ou linhas existentes.
 
-        New data is first transformed through the model's pipeline.
-        Transformers that are only applied on the training set are
-        skipped. The model should implement the provided method.
+        Novos dados são primeiro transformados pelo pipeline do modelo.
+        Transformadores aplicados apenas no conjunto de treinamento são
+        ignorados. O modelo deve implementar o método fornecido.
 
-        Parameters
+        Parâmetros
         ----------
         X: hashable, segment, sequence or dataframe-like
-            [Selection of rows][row-and-column-selection] or feature
-            set with shape=(n_samples, n_features) to make predictions
-            on.
+            [Seleção de linhas][row-and-column-selection] ou conjunto de
+            features com shape=(n_samples, n_features) para fazer previsões.
 
         y: int, str, sequence, dataframe-like or None, default=None
-            Target column(s) corresponding to `X`.
+            Coluna(s) alvo correspondente(s) a `X`.
 
-            - If None: `y` is ignored.
-            - If int: Position of the target column in `X`.
-            - If str: Name of the target column in `X`.
-            - If sequence: Target column with shape=(n_samples,) or
-              sequence of column names or positions for multioutput
-              tasks.
-            - If dataframe: Target columns for multioutput tasks.
+            - Se None: `y` é ignorado.
+            - Se int: Posição da coluna alvo em `X`.
+            - Se str: Nome da coluna alvo em `X`.
+            - Se sequence: Coluna alvo com shape=(n_samples,) ou
+              sequência de nomes ou posições de colunas para tarefas
+              multioutput.
+            - Se dataframe: Colunas alvo para tarefas multioutput.
 
         metric: str, func, scorer or None, default=None
-            Metric to calculate. Choose from any of sklearn's scorers,
-            a function with signature metric(y_true, y_pred) or a scorer
-            object. If None, it returns mean accuracy for classification
-            tasks and r2 for regression tasks. Only for method="score".
+            Métrica a calcular. Escolha entre qualquer um dos scorers do sklearn,
+            uma função com assinatura metric(y_true, y_pred) ou um objeto scorer.
+            Se None, retorna acurácia média para tarefas de classificação
+            e r2 para tarefas de regressão. Somente para method="score".
 
         sample_weight: sequence or None, default=None
-            Sample weights for the `score` method.
+            Pesos das amostras para o método `score`.
 
         verbose: int or None, default=None
-            Verbosity level for the transformers in the pipeline. If
-            None, it uses the pipeline's verbosity.
+            Nível de verbosidade para os transformadores no pipeline. Se
+            None, usa a verbosidade do pipeline.
 
         method: str, default="predict"
-            Prediction method to be applied to the estimator.
+            Método de previsão a ser aplicado ao estimador.
 
-        Returns
+        Retorna
         -------
         float, series or dataframe
-            Calculated predictions. The return type depends on the method
-            called.
+            Previsões calculadas. O tipo de retorno depende do método
+            chamado.
 
         """
 
@@ -2809,23 +2792,23 @@ class ClassRegModel(BaseModel):
             X: XSelector,
             y: YSelector | None,
         ) -> tuple[pd.DataFrame, Pandas | None]:
-            """Get X and y from the pipeline transformation.
+            """Obtém X e y a partir da transformação do pipeline.
 
-            Parameters
+            Parâmetros
             ----------
             X: dataframe-like
-                Feature set.
+                Conjunto de features.
 
             y: int, str, sequence, dataframe-like or None
-                Target column(s) corresponding to `X`.
+                Coluna(s) alvo correspondente(s) a `X`.
 
-            Returns
+            Retorna
             -------
             dataframe
-                Transformed feature set.
+                Conjunto de features transformado.
 
             series, dataframe or None
-                Transformed target column.
+                Coluna alvo transformada.
 
             """
             Xt, yt = self._check_input(X, y, columns=self.og.features, name=self.og.target)
@@ -2836,12 +2819,12 @@ class ClassRegModel(BaseModel):
             return out if isinstance(out, tuple) else (out, yt)
 
         def assign_prediction_columns() -> list[str]:
-            """Assign column names for the prediction methods.
+            """Atribui nomes de colunas para os métodos de previsão.
 
-            Returns
+            Retorna
             -------
             list of str
-                Columns for the dataframe.
+                Colunas para o dataframe.
 
             """
             if self.task.is_multioutput:
@@ -2851,8 +2834,8 @@ class ClassRegModel(BaseModel):
 
         try:
             if isinstance(X, pd.DataFrame):
-                # Dataframe must go first since we can expect
-                # prediction calls from dataframes with reset indices
+                # O DataFrame deve vir primeiro, pois podemos esperar
+                # chamadas de previsão de dataframes com índices reiniciados
                 Xt, yt = get_transform_X_y(X, y)
             else:
                 Xt, yt = self.branch._get_rows(X, return_X_y=True)  # type: ignore[call-overload]
@@ -2871,14 +2854,14 @@ class ClassRegModel(BaseModel):
             elif pred.ndim < 3:
                 return to_df(pred, index=Xt.index, columns=assign_prediction_columns())
             elif self.task is Task.multilabel_classification:
-                # Convert to (n_samples, n_targets)
+                # Converte para (n_samples, n_targets)
                 return pd.DataFrame(
                     data=np.array([d[:, 1] for d in pred]).T,
                     index=Xt.index,
                     columns=assign_prediction_columns(),
                 )
             else:
-                # Convert to (n_samples * n_classes, n_targets)
+                # Converte para (n_samples * n_classes, n_targets)
                 return pd.DataFrame(
                     data=pred.reshape(-1, pred.shape[2]),
                     index=pd.MultiIndex.from_tuples(
@@ -2909,32 +2892,31 @@ class ClassRegModel(BaseModel):
         *,
         verbose: Verbose | None = None,
     ) -> YReturn:
-        """Get confidence scores on new data or existing rows.
+        """Obtém pontuações de confiança em novos dados ou linhas existentes.
 
-        New data is first transformed through the model's pipeline.
-        Transformers that are only applied on the training set are
-        skipped. The estimator must have a `decision_function` method.
+        Novos dados são primeiro transformados pelo pipeline do modelo.
+        Transformadores aplicados apenas no conjunto de treinamento são
+        ignorados. O estimador deve ter um método `decision_function`.
 
-        Read more in the [user guide][predicting].
+        Leia mais no [guia do usuário][predicting].
 
-        Parameters
+        Parâmetros
         ----------
         X: hashable, segment, sequence or dataframe-like
-            [Selection of rows][row-and-column-selection] or feature
-            set with shape=(n_samples, n_features) to make predictions
-            on.
+            [Seleção de linhas][row-and-column-selection] ou conjunto de
+            features com shape=(n_samples, n_features) para fazer previsões.
 
         verbose: int or None, default=None
-            Verbosity level for the transformers in the pipeline. If
-            None, it uses the pipeline's verbosity.
+            Nível de verbosidade para os transformadores no pipeline. Se
+            None, usa a verbosidade do pipeline.
 
-        Returns
+        Retorna
         -------
         series or dataframe
-            Predicted confidence scores with shape=(n_samples,) for
-            binary classification tasks (log likelihood ratio of the
-            positive class) or shape=(n_samples, n_classes) for
-            multiclass classification tasks.
+            Pontuações de confiança previstas com shape=(n_samples,) para
+            tarefas de classificação binária (razão log de verossimilhança da
+            classe positiva) ou shape=(n_samples, n_classes) para tarefas de
+            classificação multiclasse.
 
         """
         return self._convert(self._prediction(X, verbose=verbose, method="decision_function"))
@@ -2948,36 +2930,35 @@ class ClassRegModel(BaseModel):
         inverse: Bool = True,
         verbose: Verbose | None = None,
     ) -> YReturn:
-        """Get predictions on new data or existing rows.
+        """Obtém previsões em novos dados ou linhas existentes.
 
-        New data is first transformed through the model's pipeline.
-        Transformers that are only applied on the training set are
-        skipped. The estimator must have a `predict` method.
+        Novos dados são primeiro transformados pelo pipeline do modelo.
+        Transformadores aplicados apenas no conjunto de treinamento são
+        ignorados. O estimador deve ter um método `predict`.
 
-        Read more in the [user guide][predicting].
+        Leia mais no [guia do usuário][predicting].
 
-        Parameters
+        Parâmetros
         ----------
         X: hashable, segment, sequence or dataframe-like
-            [Selection of rows][row-and-column-selection] or feature
-            set with shape=(n_samples, n_features) to make predictions
-            on.
+            [Seleção de linhas][row-and-column-selection] ou conjunto de
+            features com shape=(n_samples, n_features) para fazer previsões.
 
         inverse: bool, default=True
-            Whether to inversely transform the output through the
-            pipeline. This doesn't affect the predictions if there are
-            no transformers in the pipeline or if the transformers have
-            no `inverse_transform` method or don't apply to `y`.
+            Se deve transformar inversamente a saída pelo pipeline.
+            Isso não afeta as previsões se não houver transformadores no
+            pipeline ou se os transformadores não tiverem um método
+            `inverse_transform` ou não se aplicarem a `y`.
 
         verbose: int or None, default=None
-            Verbosity level for the transformers in the pipeline. If
-            None, it uses the pipeline's verbosity.
+            Nível de verbosidade para os transformadores no pipeline. Se
+            None, usa a verbosidade do pipeline.
 
-        Returns
+        Retorna
         -------
         series or dataframe
-            Predictions with shape=(n_samples,) or shape=(n_samples,
-            n_targets) for [multioutput tasks][].
+            Previsões com shape=(n_samples,) ou shape=(n_samples,
+            n_targets) para [tarefas multioutput][].
 
         """
         pred = self._prediction(X, verbose=verbose, method="predict")
@@ -2995,31 +2976,30 @@ class ClassRegModel(BaseModel):
         *,
         verbose: Verbose | None = None,
     ) -> XReturn:
-        """Get class log-probabilities on new data or existing rows.
+        """Obtém log-probabilidades das classes em novos dados ou linhas existentes.
 
-        New data is first transformed through the model's pipeline.
-        Transformers that are only applied on the training set are
-        skipped. The estimator must have a `predict_log_proba` method.
+        Novos dados são primeiro transformados pelo pipeline do modelo.
+        Transformadores aplicados apenas no conjunto de treinamento são
+        ignorados. O estimador deve ter um método `predict_log_proba`.
 
-        Read more in the [user guide][predicting].
+        Leia mais no [guia do usuário][predicting].
 
-        Parameters
+        Parâmetros
         ----------
         X: hashable, segment, sequence or dataframe-like
-            [Selection of rows][row-and-column-selection] or feature
-            set with shape=(n_samples, n_features) to make predictions
-            on.
+            [Seleção de linhas][row-and-column-selection] ou conjunto de
+            features com shape=(n_samples, n_features) para fazer previsões.
 
         verbose: int or None, default=None
-            Verbosity level for the transformers in the pipeline. If
-            None, it uses the pipeline's verbosity.
+            Nível de verbosidade para os transformadores no pipeline. Se
+            None, usa a verbosidade do pipeline.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Predicted class log-probabilities with shape=(n_samples,
-            n_classes) or shape=(n_samples * n_classes, n_targets) with
-            a multiindex format for [multioutput tasks][].
+            Log-probabilidades previstas das classes com shape=(n_samples,
+            n_classes) ou shape=(n_samples * n_classes, n_targets) com
+            formato multiindex para [tarefas multioutput][].
 
         """
         return self._convert(self._prediction(X, verbose=verbose, method="predict_log_proba"))
@@ -3032,31 +3012,30 @@ class ClassRegModel(BaseModel):
         *,
         verbose: Verbose | None = None,
     ) -> XReturn:
-        """Get class probabilities on new data or existing rows.
+        """Obtém probabilidades das classes em novos dados ou linhas existentes.
 
-        New data is first transformed through the model's pipeline.
-        Transformers that are only applied on the training set are
-        skipped. The estimator must have a `predict_proba` method.
+        Novos dados são primeiro transformados pelo pipeline do modelo.
+        Transformadores aplicados apenas no conjunto de treinamento são
+        ignorados. O estimador deve ter um método `predict_proba`.
 
-        Read more in the [user guide][predicting].
+        Leia mais no [guia do usuário][predicting].
 
-        Parameters
+        Parâmetros
         ----------
         X: hashable, segment, sequence or dataframe-like
-            [Selection of rows][row-and-column-selection] or feature
-            set with shape=(n_samples, n_features) to make predictions
-            on.
+            [Seleção de linhas][row-and-column-selection] ou conjunto de
+            features com shape=(n_samples, n_features) para fazer previsões.
 
         verbose: int or None, default=None
-            Verbosity level for the transformers in the pipeline. If
-            None, it uses the pipeline's verbosity.
+            Nível de verbosidade para os transformadores no pipeline. Se
+            None, usa a verbosidade do pipeline.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Predicted class probabilities with shape=(n_samples,
-            n_classes) or shape=(n_samples * n_classes, n_targets) with
-            a multiindex format for [multioutput tasks][].
+            Probabilidades previstas das classes com shape=(n_samples,
+            n_classes) ou shape=(n_samples * n_classes, n_targets) com
+            formato multiindex para [tarefas multioutput][].
 
         """
         return self._convert(self._prediction(X, verbose=verbose, method="predict_proba"))
@@ -3072,54 +3051,53 @@ class ClassRegModel(BaseModel):
         sample_weight: Sequence[Scalar] | None = None,
         verbose: Verbose | None = None,
     ) -> Float:
-        """Get a metric score on new data.
+        """Obtém uma pontuação de métrica em novos dados.
 
-        New data is first transformed through the model's pipeline.
-        Transformers that are only applied on the training set are
-        skipped.
+        Novos dados são primeiro transformados pelo pipeline do modelo.
+        Transformadores aplicados apenas no conjunto de treinamento são
+        ignorados.
 
-        Read more in the [user guide][predicting].
+        Leia mais no [guia do usuário][predicting].
 
         !!! info
-            If the `metric` parameter is left to its default value, the
-            method returns experionml's metric score, not the metric returned
-            by sklearn's score method for estimators.
+            Se o parâmetro `metric` for deixado com seu valor padrão, o
+            método retorna a pontuação da métrica do experionml, não a métrica retornada
+            pelo método score do sklearn para estimadores.
 
-        Parameters
+        Parâmetros
         ----------
         X: hashable, segment, sequence or dataframe-like
-            [Selection of rows][row-and-column-selection] or feature
-            set with shape=(n_samples, n_features) to make predictions
-            on.
+            [Seleção de linhas][row-and-column-selection] ou conjunto de
+            features com shape=(n_samples, n_features) para fazer previsões.
 
         y: int, str, sequence, dataframe-like or None, default=None
-            Target column(s) corresponding to `X`.
+            Coluna(s) alvo correspondente(s) a `X`.
 
-            - If None: `X` must be a selection of rows in the dataset.
-            - If int: Position of the target column in `X`.
-            - If str: Name of the target column in `X`.
-            - If sequence: Target column with shape=(n_samples,) or
-              sequence of column names or positions for multioutput
-              tasks.
-            - If dataframe: Target columns for multioutput tasks.
+            - Se None: `X` deve ser uma seleção de linhas no dataset.
+            - Se int: Posição da coluna alvo em `X`.
+            - Se str: Nome da coluna alvo em `X`.
+            - Se sequence: Coluna alvo com shape=(n_samples,) ou
+              sequência de nomes ou posições de colunas para tarefas
+              multioutput.
+            - Se dataframe: Colunas alvo para tarefas multioutput.
 
         metric: str, func, scorer or None, default=None
-            Metric to calculate. Choose from any of sklearn's scorers,
-            a function with signature `metric(y_true, y_pred) -> score`
-            or a scorer object. If None, it uses experionml's metric (the main
-            metric for [multi-metric runs][]).
+            Métrica a calcular. Escolha entre qualquer um dos scorers do sklearn,
+            uma função com assinatura `metric(y_true, y_pred) -> score`
+            ou um objeto scorer. Se None, usa a métrica do experionml (a métrica
+            principal para [execuções multi-métrica][]).
 
         sample_weight: sequence or None, default=None
-            Sample weights corresponding to `y`.
+            Pesos das amostras correspondentes a `y`.
 
         verbose: int or None, default=None
-            Verbosity level for the transformers in the pipeline. If
-            None, it uses the pipeline's verbosity.
+            Nível de verbosidade para os transformadores no pipeline. Se
+            None, usa a verbosidade do pipeline.
 
-        Returns
+        Retorna
         -------
         float
-            Metric score of X with respect to y.
+            Pontuação da métrica de X em relação a y.
 
         """
         return self._prediction(
@@ -3133,19 +3111,19 @@ class ClassRegModel(BaseModel):
 
 
 class ForecastModel(BaseModel):
-    """Forecasting models."""
+    """Modelos de previsão de séries temporais."""
 
     @crash
     def get_tags(self) -> dict[str, Any]:
-        """Get the model's tags.
+        """Obtém as tags do modelo.
 
-        Return class parameters that provide general information about
-        the model's characteristics.
+        Retorna os parâmetros da classe que fornecem informações gerais sobre
+        as características do modelo.
 
-        Returns
+        Retorna
         -------
         dict
-            Model's tags.
+            Tags do modelo.
 
         """
         return {
@@ -3200,46 +3178,46 @@ class ForecastModel(BaseModel):
         method: PredictionMethodsTS = "predict",
         **kwargs,
     ) -> Float | Normal | Pandas:
-        """Get predictions on new data or existing rows.
+        """Obtém previsões em novos dados ou linhas existentes.
 
-        If `fh` is not a [ForecastingHorizon][], it gets the rows from
-        the branch. If `fh` is a [ForecastingHorizon][] or not provided,
-        it converts `X` and `y` through the pipeline. The model should
-        implement the provided method.
+        Se `fh` não for um [ForecastingHorizon][], obtém as linhas do
+        branch. Se `fh` for um [ForecastingHorizon][] ou não for fornecido,
+        converte `X` e `y` pelo pipeline. O modelo deve implementar o
+        método fornecido.
 
-        Parameters
+        Parâmetros
         ----------
         fh: hashable, segment, sequence, dataframe, [ForecastingHorizon][] or None, default=None
-            The [forecasting horizon][row-and-column-selection] encoding
-            the time stamps to forecast at.
+            O [horizonte de previsão][row-and-column-selection] que codifica
+            os timestamps para prever.
 
         y: int, str, sequence, dataframe-like or None, default=None
-            Ground truth observations.
+            Observações de ground truth.
 
         X: hashable, segment, sequence, dataframe-like or None, default=None
-            Exogenous time series corresponding to `fh`.
+            Séries temporais exógenas correspondentes a `fh`.
 
         metric: str, func, scorer or None, default=None
-            Metric to calculate. Choose from any of sklearn's scorers,
-            a function with signature metric(y_true, y_pred) or a scorer
-            object. If None, it returns mean accuracy for classification
-            tasks and r2 for regression tasks. Only for method="score".
+            Métrica a calcular. Escolha entre qualquer um dos scorers do sklearn,
+            uma função com assinatura metric(y_true, y_pred) ou um objeto scorer.
+            Se None, retorna acurácia média para tarefas de classificação
+            e r2 para tarefas de regressão. Somente para method="score".
 
         verbose: int or None, default=None
-            Verbosity level for the transformers in the pipeline. If
-            None, it uses the pipeline's verbosity.
+            Nível de verbosidade para os transformadores no pipeline. Se
+            None, usa a verbosidade do pipeline.
 
         method: str, default="predict"
-            Prediction method to be applied to the estimator.
+            Método de previsão a ser aplicado ao estimador.
 
         **kwargs
-            Additional keyword arguments for the method.
+            Argumentos de palavras-chave adicionais para o método.
 
-        Returns
+        Retorna
         -------
         float, sktime.proba.[Normal][], series or dataframe
-            Calculated predictions. The return type depends on the method
-            called.
+            Previsões calculadas. O tipo de retorno depende do método
+            chamado.
 
         """
         Xt: pd.DataFrame | None
@@ -3255,8 +3233,8 @@ class ForecastModel(BaseModel):
                 fh = ForecastingHorizon(Xt.index, is_relative=False)
             except IndexError:
                 raise ValueError(
-                    f"Ambiguous use of parameter fh, got {fh}. Use a ForecastingHorizon "
-                    "object to make predictions on future samples outside the dataset."
+                    f"Uso ambíguo do parâmetro fh, recebido {fh}. Use um objeto ForecastingHorizon "
+                    "para fazer previsões em amostras futuras fora do dataset."
                 ) from None
 
         elif y is not None:
@@ -3305,38 +3283,38 @@ class ForecastModel(BaseModel):
         inverse: Bool = True,
         verbose: Verbose | None = None,
     ) -> YReturn:
-        """Get predictions on new data or existing rows.
+        """Obtém previsões em novos dados ou linhas existentes.
 
-        New data is first transformed through the model's pipeline.
-        Transformers that are only applied on the training set are
-        skipped. The estimator must have a `predict` method.
+        Novos dados são primeiro transformados pelo pipeline do modelo.
+        Transformadores aplicados apenas no conjunto de treinamento são
+        ignorados. O estimador deve ter um método `predict`.
 
-        Read more in the [user guide][predicting].
+        Leia mais no [guia do usuário][predicting].
 
-        Parameters
+        Parâmetros
         ----------
         fh: hashable, segment, sequence, dataframe or [ForecastingHorizon][]
-            The [forecasting horizon][row-and-column-selection] encoding
-            the time stamps to forecast at.
+            O [horizonte de previsão][row-and-column-selection] que codifica
+            os timestamps para prever.
 
         X: hashable, segment, sequence, dataframe-like or None, default=None
-            Exogenous time series corresponding to `fh`.
+            Séries temporais exógenas correspondentes a `fh`.
 
         inverse: bool, default=True
-            Whether to inversely transform the output through the
-            pipeline. This doesn't affect the predictions if there are
-            no transformers in the pipeline or if the transformers have
-            no `inverse_transform` method or don't apply to `y`.
+            Se deve transformar inversamente a saída pelo pipeline.
+            Isso não afeta as previsões se não houver transformadores no
+            pipeline ou se os transformadores não tiverem um método
+            `inverse_transform` ou não se aplicarem a `y`.
 
         verbose: int or None, default=None
-            Verbosity level for the transformers in the pipeline. If
-            None, it uses the pipeline's verbosity.
+            Nível de verbosidade para os transformadores no pipeline. Se
+            None, usa a verbosidade do pipeline.
 
-        Returns
+        Retorna
         -------
         series or dataframe
-            Predictions with shape=(n_samples,) or shape=(n_samples,
-            n_targets) for [multivariate][] tasks.
+            Previsões com shape=(n_samples,) ou shape=(n_samples,
+            n_targets) para tarefas [multivariadas][].
 
         """
         pred = self._prediction(fh=fh, X=X, verbose=verbose, method="predict")
@@ -3356,40 +3334,40 @@ class ForecastModel(BaseModel):
         inverse: Bool = True,
         verbose: Verbose | None = None,
     ) -> XReturn:
-        """Get prediction intervals on new data or existing rows.
+        """Obtém intervalos de previsão em novos dados ou linhas existentes.
 
-        New data is first transformed through the model's pipeline.
-        Transformers that are only applied on the training set are
-        skipped. The estimator must have a `predict_interval` method.
+        Novos dados são primeiro transformados pelo pipeline do modelo.
+        Transformadores aplicados apenas no conjunto de treinamento são
+        ignorados. O estimador deve ter um método `predict_interval`.
 
-        Read more in the [user guide][predicting].
+        Leia mais no [guia do usuário][predicting].
 
-        Parameters
+        Parâmetros
         ----------
         fh: hashable, segment, sequence, dataframe or [ForecastingHorizon][]
-            The [forecasting horizon][row-and-column-selection] encoding
-            the time stamps to forecast at.
+            O [horizonte de previsão][row-and-column-selection] que codifica
+            os timestamps para prever.
 
         X: hashable, segment, sequence, dataframe-like or None, default=None
-            Exogenous time series corresponding to `fh`.
+            Séries temporais exógenas correspondentes a `fh`.
 
         coverage: float or sequence, default=0.9
-            Nominal coverage(s) of predictive interval(s).
+            Cobertura(s) nominal(is) do(s) intervalo(s) de previsão.
 
         inverse: bool, default=True
-            Whether to inversely transform the output through the
-            pipeline. This doesn't affect the predictions if there are
-            no transformers in the pipeline or if the transformers have
-            no `inverse_transform` method or don't apply to `y`.
+            Se deve transformar inversamente a saída pelo pipeline.
+            Isso não afeta as previsões se não houver transformadores no
+            pipeline ou se os transformadores não tiverem um método
+            `inverse_transform` ou não se aplicarem a `y`.
 
         verbose: int or None, default=None
-            Verbosity level for the transformers in the pipeline. If
-            None, it uses the pipeline's verbosity.
+            Nível de verbosidade para os transformadores no pipeline. Se
+            None, usa a verbosidade do pipeline.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Computed interval forecasts.
+            Previsões de intervalo calculadas.
 
         """
         pred = self._prediction(
@@ -3403,18 +3381,18 @@ class ForecastModel(BaseModel):
         if inverse:
             new_interval = pd.DataFrame(index=pred.index, columns=pred.columns)
 
-            # We pass every level of the multiindex to inverse_transform...
+            # Passamos cada nível do multiindex para inverse_transform...
             for cover in pred.columns.levels[1]:  # type: ignore[union-attr]
                 for level in pred.columns.levels[2]:  # type: ignore[union-attr]
-                    # Select only the lower or upper level columns
+                    # Seleciona apenas as colunas do nível inferior ou superior
                     curr_cover = pred.columns.get_level_values(1)
                     curr_level = pred.columns.get_level_values(2)
                     df = pred.loc[:, (curr_cover == cover) & (curr_level == level)]
 
-                    # Use original columns names
+                    # Usa os nomes originais das colunas
                     df.columns = df.columns.droplevel(level=(1, 2))
 
-                    # Apply inverse transformation
+                    # Aplica a transformação inversa
                     for name, column in self.inverse_transform(y=df).items():
                         new_interval.loc[:, (name, cover, level)] = column
 
@@ -3431,34 +3409,34 @@ class ForecastModel(BaseModel):
         marginal: Bool = True,
         verbose: Verbose | None = None,
     ) -> Normal:
-        """Get probabilistic forecasts on new data or existing rows.
+        """Obtém previsões probabilísticas em novos dados ou linhas existentes.
 
-        New data is first transformed through the model's pipeline.
-        Transformers that are only applied on the training set are
-        skipped. The estimator must have a `predict_proba` method.
+        Novos dados são primeiro transformados pelo pipeline do modelo.
+        Transformadores aplicados apenas no conjunto de treinamento são
+        ignorados. O estimador deve ter um método `predict_proba`.
 
-        Read more in the [user guide][predicting].
+        Leia mais no [guia do usuário][predicting].
 
-        Parameters
+        Parâmetros
         ----------
         fh: hashable, segment, sequence, dataframe or [ForecastingHorizon][]
-            The [forecasting horizon][row-and-column-selection] encoding
-            the time stamps to forecast at.
+            O [horizonte de previsão][row-and-column-selection] que codifica
+            os timestamps para prever.
 
         X: hashable, segment, sequence, dataframe-like or None, default=None
-            Exogenous time series corresponding to `fh`.
+            Séries temporais exógenas correspondentes a `fh`.
 
         marginal: bool, default=True
-            Whether returned distribution is marginal by time index.
+            Se a distribuição retornada é marginal por índice de tempo.
 
         verbose: int or None, default=None
-            Verbosity level for the transformers in the pipeline. If
-            None, it uses the pipeline's verbosity.
+            Nível de verbosidade para os transformadores no pipeline. Se
+            None, usa a verbosidade do pipeline.
 
-        Returns
+        Retorna
         -------
         sktime.proba.[Normal][]
-            Distribution object.
+            Objeto de distribuição.
 
         """
         return self._prediction(
@@ -3478,35 +3456,35 @@ class ForecastModel(BaseModel):
         alpha: Float | Sequence[Float] = (0.05, 0.95),
         verbose: Verbose | None = None,
     ) -> XReturn:
-        """Get quantile forecasts on new data or existing rows.
+        """Obtém previsões de quantis em novos dados ou linhas existentes.
 
-        New data is first transformed through the model's pipeline.
-        Transformers that are only applied on the training set are
-        skipped. The estimator must have a `predict_quantiles` method.
+        Novos dados são primeiro transformados pelo pipeline do modelo.
+        Transformadores aplicados apenas no conjunto de treinamento são
+        ignorados. O estimador deve ter um método `predict_quantiles`.
 
-        Read more in the [user guide][predicting].
+        Leia mais no [guia do usuário][predicting].
 
-        Parameters
+        Parâmetros
         ----------
         fh: hashable, segment, sequence, dataframe or [ForecastingHorizon][]
-            The [forecasting horizon][row-and-column-selection] encoding
-            the time stamps to forecast at.
+            O [horizonte de previsão][row-and-column-selection] que codifica
+            os timestamps para prever.
 
         X: hashable, segment, sequence, dataframe-like or None, default=None
-            Exogenous time series corresponding to `fh`.
+            Séries temporais exógenas correspondentes a `fh`.
 
         alpha: float or sequence, default=(0.05, 0.95)
-            A probability or list of, at which quantile forecasts are
-            computed.
+            Uma probabilidade ou lista de probabilidades nas quais as
+            previsões de quantis são calculadas.
 
         verbose: int or None, default=None
-            Verbosity level for the transformers in the pipeline. If
-            None, it uses the pipeline's verbosity.
+            Nível de verbosidade para os transformadores no pipeline. Se
+            None, usa a verbosidade do pipeline.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Computed quantile forecasts.
+            Previsões de quantis calculadas.
 
         """
         return self._convert(
@@ -3527,33 +3505,33 @@ class ForecastModel(BaseModel):
         *,
         verbose: Verbose | None = None,
     ) -> YReturn:
-        """Get residuals of forecasts on new data or existing rows.
+        """Obtém resíduos de previsões em novos dados ou linhas existentes.
 
-        New data is first transformed through the model's pipeline.
-        Transformers that are only applied on the training set are
-        skipped. The estimator must have a `predict_residuals` method.
+        Novos dados são primeiro transformados pelo pipeline do modelo.
+        Transformadores aplicados apenas no conjunto de treinamento são
+        ignorados. O estimador deve ter um método `predict_residuals`.
 
-        Read more in the [user guide][predicting].
+        Leia mais no [guia do usuário][predicting].
 
-        Parameters
+        Parâmetros
         ----------
         y: hashable, segment, sequence or dataframe-like
-            [Selection of rows][row-and-column-selection] or ground
-            truth observations.
+            [Seleção de linhas][row-and-column-selection] ou observações
+            de ground truth.
 
         X: dataframe-like or None, default=None
-            Exogenous time series corresponding to `y`. This parameter
-            is ignored outif `y` is a selection of rows in the dataset.
+            Séries temporais exógenas correspondentes a `y`. Este parâmetro
+            é ignorado se `y` for uma seleção de linhas no dataset.
 
         verbose: int or None, default=None
-            Verbosity level for the transformers in the pipeline. If
-            None, it uses the pipeline's verbosity.
+            Nível de verbosidade para os transformadores no pipeline. Se
+            None, usa a verbosidade do pipeline.
 
-        Returns
+        Retorna
         -------
         series or dataframe
-            Residuals with shape=(n_samples,) or shape=(n_samples,
-            n_targets) for [multivariate][] tasks.
+            Resíduos com shape=(n_samples,) ou shape=(n_samples,
+            n_targets) para tarefas [multivariadas][].
 
         """
         return self._convert(
@@ -3569,35 +3547,35 @@ class ForecastModel(BaseModel):
         cov: Bool = False,
         verbose: Verbose | None = None,
     ) -> XReturn:
-        """Get variance forecasts on new data or existing rows.
+        """Obtém previsões de variância em novos dados ou linhas existentes.
 
-        New data is first transformed through the model's pipeline.
-        Transformers that are only applied on the training set are
-        skipped. The estimator must have a `predict_var` method.
+        Novos dados são primeiro transformados pelo pipeline do modelo.
+        Transformadores aplicados apenas no conjunto de treinamento são
+        ignorados. O estimador deve ter um método `predict_var`.
 
-        Read more in the [user guide][predicting].
+        Leia mais no [guia do usuário][predicting].
 
-        Parameters
+        Parâmetros
         ----------
         fh: hashable, segment, sequence, dataframe or [ForecastingHorizon][]
-            The [forecasting horizon][row-and-column-selection] encoding
-            the time stamps to forecast at.
+            O [horizonte de previsão][row-and-column-selection] que codifica
+            os timestamps para prever.
 
         X: hashable, segment, sequence, dataframe-like or None, default=None
-            Exogenous time series corresponding to `fh`.
+            Séries temporais exógenas correspondentes a `fh`.
 
         cov: bool, default=False
-            Whether to compute covariance matrix forecast or marginal
-            variance forecasts.
+            Se deve calcular a previsão da matriz de covariância ou
+            previsões de variância marginal.
 
         verbose: int or None, default=None
-            Verbosity level for the transformers in the pipeline. If
-            None, it uses the pipeline's verbosity.
+            Nível de verbosidade para os transformadores no pipeline. Se
+            None, usa a verbosidade do pipeline.
 
-        Returns
+        Retorna
         -------
         dataframe
-            Computed variance forecasts.
+            Previsões de variância calculadas.
 
         """
         return self._convert(
@@ -3620,47 +3598,47 @@ class ForecastModel(BaseModel):
         metric: str | MetricFunction | Scorer | None = None,
         verbose: Verbose | None = None,
     ) -> Float:
-        """Get a metric score on new data.
+        """Obtém uma pontuação de métrica em novos dados.
 
-        New data is first transformed through the model's pipeline.
-        Transformers that are only applied on the training set are
-        skipped.
+        Novos dados são primeiro transformados pelo pipeline do modelo.
+        Transformadores aplicados apenas no conjunto de treinamento são
+        ignorados.
 
-        Read more in the [user guide][predicting].
+        Leia mais no [guia do usuário][predicting].
 
         !!! info
-            If the `metric` parameter is left to its default value, the
-            method returns experionml's metric score, not the metric used by
-            sktime's score method for estimators.
+            Se o parâmetro `metric` for deixado com seu valor padrão, o
+            método retorna a pontuação da métrica do experionml, não a métrica usada pelo
+            método score do sktime para estimadores.
 
-        Parameters
+        Parâmetros
         ----------
         y: int, str, sequence or dataframe-like
-            [Selection of rows][row-and-column-selection] or ground
-            truth observations.
+            [Seleção de linhas][row-and-column-selection] ou observações
+            de ground truth.
 
         X: dataframe-like or None, default=None
-            Exogenous time series corresponding to `fh`. This parameter
-            is ignored if `y` is a selection of rows in the dataset.
+            Séries temporais exógenas correspondentes a `fh`. Este parâmetro
+            é ignorado se `y` for uma seleção de linhas no dataset.
 
         fh: hashable, segment, sequence, dataframe, [ForecastingHorizon][] or None, default=None
-            Do nothing. The forecast horizon is taken from the index of
-            `y`. Implemented for continuity of sktime's API.
+            Não faz nada. O horizonte de previsão é obtido do índice de
+            `y`. Implementado para continuidade da API do sktime.
 
         metric: str, func, scorer or None, default=None
-            Metric to calculate. Choose from any of sklearn's scorers,
-            a function with signature `metric(y_true, y_pred) -> score`
-            or a scorer object. If None, it uses experionml's metric (the main
-            metric for [multi-metric runs][]).
+            Métrica a calcular. Escolha entre qualquer um dos scorers do sklearn,
+            uma função com assinatura `metric(y_true, y_pred) -> score`
+            ou um objeto scorer. Se None, usa a métrica do experionml (a métrica
+            principal para [execuções multi-métrica][]).
 
         verbose: int or None, default=None
-            Verbosity level for the transformers in the pipeline. If
-            None, it uses the pipeline's verbosity.
+            Nível de verbosidade para os transformadores no pipeline. Se
+            None, usa a verbosidade do pipeline.
 
-        Returns
+        Retorna
         -------
         float
-            Metric score of `y` with respect to a ground truth.
+            Pontuação da métrica de `y` em relação ao ground truth.
 
         """
         return self._prediction(fh=None, y=y, X=X, metric=metric, verbose=verbose, method="score")

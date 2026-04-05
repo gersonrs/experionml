@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import os
@@ -10,9 +9,7 @@ from collections.abc import Hashable
 from datetime import datetime as dt
 from importlib import import_module
 from importlib.util import find_spec
-from logging import (
-    DEBUG, FileHandler, Formatter, Logger, NullHandler, getLogger,
-)
+from logging import DEBUG, FileHandler, Formatter, Logger, NullHandler, getLogger
 from multiprocessing import cpu_count
 from pathlib import Path
 from typing import Literal, NoReturn, TypeVar, overload
@@ -28,39 +25,53 @@ from sklearn.utils.validation import check_memory
 
 from experionml.integrations import INTEGRATIONS
 from experionml.utils.types import (
-    Backend, Bool, Engine, EngineDataOptions, EngineEstimatorOptions,
-    EngineTuple, Estimator, FeatureNamesOut, Int, IntLargerEqualZero, Pandas,
-    Severity, Verbose, Warnings, XReturn, XSelector, YReturn, YSelector,
-    bool_t, int_t,
+    Backend,
+    Bool,
+    Engine,
+    EngineDataOptions,
+    EngineEstimatorOptions,
+    EngineTuple,
+    Estimator,
+    FeatureNamesOut,
+    Int,
+    IntLargerEqualZero,
+    Pandas,
+    Severity,
+    Verbose,
+    Warnings,
+    XReturn,
+    XSelector,
+    YReturn,
+    YSelector,
+    bool_t,
+    int_t,
 )
-from experionml.utils.utils import (
-    check_dependency, crash, lst, make_sklearn, to_df, to_tabular,
-)
+from experionml.utils.utils import check_dependency, crash, lst, make_sklearn, to_df, to_tabular
 
 
 T_Estimator = TypeVar("T_Estimator", bound=Estimator)
 
 
 class BaseTransformer:
-    """Base class for transformers in the package.
+    """Classe base para transformadores no pacote.
 
-    Note that this includes experionml and runners. Contains shared
-    properties, data preparation methods, and utility methods.
+    Inclui experionml e runners. Contém propriedades compartilhadas,
+    métodos de preparação de dados e métodos utilitários.
 
-    Parameters
+    Parâmetros
     ----------
     **kwargs
-        Standard keyword arguments for the classes. Can include:
+        Argumentos nomeados padrão para as classes. Pode incluir:
 
-        - n_jobs: Number of cores to use for parallel processing.
-        - device: Device on which to run the estimators.
-        - engine: Execution engine to use for data and estimators.
-        - backend: Parallelization backend.
-        - verbose: Verbosity level of the output.
-        - warnings: Whether to show or suppress encountered warnings.
-        - logger: Name of the log file, Logger object or None.
-        - experiment: Name of the mlflow experiment used for tracking.
-        - random_state: Seed used by the random number generator.
+        - n_jobs: Número de núcleos para processamento paralelo.
+        - device: Dispositivo no qual executar os estimadores.
+        - engine: Motor de execução para dados e estimadores.
+        - backend: Backend de paralelização.
+        - verbose: Nível de verbosidade da saída.
+        - warnings: Se deve exibir ou suprimir avisos encontrados.
+        - logger: Nome do arquivo de log, objeto Logger ou None.
+        - experiment: Nome do experimento mlflow usado para rastreamento.
+        - random_state: Semente usada pelo gerador de números aleatórios.
 
     """
 
@@ -78,21 +89,21 @@ class BaseTransformer:
     )
 
     def __init__(self, **kwargs):
-        """Update the properties with the provided kwargs."""
+        """Atualiza as propriedades com os kwargs fornecidos."""
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    # Properties =================================================== >>
+    # Propriedades ================================================= >>
 
     @property
     def n_jobs(self) -> int:
-        """Number of cores to use for parallel processing."""
+        """Número de núcleos para processamento paralelo."""
         return self._n_jobs
 
     @n_jobs.setter
     @beartype
     def n_jobs(self, value: Int):
-        # Check the number of cores for multiprocessing
+        # Verifica o número de núcleos para multiprocessamento
         if value > (n_cores := cpu_count()):
             self._n_jobs = n_cores
         else:
@@ -100,7 +111,7 @@ class BaseTransformer:
 
     @property
     def device(self) -> str:
-        """Device on which to run the estimators."""
+        """Dispositivo no qual executar os estimadores."""
         return self._device
 
     @device.setter
@@ -112,7 +123,7 @@ class BaseTransformer:
 
     @property
     def engine(self) -> EngineTuple:
-        """Execution engine for data and estimators."""
+        """Motor de execução para dados e estimadores."""
         return self._engine
 
     @engine.setter
@@ -132,7 +143,7 @@ class BaseTransformer:
         elif isinstance(value, EngineTuple):
             engine = value
 
-        # Make sure the data engine library is installed
+        # Garante que a biblioteca do motor de dados está instalada
         check_dependency(engine.data_engine.library)
 
         if engine.estimator == "sklearnex":
@@ -144,15 +155,15 @@ class BaseTransformer:
         elif engine.estimator == "cuml":
             if not find_spec("cuml"):
                 raise ModuleNotFoundError(
-                    "Failed to import cuml. Package is not installed. "
-                    "Refer to: https://rapids.ai/start.html#install."
+                    "Falha ao importar cuml. Pacote não instalado. "
+                    "Consulte: https://rapids.ai/start.html#install."
                 )
             else:
                 from cuml.common.device_selection import set_global_device_type
 
                 set_global_device_type("gpu" if self._gpu else "cpu")
 
-                # See https://github.com/rapidsai/cuml/issues/5564
+                # Ver https://github.com/rapidsai/cuml/issues/5564
                 from cuml.internals.memory_utils import set_global_output_type
 
                 set_global_output_type("numpy")
@@ -161,7 +172,7 @@ class BaseTransformer:
 
     @property
     def backend(self) -> Backend:
-        """Parallelization backend."""
+        """Backend de paralelização."""
         return self._backend
 
     @backend.setter
@@ -172,7 +183,7 @@ class BaseTransformer:
             import ray
             from ray.util.joblib import register_ray
 
-            register_ray()  # Register ray as joblib backend
+            register_ray()  # Registra ray como backend do joblib
             if not ray.is_initialized():
                 ray.init(log_to_driver=False)
 
@@ -191,13 +202,13 @@ class BaseTransformer:
 
     @property
     def memory(self) -> Memory:
-        """Get the internal memory object."""
+        """Retorna o objeto de memória interno."""
         return self._memory
 
     @memory.setter
     @beartype
     def memory(self, value: Bool | str | Path | Memory):
-        """Create a new internal memory object."""
+        """Cria um novo objeto de memória interno."""
         if value is False:
             value = None
         elif value is True:
@@ -209,7 +220,7 @@ class BaseTransformer:
 
     @property
     def verbose(self) -> Verbose:
-        """Verbosity level of the output."""
+        """Nível de verbosidade da saída."""
         return self._verbose
 
     @verbose.setter
@@ -219,7 +230,7 @@ class BaseTransformer:
 
     @property
     def warnings(self) -> Warnings:
-        """Whether to show or suppress encountered warnings."""
+        """Se deve exibir ou suprimir avisos encontrados."""
         return self._warnings
 
     @warnings.setter
@@ -230,32 +241,40 @@ class BaseTransformer:
         else:
             self._warnings = value
 
-        warnings.filterwarnings(self._warnings)  # Change the filter in this process
+        warnings.filterwarnings(self._warnings)  # Altera o filtro neste processo
         warnings.filterwarnings("ignore", category=FutureWarning, module=".*pandas.*")
         warnings.filterwarnings("ignore", category=FutureWarning, module=".*imblearn.*")
         warnings.filterwarnings("ignore", category=UserWarning, module=".*sktime.*")
         warnings.filterwarnings("ignore", category=DeprecationWarning, module=".*shap.*")
         warnings.filterwarnings("ignore", category=ResourceWarning, module=".*ray.*")
-        os.environ["PYTHONWARNINGS"] = self._warnings  # Affects subprocesses (joblib)
+        os.environ["PYTHONWARNINGS"] = self._warnings  # Afeta subprocessos (joblib)
 
     @property
     def logger(self) -> Logger | None:
-        """Logger for this instance."""
+        """Logger desta instância."""
         return self._logger
 
     @logger.setter
     @beartype
     def logger(self, value: str | Path | Logger | None):
         external_loggers = [
-            "dagshub", "mlflow", "optuna", "ray", "featuretools", "prophet", "cmdstanpy"
+            "dagshub",
+            "mlflow",
+            "optuna",
+            "ray",
+            "featuretools",
+            "prophet",
+            "cmdstanpy",
         ]
 
-        # Clear existing handlers for external loggers
+        # Limpa handlers existentes para loggers externos
         for name in external_loggers:
             for handler in (log := getLogger(name)).handlers:
                 handler.close()
             log.handlers.clear()
-            log.addHandler(NullHandler())  # Add dummy handler to avoid logging.lastResort
+            log.addHandler(
+                NullHandler()
+            )  # Adiciona handler fictício para evitar logging.lastResort
 
         if not value:
             logger = None
@@ -266,12 +285,12 @@ class BaseTransformer:
                 logger = getLogger(self.__class__.__name__)
                 logger.setLevel(DEBUG)
 
-                # Clear existing handlers for current logger
+                # Limpa handlers existentes para o logger atual
                 for handler in logger.handlers:
                     handler.close()
                 logger.handlers.clear()
 
-                # Prepare the FileHandler
+                # Prepara o FileHandler
                 if (path := Path(value)).suffix != ".log":
                     path = path.with_suffix(".log")
                 if path.name == "auto.log":
@@ -281,7 +300,7 @@ class BaseTransformer:
                 fh = FileHandler(path)
                 fh.setFormatter(Formatter("%(asctime)s - %(levelname)s: %(message)s"))
 
-                # Redirect loggers to file handler
+                # Redireciona loggers para o handler de arquivo
                 for name in [logger.name, *external_loggers]:
                     log = getLogger(name)
                     log.setLevel(DEBUG)
@@ -291,7 +310,7 @@ class BaseTransformer:
 
     @property
     def experiment(self) -> str | None:
-        """Name of the mlflow experiment used for tracking."""
+        """Nome do experimento mlflow usado para rastreamento."""
         return self._experiment
 
     @experiment.setter
@@ -305,13 +324,13 @@ class BaseTransformer:
                     INTEGRATIONS[integrator](project_name=experiment_name)
                 else:
                     raise ValueError(
-                        "Invalid value for the experiment parameter. Character ':' must "
-                        f"be preceded by a valid integration platform, got {integrator}. "
-                        f"Available options are: {','.join(INTEGRATIONS)}."
+                        "Valor inválido para o parâmetro experiment. O caractere ':' deve "
+                        f"ser precedido por uma plataforma de integração válida, recebido {integrator}. "
+                        f"Opções disponíveis: {','.join(INTEGRATIONS)}."
                     )
             else:
                 if any(k in mlflow.get_tracking_uri() for k in INTEGRATIONS):
-                    mlflow.set_tracking_uri("")  # Reset URI to ./mlruns
+                    mlflow.set_tracking_uri("")  # Redefine URI para ./mlruns
 
                 experiment_name = value
 
@@ -320,7 +339,7 @@ class BaseTransformer:
 
     @property
     def random_state(self) -> int | None:
-        """Seed used by the random number generator."""
+        """Semente usada pelo gerador de números aleatórios."""
         return self._random_state
 
     @random_state.setter
@@ -335,25 +354,25 @@ class BaseTransformer:
 
     @property
     def _gpu(self) -> bool:
-        """Return whether the instance uses a GPU implementation."""
+        """Retorna se a instância usa uma implementação em GPU."""
         return "gpu" in self.device.lower()
 
     @property
     def _device_id(self) -> int:
-        """Which GPU device to use."""
+        """Qual dispositivo GPU usar."""
         if len(value := self.device.split(":")) == 1:
-            return 0  # Default value
+            return 0  # Valor padrão
         else:
             try:
                 return int(value[-1])
             except (TypeError, ValueError):
                 raise ValueError(
-                    f"Invalid value for the device parameter. GPU device {value[-1]} "
-                    "isn't understood. Use a single integer to denote a specific "
-                    "device. Note that ExperionML doesn't support multi-GPU training."
+                    f"Valor inválido para o parâmetro device. O dispositivo GPU {value[-1]} "
+                    "não é reconhecido. Use um único inteiro para indicar um dispositivo específico. "
+                    "Observe que o ExperionML não suporta treinamento multi-GPU."
                 ) from None
 
-    # Methods ====================================================== >>
+    # Métodos ====================================================== >>
 
     @staticmethod
     @overload
@@ -403,70 +422,69 @@ class BaseTransformer:
         columns: Axes | None = None,
         name: str | Axes | None = None,
     ) -> tuple[pd.DataFrame | None, Pandas | None]:
-        """Prepare the input data.
+        """Prepara os dados de entrada.
 
-        Convert X and y to pandas and perform standard compatibility
-        checks (dimensions, length, indices, etc...).
+        Converte X e y para pandas e realiza verificações padrão de
+        compatibilidade (dimensões, comprimento, índices, etc...).
 
-        Parameters
+        Parâmetros
         ----------
-        X: dataframe-like or None, default=None
-            Feature set with shape=(n_samples, n_features). If None,
-            `X` is ignored.
+        X: dataframe-like ou None, default=None
+            Conjunto de features com shape=(n_samples, n_features). Se None,
+            `X` é ignorado.
 
-        y: int, str, sequence, dataframe-like or None, default=None
-            Target column(s) corresponding to `X`.
+        y: int, str, sequence, dataframe-like ou None, default=None
+            Coluna(s) alvo correspondente(s) a `X`.
 
-            - If None: `y` is ignored.
-            - If int: Position of the target column in `X`.
-            - If str: Name of the target column in `X`.
-            - If sequence: Target column with shape=(n_samples,) or
-              sequence of column names or positions for multioutput
-              tasks.
-            - If dataframe-like: Target columns for multioutput tasks.
+            - Se None: `y` é ignorado.
+            - Se int: Posição da coluna alvo em `X`.
+            - Se str: Nome da coluna alvo em `X`.
+            - Se sequence: Coluna alvo com shape=(n_samples,) ou
+              sequência de nomes ou posições de colunas para tarefas
+              de múltiplas saídas.
+            - Se dataframe-like: Colunas alvo para tarefas de múltiplas saídas.
 
-        columns: sequence of str or None, default=None
-            Column names for the feature set. If None, default names
-            are used.
+        columns: sequência de str ou None, default=None
+            Nomes de colunas para o conjunto de features. Se None, nomes
+            padrão são usados.
 
-        name: str, sequence or None, default=None
-            Name of the target column(s). If None, a default name is
-            used.
+        name: str, sequência ou None, default=None
+            Nome da(s) coluna(s) alvo. Se None, um nome padrão é usado.
 
-        Returns
+        Retorna
         -------
-        pd.DataFrame or None
-            Feature set.
+        pd.DataFrame ou None
+            Conjunto de features.
 
-        pd.Series, pd.DataFrame or None
-            Target column(s) corresponding to `X`.
+        pd.Series, pd.DataFrame ou None
+            Coluna(s) alvo correspondente(s) a `X`.
 
         """
         if X is None and y is None:
-            raise ValueError("X and y can't be both None!")
+            raise ValueError("X e y não podem ser ambos None!")
         else:
             Xt = to_df(X() if callable(X) else X, columns=columns)
 
-        # Prepare target column
+        # Prepara a coluna alvo
         yt: Pandas | None
         if y is None:
             yt = None
         elif isinstance(y, int_t):
             if Xt is None:
-                raise ValueError("X can't be None when y is an int.")
+                raise ValueError("X não pode ser None quando y é um inteiro.")
 
             Xt, yt = Xt.drop(columns=Xt.columns[int(y)]), Xt[Xt.columns[int(y)]]
         elif isinstance(y, str):
             if Xt is not None:
                 if y not in Xt.columns:
-                    raise ValueError(f"Column {y} not found in X!")
+                    raise ValueError(f"Coluna {y} não encontrada em X!")
 
                 Xt, yt = Xt.drop(columns=y), Xt[y]
 
             else:
-                raise ValueError("X can't be None when y is a string.")
+                raise ValueError("X não pode ser None quando y é uma string.")
         else:
-            # If X and y have different number of rows, try multioutput
+            # Se X e y têm número diferente de linhas, tenta multioutput
             if Xt is not None and not isinstance(y, dict) and len(Xt) != len(y):
                 try:
                     targets: list[Hashable] = []
@@ -478,24 +496,24 @@ class BaseTransformer:
                                 targets.append(Xt.columns[int(col)])
                             else:
                                 raise IndexError(
-                                    "Invalid value for the y parameter. Value "
-                                    f"{col} is out of range for data with "
-                                    f"{Xt.shape[1]} columns."
+                                    "Valor inválido para o parâmetro y. O valor "
+                                    f"{col} está fora do intervalo para dados com "
+                                    f"{Xt.shape[1]} colunas."
                                 )
 
                     Xt, yt = Xt.drop(columns=targets), Xt[targets]
 
                 except (TypeError, IndexError, KeyError):
                     raise ValueError(
-                        "X and y don't have the same number of rows,"
-                        f" got len(X)={len(Xt)} and len(y)={len(y)}."
+                        "X e y não têm o mesmo número de linhas,"
+                        f" obtidos len(X)={len(Xt)} e len(y)={len(y)}."
                     ) from None
             else:
                 yt = to_tabular(y, index=getattr(Xt, "index", None), columns=name)
 
-            # Check X and y have the same indices
+            # Verifica se X e y têm os mesmos índices
             if Xt is not None and not Xt.index.equals(yt.index):
-                raise ValueError("X and y don't have the same indices!")
+                raise ValueError("X e y não têm os mesmos índices!")
 
         return Xt, yt
 
@@ -509,45 +527,45 @@ class BaseTransformer:
     def _convert(self, obj: pd.Series) -> YReturn: ...
 
     def _convert(self, obj: Pandas | None) -> YReturn | None:
-        """Convert data to the type set in the data engine.
+        """Converte dados para o tipo definido no motor de dados.
 
-        Non-pandas types are returned as is.
+        Tipos que não são pandas são retornados como estão.
 
-        Parameters
+        Parâmetros
         ----------
         obj: object
-            Object to convert.
+            Objeto a ser convertido.
 
-        Returns
+        Retorna
         -------
         object
-            Converted data or unchanged object.
+            Dados convertidos ou objeto inalterado.
 
         """
-        # Only apply transformations when the engine is defined
+        # Aplica transformações apenas quando o motor está definido
         if hasattr(self, "_engine") and isinstance(obj, pd.Series | pd.DataFrame):
             return self._engine.data_engine.convert(obj)
         else:
             return obj
 
     def _get_est_class(self, name: str, module: str) -> type[Estimator]:
-        """Import a class from a module.
+        """Importa uma classe de um módulo.
 
-        When the import fails, for example, if experionml uses sklearnex and
-        that's passed to a transformer, use sklearn's (default engine).
+        Quando a importação falha, por exemplo, se o experionml usa sklearnex e
+        isso é passado para um transformador, usa o sklearn (motor padrão).
 
-        Parameters
+        Parâmetros
         ----------
         name: str
-            Name of the class to get.
+            Nome da classe a obter.
 
         module: str
-            Module from which to get the class.
+            Módulo do qual obter a classe.
 
-        Returns
+        Retorna
         -------
         Estimator
-            Class of the estimator.
+            Classe do estimador.
 
         """
         try:
@@ -559,39 +577,39 @@ class BaseTransformer:
 
     def _inherit(
         self,
-        obj: T_Estimator, fixed: tuple[str, ...] = (),
+        obj: T_Estimator,
+        fixed: tuple[str, ...] = (),
         feature_names_out: FeatureNamesOut = "one-to-one",
     ) -> T_Estimator:
-        """Inherit parameters from parent.
+        """Herda parâmetros do pai.
 
-        Utility method to set the sp (seasonal period), n_jobs and
-        random_state parameters of an estimator (if available) equal
-        to that of this instance. If `obj` is a meta-estimator, it
-        also adjusts the parameters of the base estimator.
+        Método utilitário para definir os parâmetros sp (período sazonal), n_jobs e
+        random_state de um estimador (se disponíveis) iguais aos desta instância.
+        Se `obj` é um meta-estimador, também ajusta os parâmetros do estimador base.
 
-        Parameters
+        Parâmetros
         ----------
         obj: Estimator
-            Instance for which to change the parameters.
+            Instância para a qual alterar os parâmetros.
 
-        fixed: tuple of str, default=()
-            Fixed parameters that should not be overriden.
+        fixed: tuple de str, default=()
+            Parâmetros fixos que não devem ser sobrescritos.
 
-        feature_names_out: "one-to-one", callable or None, default="one-to-one"
-            Determines the list of feature names that will be returned
-            by the `get_feature_names_out` method.
+        feature_names_out: "one-to-one", callable ou None, default="one-to-one"
+            Determina a lista de nomes de features que serão retornados
+            pelo método `get_feature_names_out`.
 
-            - If None: The `get_feature_names_out` method is not defined.
-            - If "one-to-one": The output feature names will be equal to
-              the input feature names.
-            - If callable: Function that takes positional arguments self
-              and a sequence of input feature names. It must return a
-              sequence of output feature names.
+            - Se None: O método `get_feature_names_out` não é definido.
+            - Se "one-to-one": Os nomes de features de saída serão iguais
+              aos nomes de features de entrada.
+            - Se callable: Função que recebe argumentos posicionais self
+              e uma sequência de nomes de features de entrada. Deve retornar
+              uma sequência de nomes de features de saída.
 
-        Returns
+        Retorna
         -------
         Estimator
-            Same object with changed parameters.
+            Mesmo objeto com parâmetros alterados.
 
         """
         for p in obj.get_params():
@@ -610,18 +628,18 @@ class BaseTransformer:
 
     @crash
     def _log(self, msg: str, level: Int = 0, severity: Severity = "info"):
-        """Print message and save to log file.
+        """Exibe mensagem e salva no arquivo de log.
 
-        Parameters
+        Parâmetros
         ----------
         msg: str
-            Message to save to the logger and print to stdout.
+            Mensagem a salvar no logger e exibir no stdout.
 
         level: int, default=0
-            Minimum verbosity level to print the message.
+            Nível mínimo de verbosidade para exibir a mensagem.
 
         severity: str, default="info"
-            Severity level of the message. Choose from: debug, info,
+            Nível de severidade da mensagem. Escolha entre: debug, info,
             warning, error, critical.
 
         """
