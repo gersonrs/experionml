@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/gersonrs/experionml/compare/v1.5.0...v1.6.0) (2026-04-10)
+
+
+### 🚀 New Features
+
+* update example ([132501d](https://github.com/gersonrs/experionml/commit/132501da7785d77db03314d0b94954e681771ad0))
+
 ## [1.5.0](https://github.com/gersonrs/experionml/compare/v1.4.0...v1.5.0) (2026-04-05)
 
 
