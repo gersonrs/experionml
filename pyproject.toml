@@ -64,7 +64,7 @@ full = [
     "explainerdashboard>=0.4.3",
     # gradio: >=4.0 tem API incompatível com 3.x; actualizar o wrapper
     # em api.py antes de remover este pin.
-    "gradio>=3.44.4,<4.0",
+    "gradio>=3.44.4,<7.0",
     "lightgbm>=4.1.0",
     "modin[ray]>=0.25.0; python_version < '3.12'",
     "optuna-integration>=3.6.0",
