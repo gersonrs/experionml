@@ -2035,7 +2035,7 @@ class LogisticRegression(ClassRegModel):
         cond_2 = penalty == "l1" and solver not in ("liblinear", "saga")
         cond_3 = penalty == "elasticnet" and solver != "saga"
 
-        if cond_1 or cond_2 or cond_3 and "penalty" in params:
+        if cond_1 or cond_2 or (cond_3 and "penalty" in params):
             params["penalty"] = "l2"  # Altera para o valor padrão
 
         return params

@@ -1096,7 +1096,8 @@ class BaseModel(RunnerPlot):
                 )
 
                 scores = [
-                    self._score_from_est(metric, estimator, X_val, y_val) for metric in self._metric
+                    self._score_from_est(metric, estimator, X_val, y_val)
+                    for metric in self._metric
                 ]
 
                 return estimator, scores
@@ -2475,7 +2476,7 @@ class BaseModel(RunnerPlot):
         """
         if not self.experiment:
             raise PermissionError(
-                "O método register só está disponível quando " "há um experimento mlflow ativo."
+                "O método register só está disponível quando há um experimento mlflow ativo."
             )
 
         model = mlflow.register_model(

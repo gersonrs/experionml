@@ -12,6 +12,8 @@ mlruns/
 # Caching
 .mypy_cache/
 .pytest_cache/
+.ruff_cache/
+.cache/
 
 # IDE
 .idea/
@@ -78,3 +80,11 @@ coverage.xml
 
 # GitHub
 github.com/
+
+# Ferramentas locais / ambientes
+.venv/
+.python-version
+
+# Artefatos acidentais de pip install com aspas erradas (ex.: `pip install "x>=1.0"` em shell sem quoting)
+/=*
+examples/=*

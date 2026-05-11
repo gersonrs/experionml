@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 from random import choices
@@ -11,7 +10,9 @@ import pytest
 from numpy.random import Generator
 from sklearn.base import BaseEstimator
 from sklearn.datasets import (
-    load_breast_cancer, load_diabetes, load_wine,
+    load_breast_cancer,
+    load_diabetes,
+    load_wine,
     make_multilabel_classification,
 )
 from sklearn.model_selection import train_test_split
@@ -104,7 +105,7 @@ def _mock_mlflow_log_model(mocker):
     mocker.patch("mlflow.sklearn.log_model")
 
 
-@pytest.fixture()
+@pytest.fixture
 def random() -> Generator:
     """Return numpy's default random number generator."""
     return np.random.default_rng()

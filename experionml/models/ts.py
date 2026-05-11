@@ -151,7 +151,9 @@ class ARIMA(ForecastModel):
             "P": Int(0, 2),
             "D": Int(0, 1),
             "Q": Int(0, 2),
-            "method": Cat(["newton", "nm", "bfgs", "lbfgs", "powell", "cg", "ncg", "basinhopping"]),
+            "method": Cat(
+                ["newton", "nm", "bfgs", "lbfgs", "powell", "cg", "ncg", "basinhopping"]
+            ),
             "maxiter": Int(50, 200, step=10),
             "with_intercept": Cat([True, False]),
         }
@@ -252,7 +254,9 @@ class AutoARIMA(ForecastModel):
         """
         return {
             "information_criterion": Cat(["aic", "bic", "hqic", "oob"]),
-            "method": Cat(["newton", "nm", "bfgs", "lbfgs", "powell", "cg", "ncg", "basinhopping"]),
+            "method": Cat(
+                ["newton", "nm", "bfgs", "lbfgs", "powell", "cg", "ncg", "basinhopping"]
+            ),
             "maxiter": Int(50, 200, step=10),
             "with_intercept": Cat([True, False]),
         }
@@ -545,7 +549,9 @@ class DynamicFactor(ForecastModel):
             "error_var": Cat([True, False]),
             "enforce_stationarity": Cat([True, False]),
             "cov_type": Cat(["opg", "oim", "approx", "robust", "robust_approx", "none"]),
-            "method": Cat(["newton", "nm", "bfgs", "lbfgs", "powell", "cg", "ncg", "basinhopping"]),
+            "method": Cat(
+                ["newton", "nm", "bfgs", "lbfgs", "powell", "cg", "ncg", "basinhopping"]
+            ),
             "maxiter": Int(50, 200, step=10),
         }
 
@@ -863,7 +869,9 @@ class NaiveForecaster(ForecastModel):
     native_multioutput = True
     supports_engines = ("sktime",)
 
-    _estimators: ClassVar[dict[str, str]] = {"forecast": "sktime.forecasting.naive.NaiveForecaster"}
+    _estimators: ClassVar[dict[str, str]] = {
+        "forecast": "sktime.forecasting.naive.NaiveForecaster"
+    }
 
     def _get_est(self, params: dict[str, Any]) -> Predictor:
         """Obtém o estimador do modelo com os parâmetros desempacotados.
@@ -1388,7 +1396,9 @@ class Theta(ForecastModel):
     native_multioutput = True
     supports_engines = ("sktime",)
 
-    _estimators: ClassVar[dict[str, str]] = {"forecast": "sktime.forecasting.theta.ThetaForecaster"}
+    _estimators: ClassVar[dict[str, str]] = {
+        "forecast": "sktime.forecasting.theta.ThetaForecaster"
+    }
 
     def _get_est(self, params: dict[str, Any]) -> Predictor:
         """Obtém o estimador do modelo com os parâmetros desempacotados.
@@ -1589,7 +1599,9 @@ class VARMAX(ForecastModel):
             "enforce_stationarity": Cat([True, False]),
             "enforce_invertibility": Cat([True, False]),
             "cov_type": Cat(["opg", "oim", "approx", "robust", "robust_approx"]),
-            "method": Cat(["newton", "nm", "bfgs", "lbfgs", "powell", "cg", "ncg", "basinhopping"]),
+            "method": Cat(
+                ["newton", "nm", "bfgs", "lbfgs", "powell", "cg", "ncg", "basinhopping"]
+            ),
             "maxiter": Int(50, 200, step=10),
         }
 

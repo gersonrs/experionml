@@ -1,4 +1,3 @@
-
 import numpy as np
 import pandas as pd
 import polars as pl
@@ -11,20 +10,43 @@ from sklearn.preprocessing import StandardScaler
 from sktime.forecasting.naive import NaiveForecaster
 
 from experionml.data_cleaning import (
-    Balancer, Cleaner, Decomposer, Discretizer, Encoder, Imputer, Normalizer,
-    Pruner, Scaler,
+    Balancer,
+    Cleaner,
+    Decomposer,
+    Discretizer,
+    Encoder,
+    Imputer,
+    Normalizer,
+    Pruner,
+    Scaler,
 )
 from experionml.utils.types import NumericalStrats
 from experionml.utils.utils import NotFittedError, check_scaling, to_df
 
 from .conftest import (
-    X10, X10_nan, X10_sn, X10_str, X10_str2, X_bin, X_class, X_ex, X_idx,
-    X_sparse, y10, y10_label, y10_nan, y10_str, y_bin, y_class, y_idx,
+    X10,
+    X10_nan,
+    X10_sn,
+    X10_str,
+    X10_str2,
+    X_bin,
+    X_class,
+    X_ex,
+    X_idx,
+    X_sparse,
+    y10,
+    y10_label,
+    y10_nan,
+    y10_str,
+    y_bin,
+    y_class,
+    y_idx,
     y_multiclass,
 )
 
 
 # Test TransformerMixin ============================================ >>
+
 
 def test_repr():
     """Assert that __repr__ hides the default engine."""
@@ -68,6 +90,7 @@ def test_set_output():
 
 
 # Test Balancer ==================================================== >>
+
 
 def test_balance_multioutput_task():
     """Assert that an error is raised for multioutput tasks."""
@@ -155,6 +178,7 @@ def test_balancer_attach_attribute():
 
 
 # Test Cleaner ==================================================== >>
+
 
 def test_cleaner_convert_dtypes():
     """Assert that column dtypes are converted."""
@@ -278,6 +302,7 @@ def test_cleaner_target_mapping_binary():
 
 # Test Decomposer ================================================== >>
 
+
 def test_decomposer_invalid_model():
     """Assert that an error is raised when model is invalid."""
     with pytest.raises(ValueError, match=".*value for the model.*"):
@@ -298,6 +323,7 @@ def test_decomposer_inverse_transform():
 
 
 # Test Discretizer ================================================= >>
+
 
 def test_missing_columns_in_dict_are_ignored():
     """Assert that only columns in the dict are transformed."""
@@ -383,6 +409,7 @@ def test_labels_custom_strategy():
 
 
 # Test Encoder ===================================================== >>
+
 
 def test_strategy_parameter_encoder():
     """Assert that the strategy parameter is set correctly."""
@@ -473,6 +500,7 @@ def test_kwargs_parameters():
 
 
 # Test Imputer ===================================================== >>
+
 
 @pytest.mark.parametrize("missing", [None, np.nan, np.inf, -np.inf, 99])
 def test_imputing_all_missing_values_numeric(missing):
@@ -593,6 +621,7 @@ def test_imputing_non_numeric_most_frequent():
 
 # Test Normalizer ======================================================= >>
 
+
 @pytest.mark.parametrize("strategy", ["yeojohnson", "boxcox", "quantile"])
 def test_normalizer_all_strategies(strategy):
     """Assert that all strategies work as intended."""
@@ -647,6 +676,7 @@ def test_normalizer_attach_attribute():
 
 
 # Test Pruner ====================================================== >>
+
 
 def test_invalid_method_for_non_z_score():
     """Assert that an error is raised for an invalid method and strat combination."""
@@ -743,6 +773,7 @@ def test_pruner_attach_attribute():
 
 
 # Test Scaler ====================================================== >>
+
 
 @pytest.mark.parametrize("strategy", ["standard", "minmax", "maxabs", "robust"])
 def test_scaler_all_strategies(strategy):

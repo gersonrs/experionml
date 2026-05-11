@@ -12,7 +12,7 @@ from optuna import Study, create_study
 
 from experionml.baserunner import BaseRunner
 from experionml.data import BranchManager
-from experionml.data_cleaning import BaseTransformer
+from experionml.basetransformer import BaseTransformer
 from experionml.models import MODELS, create_custom_model
 from experionml.plots import RunnerPlot
 from experionml.utils.types import Model, Verbose, sequence_t
@@ -126,7 +126,7 @@ class BaseTrainer(BaseRunner, RunnerPlot, metaclass=ABCMeta):
                 )
             return dict(zip(lst(self.models), value, strict=True))
         elif not isinstance(value, dict):
-            return {k: value for k in lst(self.models)}
+            return dict.fromkeys(lst(self.models), value)
 
         return value
 
@@ -303,7 +303,7 @@ class BaseTrainer(BaseRunner, RunnerPlot, metaclass=ABCMeta):
                 for name in self._models.keys():
                     if not isinstance(value, dict):
                         # Se for sequência, aplica a todos os modelos
-                        self._ht_params[key][name] = {k: None for k in lst(value)}
+                        self._ht_params[key][name] = dict.fromkeys(lst(value))
                     else:
                         # Uma distribuição para todos ou uma por modelo
                         for k, v in value.items():
@@ -311,13 +311,11 @@ class BaseTrainer(BaseRunner, RunnerPlot, metaclass=ABCMeta):
                                 if isinstance(v, dict):
                                     self._ht_params[key][name].update(v)
                                 else:
-                                    self._ht_params[key][name].update(
-                                        {param: None for param in lst(v)}
-                                    )
+                                    self._ht_params[key][name].update(dict.fromkeys(lst(v)))
                             elif k not in self._models:
                                 self._ht_params[key][name][k] = v
             elif key in sign(create_study) | sign(Study.optimize):
-                self._ht_params[key] = {k: value for k in self._models.keys()}
+                self._ht_params[key] = dict.fromkeys(self._models.keys(), value)
             else:
                 raise ValueError(
                     f"Invalid value for the ht_params parameter. Key {key} is invalid."

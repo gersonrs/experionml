@@ -1,4 +1,3 @@
-
 import sys
 from datetime import timedelta
 from unittest.mock import patch
@@ -10,13 +9,18 @@ import pytest
 
 from experionml import show_versions
 from experionml.utils.utils import (
-    ClassMap, time_to_str, to_df, to_series, variable_return,
+    ClassMap,
+    time_to_str,
+    to_df,
+    to_series,
+    variable_return,
 )
 
 from .conftest import X_bin, X_bin_array, y_bin, y_bin_array
 
 
 # Test _show_versions ============================================== >>
+
 
 def test_show_versions():
     """Assert that the show_versions function runs without errors."""
@@ -26,6 +30,7 @@ def test_show_versions():
 
 
 # Test utils ======================================================= >>
+
 
 def test_classmap_failed_initialization():
     """Assert that an error is raised when the classes do not have the key attribute."""

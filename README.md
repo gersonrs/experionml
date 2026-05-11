@@ -1,42 +1,116 @@
 # ExperionML
 
-## 💡 **Introdução**
+[![PyPI version](https://img.shields.io/pypi/v/experionml.svg)](https://pypi.org/project/experionml/)
+[![Python versions](https://img.shields.io/pypi/pyversions/experionml.svg)](https://pypi.org/project/experionml/)
+[![CI](https://github.com/gersonrs/ExperionML/actions/workflows/ci.yml/badge.svg)](https://github.com/gersonrs/ExperionML/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Checked with mypy](https://img.shields.io/badge/mypy-checked-2a6db2.svg)](https://mypy-lang.org/)
 
-Durante a fase de exploração de um projeto de aprendizado de máquina, o cientista de dados precisa identificar o pipeline mais adequado para o seu problema específico. Esse processo normalmente envolve diversas etapas, como limpeza de dados, criação ou seleção de atributos relevantes, teste de diferentes algoritmos e avaliação de múltiplas configurações de modelos.
-
-Explorar várias combinações de pipelines costuma exigir muitas linhas de código. Quando todo esse processo é realizado em um único notebook, o código rapidamente se torna longo, difícil de manter e pouco organizado. Por outro lado, dividir os experimentos em múltiplos notebooks pode dificultar a comparação entre resultados e a visão geral do progresso do projeto. Além disso, refatorar código para cada novo experimento pode consumir um tempo significativo.
-
-Quantas vezes você já executou as mesmas etapas de pré-processamento para diferentes conjuntos de dados? Quantas vezes precisou copiar e colar código de repositórios antigos para reutilizar em novos projetos?
-
-**ExperionML** foi desenvolvido para resolver esses problemas comuns no fluxo de trabalho de machine learning. A biblioteca atua como uma camada de orquestração sobre todo o pipeline de modelagem, permitindo que cientistas de dados executem experimentos de forma rápida, organizada e reproduzível.
-
-Com o ExperionML, tarefas repetitivas são automatizadas e o foco passa a ser a experimentação e a análise de resultados. Em poucas linhas de código, é possível aplicar etapas essenciais de pré-processamento, selecionar atributos relevantes, treinar múltiplos modelos e comparar seus desempenhos em um mesmo conjunto de dados.
-
-Dessa forma, o ExperionML permite que o usuário avance rapidamente do **dado bruto para insights relevantes**, mantendo os experimentos estruturados e fáceis de analisar.
+> Camada de orquestração para experimentação em machine learning — do dado bruto à comparação estruturada de modelos em poucas linhas.
 
 ---
 
-### Exemplo de etapas executadas no pipeline do ExperionML
+## 💡 Introdução
 
-**1. Limpeza de dados**
+Durante a fase de exploração de um projeto de ML, o cientista de dados precisa
+identificar o pipeline mais adequado para o seu problema. Isso envolve limpar
+dados, engenheirar atributos, testar algoritmos e avaliar configurações.
 
-- Tratamento de valores ausentes
-- Codificação de variáveis categóricas
-- Detecção e remoção de outliers
-- Balanceamento do conjunto de treinamento
+Explorar várias combinações custa **muito código repetido**. Em um único
+notebook o arquivo fica gigante; em vários, a comparação entre resultados
+se perde. Refatorar a cada novo experimento consome tempo que deveria estar
+indo para análise.
 
-**2. Engenharia de atributos**
+**ExperionML** centraliza tudo em um único objeto de orquestração:
+dataset + branches + pipeline + runners de treino + plots. A API é uma
+fachada única, e por trás dela o estado do experimento é explícito e
+reproduzível.
 
-- Criação de atributos não lineares
-- Seleção das variáveis mais relevantes
+## ✨ Principais recursos
 
-**3. Treinamento e validação de múltiplos modelos**
+- **Branches de experimento** — múltiplos estados paralelos (`main`, `scaled`,
+  `balanced`, …) sem reimplementar o pipeline.
+- **Pipeline estendido do sklearn** — suporta transformadores que alteram
+  linhas, que operam em `X` e `y`, cache com joblib e séries temporais.
+- **Limpeza, encoding, imputação, balanceamento** em chamadas de uma linha.
+- **Feature engineering** via featuretools, gplearn e zoofs.
+- **Treino, tuning com Optuna, bootstrap, SuccessiveHalving, TrainSizing**.
+- **Tracking com MLflow** integrado, inclusive DAGsHub via `Integrator`.
+- **Plots padronizados** para comparação de modelos, calibração, SHAP, etc.
+- **NLP**, previsão de séries temporais (`sktime`) e mais.
 
-- Ajuste de hiperparâmetros
-- Treinamento dos modelos no conjunto de treino
-- Avaliação no conjunto de teste
+## 📦 Instalação
 
-**4. Análise dos resultados**
+Requer **Python 3.10, 3.11 ou 3.12**.
 
-- Cálculo de métricas de desempenho
-- Visualizações para comparação entre modelos
+```bash
+pip install experionml
+```
+
+Para o conjunto completo de extras opcionais (CatBoost, LightGBM, XGBoost,
+Ray, Dask, Polars, Gradio, ExplainerDashboard, …):
+
+```bash
+pip install "experionml[full]"
+```
+
+## 🚀 Quickstart
+
+```python
+from sklearn.datasets import load_breast_cancer
+
+from experionml import ExperionMLClassifier
+
+X, y = load_breast_cancer(return_X_y=True, as_frame=True)
+
+# Inicia o experimento
+exp = ExperionMLClassifier(X, y=y, random_state=1)
+
+# Pré-processamento encadeado — cada chamada registra uma etapa no pipeline
+exp.impute(strat_num="median", strat_cat="most_frequent")
+exp.encode(strategy="Target", max_onehot=6)
+exp.scale(strategy="standard")
+
+# Treina vários modelos e compara (acronyms resolvidos via registry)
+exp.run(models=["LR", "RF", "LGB"], metric="f1")
+
+# Resultados prontos para análise
+print(exp.results)
+exp.plot_results()
+```
+
+## 🧭 Arquitetura em 30 segundos
+
+```
+ExperionMLClassifier / Regressor / Forecaster        (fachada)
+        └── ExperionML                               (orquestrador)
+             ├── BranchManager → Branches            (estado do experimento)
+             ├── Pipeline                            (histórico executável)
+             ├── Transformers                        (clean, encode, ...)
+             ├── Runners + Trainers                  (Direct, SH, TrainSizing)
+             └── Plots                               (análise visual)
+```
+
+Detalhes completos em [ARCHITECTURE_PRESENTATION.md](ARCHITECTURE_PRESENTATION.md).
+
+## 📚 Exemplos
+
+A pasta [examples/](examples/) contém notebooks cobrindo:
+classificação binária/multiclasse/multilabel, regressão, forecasting,
+NLP, SHAP, calibração, hyperparameter tuning, successive halving,
+train sizing, ensembles, feature engineering e muito mais.
+
+Comece por [examples/getting_started.ipynb](examples/getting_started.ipynb).
+
+## 🤝 Contribuindo
+
+Veja [CONTRIBUTING.md](CONTRIBUTING.md) para ambiente de dev, estilo de
+código, testes, conventional commits e processo de PR.
+
+Temos também:
+[Código de Conduta](CODE_OF_CONDUCT.md) · [Política de Segurança](SECURITY.md)
+
+## 📝 Licença
+
+[MIT](LICENSE) — © gersonrs

@@ -10,7 +10,7 @@ authors = [{name = "gersonrs", email = "gersonrodriguessantos8@gmail.com"}]
 license = "MIT"
 license-files = ["LICENSE"]
 readme = "README.md"
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.10"
 keywords = ["Python package", "Machine Learning", "Modeling", "Data Pipeline"]
 classifiers = [
     "Programming Language :: Python :: 3.10",
@@ -23,7 +23,9 @@ classifiers = [
 dependencies = [
     "beartype>=0.18.5",
     "category-encoders>=2.6.3",
-    "setuptools>=41.0,<70",  # woodwork/featuretools require pkg_resources (removed in setuptools 70+)
+    # woodwork<=0.31.0 (versão máxima disponível) ainda usa pkg_resources;
+    # setuptools<70 é necessário para que pkg_resources exista como módulo de nível superior.
+    "setuptools<70",
     "dill>=0.3.6",
     "featuretools>=1.28.0",
     "gplearn>=0.4.2",
@@ -31,19 +33,26 @@ dependencies = [
     "ipython>=8.9.0",
     "ipywidgets>=8.1.1",
     "joblib>=1.3.1",
+    "nbformat>=4.2.0",
     "matplotlib>=3.7.2",
     "mlflow>=2.10.2",
     "nltk>=3.8.1",
-    "numpy>=1.23.0",
+    "numpy>=1.26.0",  # 1.26 é a bridge release para numpy 2.x (mesma API)
     "optuna>=3.6.0",
+    # pandas <3.0: pandas 3 muda CoW para default e remove APIs deprecadas.
+    # Remover pin após auditar chamadas a .values, inplace=, etc.
     "pandas>=2.2.2,<3.0",
     "plotly>=5.18.0",
+    # sklearn <1.6: metadata routing vira default em 1.6; habilitar após
+    # validar todos os transformadores personalizados com enable_metadata_routing=True.
     "scikit-learn>=1.5.0,<1.6",
     "scipy>=1.10.1",
     "shap>=0.43.0",
     "sktime[forecasting]>=0.30.0",
     "statsmodels>=0.14.1",
-    "zoofs>=0.1.25",  # Keep at 0.1.25 because it's the max conda version
+    # zoofs: 0.1.25 é a versão máxima no conda; manter para compatibilidade
+    # com ambientes conda. Reavaliar ao publicar no conda-forge.
+    "zoofs>=0.1.25",
 ]
 
 [project.optional-dependencies]
@@ -53,11 +62,14 @@ full = [
     "dagshub>=0.3.8",
     "dask[dataframe,distributed]>=2024.2.0",
     "explainerdashboard>=0.4.3",
-    "gradio>=3.44.4",
+    # gradio: >=4.0 tem API incompatível com 3.x; actualizar o wrapper
+    # em api.py antes de remover este pin.
+    "gradio>=3.44.4,<4.0",
     "lightgbm>=4.1.0",
     "modin[ray]>=0.25.0; python_version < '3.12'",
     "optuna-integration>=3.6.0",
-    "polars>=0.20.7",
+    # polars 1.0 renomeou vários métodos; manter >=1.0 para ter API estável.
+    "polars>=1.0.0",
     "pyarrow>=15.0.0",
     "pyspark>=3.5.0",
     "ray[serve]>=2.9.1; python_version < '3.12'",
@@ -71,9 +83,17 @@ full = [
     "xgboost>=2.0.0",
 ]
 
-[tool.pdm.dev-dependencies]
+# PEP 735 — dependency-groups são portáteis (pip install --group, uv, hatch).
+# Substitui o antigo [tool.pdm.dev-dependencies], que só o PDM lia.
+[dependency-groups]
 lint = [
-    "pre-commit>=3.6.2"
+    "pre-commit>=3.6.2",
+    "ruff>=0.6.0",
+    "mypy>=1.10.0",
+    "pandas-stubs",
+    "types-markdown",
+    "types-requests",
+    "types-pyyaml",
 ]
 test = [
     "absl-py>=2.1.0; python_version < '3.12'",  # Required by tensorflow
@@ -96,9 +116,15 @@ doc = [
     "mkdocs-material>=9.5.13",
     "mkdocs-material-extensions>=1.3.1",
     "mkdocs-simple-hooks>=0.1.5",
+    "mkdocstrings[python]>=0.25.0",
     "notebook==6.4.12",  # Older versions fail with plugins
     "pymdown-extensions>=10.7.1",
     "pyyaml>=6.0.1",
+]
+dev = [
+    {include-group = "lint"},
+    {include-group = "test"},
+    {include-group = "doc"},
 ]
 
 [project.urls]
@@ -109,22 +135,14 @@ doc = [
 where = ["."]
 include = ["experionml*"]
 
+[tool.setuptools.package-data]
+experionml = ["py.typed"]
+
 [tool.pytest.ini_options]
 cache_dir = ".cache/pytest"
 testpaths = "tests/"
 python_files = "*.py"
 python_functions = "test_*"
-
-[tool.isort]
-skip_gitignore = true
-multi_line_output = 5
-atomic = true
-lines_after_imports = 2
-include_trailing_comma = true
-ignore_comments = true
-remove_redundant_aliases = true
-profile = "black"
-line_length = 100
 
 [tool.ruff]
 cache-dir = ".cache/ruff"
@@ -132,6 +150,7 @@ line-length = 99
 indent-width = 4
 show-fixes = true
 extend-include = ["*.ipynb"]
+extend-exclude = ["examples/"]
 
 [tool.ruff.lint]
 select = [
@@ -170,12 +189,17 @@ select = [
 ]
 ignore = [
     "E731",  # Do not assign a `lambda` expression, use a `def`
-    "COM812",  # Trailing comma missing
-    "PD901",  #  Avoid using the generic variable name `df` for DataFrames
+    "E501",  # Line too long (gerenciado pelo formatter)
+    "COM812",  # Trailing comma missing (conflita com formatter)
+    "ISC001",  # Implicit string concatenation (conflita com formatter)
     "PD011",  # Use `.to_numpy()` instead of `.values`
     "PD009",  # Use `.iloc` instead of `.iat`
     "ARG002",  # Unused method argument
     "B023",  # Function definition does not bind loop variable
+    "D100",  # Missing docstring in public module (ruído; docstrings relevantes estão nas funções)
+    "D104",  # Missing docstring in public package
+    "D401",  # First line should be in imperative mood (estilo; existem docstrings em PT que não batem)
+    "PYI061",  # Use `X | None` instead of `Optional[X]` em .pyi
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -189,6 +213,10 @@ ignore = [
     "T20",  # print found
     "S101",  # assert called
     "PT011",  # error is too broad
+    "RUF043",  # regex com metacaracteres em `match=` — ok em testes
+    "RUF059",  # unused unpacked variable — comum em fixtures
+    "RUF061",  # legacy pytest.raises form
+    "PT001",  # pytest fixture parentheses style
 ]
 "autodocs.py" = [
     "C408",  # Unnecessary `dict` call
@@ -218,14 +246,8 @@ exclude_also = [
     "@(abc\\.)?abstractmethod",
 ]
 
-[tool.black]
-line-length = 100
-target-version = ['py310', 'py311', 'py312']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  # The following are specific to Black, you probably don't want those.
-  tests/ignore
-  | htmlcov
-)/
-'''
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+docstring-code-format = false

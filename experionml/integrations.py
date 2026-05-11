@@ -1,10 +1,7 @@
-
 from __future__ import annotations
 
 import os
 from abc import ABCMeta, abstractmethod
-
-import mlflow
 
 from experionml.utils.utils import check_dependency
 
@@ -36,6 +33,7 @@ class DAGsHubIntegrator(Integrator):
     def __init__(self, project_name: str):
         check_dependency("dagshub")
         check_dependency("requests")
+        import mlflow
         import dagshub
         import requests
         from dagshub.auth.token_auth import HTTPBearerAuth

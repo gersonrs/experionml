@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 from experionml.utils.types import Bool

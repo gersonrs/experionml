@@ -16,20 +16,14 @@ from itertools import cycle
 from types import GeneratorType, MappingProxyType
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast, overload
 
-import mlflow
-import nltk
 import numpy as np
 import pandas as pd
-import plotly.graph_objects as go
 import scipy.sparse as sps
 from beartype.door import is_bearable
 from IPython.display import display
-from matplotlib.colors import to_rgba
-from mlflow.models.signature import infer_signature
 from pandas._libs.missing import NAType
 from pandas._typing import Axes, DtypeObj
 from pandas.api.types import is_numeric_dtype
-from shap import Explainer
 from sklearn.base import BaseEstimator
 from sklearn.base import OneToOneFeatureMixin as FMixin
 from sklearn.metrics import (
@@ -78,7 +72,7 @@ from experionml.utils.types import (
 if TYPE_CHECKING:
     from optuna.study import Study
     from optuna.trial import FrozenTrial
-    from shap import Explanation
+    from shap import Explainer, Explanation
 
     from experionml.basemodel import BaseModel
     from experionml.baserunner import BaseRunner
@@ -750,6 +744,9 @@ class TrialsCallback:
 
         # Salva os trials no experimento do mlflow como execuções aninhadas
         if self.T.experiment and self.T.log_ht:
+            import mlflow
+            from mlflow.models.signature import infer_signature
+
             with mlflow.start_run(run_id=self.T.run.info.run_id):
                 run_name = f"{self.T.name} - {trial.number}"
                 with mlflow.start_run(run_name=run_name, nested=True):
@@ -850,6 +847,8 @@ class PlotCallback:
     def __init__(self, name: str, metric: list[str], aesthetics: Aesthetics):
         self.y1: dict[int, deque] = {i: deque(maxlen=self.max_len) for i in range(len(metric))}
         self.y2: dict[int, deque] = {i: deque(maxlen=self.max_len) for i in range(len(metric))}
+
+        import plotly.graph_objects as go
 
         traces = []
         colors = cycle(aesthetics.palette)
@@ -1025,6 +1024,8 @@ class ShapExplanation:
             "feature_names": list(self.branch.features),
             "seed": self.random_state,
         }
+
+        from shap import Explainer
 
         try:  # Falha quando o modelo não se encaixa nos explainers padrão
             return Explainer(self.estimator, **kwargs)
@@ -1382,6 +1383,8 @@ def to_rgb(c: str) -> str:
         Representação RGB da cor.
 
     """
+    from matplotlib.colors import to_rgba
+
     if not c.startswith("rgb"):
         colors = to_rgba(c)[:3]
         return f"rgb({colors[0]}, {colors[1]}, {colors[2]})"
@@ -1676,6 +1679,8 @@ def check_nltk_module(module: str, *, quiet: bool):
         Indica se logs devem ser exibidos durante o download.
 
     """
+    import nltk
+
     try:
         nltk.data.find(module)
     except LookupError:
@@ -1857,7 +1862,9 @@ def get_corpus(df: pd.DataFrame) -> str:
         corpus = next(col for col in df.columns if col.lower() == "corpus")
 
         if not is_bearable(df[corpus].iloc[0], (str, Sequence[str])):
-            raise TypeError("O corpus deve consistir em uma string ou em uma sequência de strings.")
+            raise TypeError(
+                "O corpus deve consistir em uma string ou em uma sequência de strings."
+            )
         else:
             return corpus
     except StopIteration as ex:
@@ -1896,7 +1903,7 @@ def time_to_str(t: Scalar) -> str:
 
 @overload
 def to_df(
-    data: Literal[None],
+    data: None,
     index: Axes | None = ...,
     columns: Axes | None = ...,
 ) -> None: ...
@@ -1990,7 +1997,7 @@ def to_df(
 
 @overload
 def to_series(
-    data: Literal[None],
+    data: None,
     index: Axes | None = ...,
     name: str | None = ...,
 ) -> None: ...
@@ -2053,7 +2060,7 @@ def to_series(
 
 @overload
 def to_tabular(
-    data: Literal[None],
+    data: None,
     index: Axes | None = ...,
     columns: str | Axes | None = ...,
 ) -> None: ...

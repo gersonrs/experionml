@@ -1,0 +1,36 @@
+name: 🚀 Feature request
+description: Sugira uma nova funcionalidade ou melhoria
+title: "feat: "
+labels: ["enhancement", "triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Qual problema essa feature resolve?
+      description: Descreva a dor prática, não pule direto para a solução.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposta
+      description: Como você imagina a API ou o comportamento?
+      placeholder: |
+        ```python
+        experionml.novo_metodo(arg=...)
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas consideradas
+      description: Já pensou em outras formas? Por que essa é melhor?
+
+  - type: textarea
+    id: references
+    attributes:
+      label: Referências
+      description: Links para bibliotecas similares, papers, RFCs etc.

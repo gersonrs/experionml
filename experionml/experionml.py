@@ -180,6 +180,12 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
         experiment: str | None = None,
         random_state: IntLargerEqualZero | None = None,
     ):
+        # Configura sklearn (transform_output="pandas", metadata routing) só
+        # quando o usuário realmente instancia o framework, não no import.
+        from experionml import _configure_sklearn
+
+        _configure_sklearn()
+
         super().__init__(
             n_jobs=n_jobs,
             device=device,
@@ -936,7 +942,9 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
                 X_test, y_test = branch.pipeline.transform(branch.X_test, branch.y_test)
 
                 # Atualiza o conjunto de dados completo
-                branch._container.data = pd.concat([merge(X_train, y_train), merge(X_test, y_test)])
+                branch._container.data = pd.concat(
+                    [merge(X_train, y_train), merge(X_test, y_test)]
+                )
 
                 if experionml._config.index is False:
                     branch._container = DataContainer(
@@ -1162,7 +1170,7 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
         if is_sparse(self.branch.X):
             self._log("Esparso: True", _vb)
             if hasattr(self.branch.X, "sparse"):  # All columns are sparse
-                self._log(f"Densidade: {100. * self.branch.X.sparse.density:.2f}%", _vb)
+                self._log(f"Densidade: {100.0 * self.branch.X.sparse.density:.2f}%", _vb)
             else:  # Not all columns are sparse
                 n_sparse = sum(isinstance(self[c].dtype, pd.SparseDtype) for c in self.features)
                 n_dense = self.n_features - n_sparse

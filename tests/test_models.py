@@ -1,4 +1,3 @@
-
 from platform import machine, system
 from unittest.mock import Mock, patch
 
@@ -9,7 +8,12 @@ from optuna.pruners import PatientPruner
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sktime.forecasting.croston import Croston
 
-from experionml import ExperionMLClassifier, ExperionMLForecaster, ExperionMLModel, ExperionMLRegressor
+from experionml import (
+    ExperionMLClassifier,
+    ExperionMLForecaster,
+    ExperionMLModel,
+    ExperionMLRegressor,
+)
 from experionml.pipeline import Pipeline
 
 from .conftest import X_bin, X_class, X_ex, X_reg, y_bin, y_class, y_fc, y_reg
@@ -162,26 +166,34 @@ def test_multivariate_forecast_custom_seasonality():
 @pytest.mark.parametrize("device", ["cpu", "gpu"])
 def test_models_sklearnex_classification(device):
     """Assert the sklearnex engine works for classification tasks."""
-    experionml = ExperionMLClassifier(X_bin, y_bin, device=device, engine="sklearnex", random_state=1)
+    experionml = ExperionMLClassifier(
+        X_bin, y_bin, device=device, engine="sklearnex", random_state=1
+    )
     experionml.run(
         models=["KNN", "LR", "RF", "SVM"],
         n_trials=2,
         est_params={"LR": {"max_iter": 5}, "RF": {"n_estimators": 5}},
     )
-    assert all(m.estimator.__module__.startswith(("daal4py", "sklearnex")) for m in experionml._models)
+    assert all(
+        m.estimator.__module__.startswith(("daal4py", "sklearnex")) for m in experionml._models
+    )
 
 
 @pytest.mark.skipif(machine() not in ("x86_64", "AMD64"), reason="Only x86 support.")
 @pytest.mark.parametrize("device", ["cpu", "gpu"])
 def test_models_sklearnex_regression(device):
     """Assert the sklearnex engine works for regression tasks."""
-    experionml = ExperionMLRegressor(X_reg, y_reg, device=device, engine="sklearnex", random_state=1)
+    experionml = ExperionMLRegressor(
+        X_reg, y_reg, device=device, engine="sklearnex", random_state=1
+    )
     experionml.run(
         models=["EN", "KNN", "Lasso", "OLS", "RF", "Ridge", "SVM"],
         n_trials=2,
         est_params={"RF": {"n_estimators": 5}},
     )
-    assert all(m.estimator.__module__.startswith(("daal4py", "sklearnex")) for m in experionml._models)
+    assert all(
+        m.estimator.__module__.startswith(("daal4py", "sklearnex")) for m in experionml._models
+    )
 
 
 @patch.dict(
@@ -194,7 +206,9 @@ def test_models_sklearnex_regression(device):
 )
 def test_models_cuml_classification():
     """Assert that all classification models can be called with cuml."""
-    experionml = ExperionMLClassifier(X_bin, y_bin, device="gpu", engine="cuml", verbose=2, random_state=1)
+    experionml = ExperionMLClassifier(
+        X_bin, y_bin, device="gpu", engine="cuml", verbose=2, random_state=1
+    )
     experionml.run(
         models=["!CatB", "!LGB", "!XGB"],
         n_trials=1,
@@ -345,6 +359,7 @@ def test_MLP_custom_n_layers():
 
 
 # Test ensembles =================================================== >>
+
 
 def test_ensemble_failed_feature_importance():
     """Assert that the Stacking model works."""

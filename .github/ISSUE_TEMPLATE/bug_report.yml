@@ -1,0 +1,73 @@
+name: 🐛 Bug report
+description: Reporte um comportamento incorreto
+title: "bug: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado pelo reporte! Quanto mais detalhes você fornecer, mais
+        rápido conseguimos reproduzir e corrigir.
+
+  - type: input
+    id: version
+    attributes:
+      label: Versão do ExperionML
+      description: Saída de `python -c "import experionml; print(experionml.__version__)"`
+      placeholder: "1.5.0"
+    validations:
+      required: true
+
+  - type: input
+    id: python
+    attributes:
+      label: Versão do Python
+      placeholder: "3.11.7"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Sistema operacional
+      placeholder: "Ubuntu 22.04 / macOS 14 / Windows 11"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Descrição do bug
+      description: O que aconteceu? O que você esperava?
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Passos para reproduzir
+      description: |
+        Forneça um **exemplo mínimo reproduzível** em Python. Quanto
+        mais enxuto, melhor.
+      render: python
+      placeholder: |
+        from sklearn.datasets import load_breast_cancer
+        from experionml import ExperionMLClassifier
+
+        X, y = load_breast_cancer(return_X_y=True, as_frame=True)
+        atom = ExperionMLClassifier(X, y=y, random_state=1)
+        # ... até reproduzir
+    validations:
+      required: true
+
+  - type: textarea
+    id: traceback
+    attributes:
+      label: Traceback / saída
+      render: shell
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Informações extras
+      description: Qualquer outro contexto relevante.

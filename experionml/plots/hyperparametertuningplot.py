@@ -750,7 +750,9 @@ class HyperparameterTuningPlot(BasePlot, metaclass=ABCMeta):
                     d["values"] = [d["ticktext"].index(v) for v in mapping]
             else:
                 # Arredonda valores numéricos
-                d["tickvals"] = [rnd(v) for v in np.linspace(min(d["values"]), max(d["values"]), 5)]
+                d["tickvals"] = [
+                    rnd(v) for v in np.linspace(min(d["values"]), max(d["values"]), 5)
+                ]
 
         fig = self._get_figure()
         xaxis, yaxis = BasePlot._fig.get_axes(

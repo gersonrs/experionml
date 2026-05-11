@@ -18,12 +18,24 @@ from experionml.training import DirectClassifier
 from experionml.utils.utils import merge
 
 from .conftest import (
-    X10, X10_str, X_bin, X_bin_array, X_class, X_idx, X_sparse, y10, y10_str,
-    y_bin, y_bin_array, y_idx, y_multiclass,
+    X10,
+    X10_str,
+    X_bin,
+    X_bin_array,
+    X_class,
+    X_idx,
+    X_sparse,
+    y10,
+    y10_str,
+    y_bin,
+    y_bin_array,
+    y_idx,
+    y_multiclass,
 )
 
 
 # Test Branch ====================================================== >>
+
 
 def test_init_empty_pipeline():
     """Assert that an empty branch has an empty pipeline."""
@@ -586,6 +598,7 @@ def test_check_scaling_drop_binary():
 
 # Test BranchManager =============================================== >>
 
+
 def test_branchmanager_repr():
     """Assert that the __repr__ method returns the branches."""
     assert str(BranchManager()) == "BranchManager([main], og=main)"
@@ -691,6 +704,7 @@ def test_reset():
 
 
 # Test data engines ================================================ >>
+
 
 def test_numpy_engine():
     """Assert that the numpy engine returns a numpy array."""

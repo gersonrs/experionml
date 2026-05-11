@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
@@ -75,7 +74,8 @@ class PandasPyarrowEngine(DataEngine):
         else:
             return obj.astype(
                 pd.ArrowDtype(from_numpy_dtype(obj.dtype))
-                if isinstance(obj.dtype, np.dtype) else obj.dtype
+                if isinstance(obj.dtype, np.dtype)
+                else obj.dtype
             )
 
 

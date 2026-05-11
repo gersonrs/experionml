@@ -1,4 +1,3 @@
-
 from importlib.util import find_spec
 from unittest.mock import MagicMock, patch
 
@@ -14,12 +13,19 @@ from experionml import ExperionMLClassifier
 from experionml.training import DirectClassifier, DirectRegressor
 
 from .conftest import (
-    bin_test, bin_train, class_test, class_train, label_test, label_train,
-    reg_test, reg_train,
+    bin_test,
+    bin_train,
+    class_test,
+    class_train,
+    label_test,
+    label_train,
+    reg_test,
+    reg_train,
 )
 
 
 # Test _prepare_parameters =========================================== >>
+
 
 def test_model_is_predefined():
     """Assert that predefined models are accepted."""
@@ -308,6 +314,7 @@ def test_ht_params_invalid_key():
 
 
 # Test _core_iteration ============================================= >>
+
 
 def test_sequence_parameters():
     """Assert that every model get his corresponding parameters."""

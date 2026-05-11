@@ -4,11 +4,9 @@ from collections.abc import Hashable
 from random import sample
 from typing import Any, Literal, cast
 
-import featuretools as ft
 import numpy as np
 import pandas as pd
 from beartype import beartype
-from gplearn.genetic import SymbolicTransformer
 from scipy import stats
 from sklearn.base import is_classifier
 from sklearn.feature_selection import (
@@ -26,13 +24,6 @@ from sklearn.feature_selection import (
 from sklearn.model_selection import cross_val_score
 from sklearn.utils.validation import _check_feature_names_in
 from typing_extensions import Self
-from zoofs import (
-    DragonFlyOptimization,
-    GeneticOptimization,
-    GreyWolfOptimization,
-    HarrisHawkOptimization,
-    ParticleSwarmOptimization,
-)
 
 from experionml.basetransformer import BaseTransformer
 from experionml.data_cleaning import Scaler, TransformerMixin
@@ -494,6 +485,8 @@ class FeatureGenerator(TransformerMixin):
         self._log("Ajustando FeatureGenerator...", 1)
 
         if self.strategy == "dfs":
+            import featuretools as ft
+
             # Executa deep feature synthesis com primitivas de transformação
             es = ft.EntitySet(dataframes={"X": (Xt, "_index", None, None, None, True)})
             self._dfs = ft.dfs(
@@ -516,6 +509,8 @@ class FeatureGenerator(TransformerMixin):
             self._dfs = sorted(self._dfs, key=lambda x: x._name)
 
         else:
+            from gplearn.genetic import SymbolicTransformer
+
             kwargs = self.kwargs.copy()  # Copia em caso de fit repetido
             hall_of_fame = kwargs.pop("hall_of_fame", max(400, self.n_features or 400))
             self.gfg_ = SymbolicTransformer(
@@ -558,6 +553,8 @@ class FeatureGenerator(TransformerMixin):
         self._log("Gerando novos atributos...", 1)
 
         if self.strategy == "dfs":
+            import featuretools as ft
+
             es = ft.EntitySet(dataframes={"X": (Xt, "index", None, None, None, True)})
             dfs = ft.calculate_feature_matrix(self._dfs, entityset=es, n_jobs=self.n_jobs)
 
@@ -1376,6 +1373,14 @@ class FeatureSelector(TransformerMixin):
             self._estimator.fit(Xt, yt)
 
         else:
+            from zoofs import (
+                DragonFlyOptimization,
+                GeneticOptimization,
+                GreyWolfOptimization,
+                HarrisHawkOptimization,
+                ParticleSwarmOptimization,
+            )
+
             strategies = {
                 "pso": ParticleSwarmOptimization,
                 "hho": HarrisHawkOptimization,
@@ -1522,7 +1527,7 @@ class FeatureSelector(TransformerMixin):
         # Remove atributos com correlação excessivamente alta
         for col in self.collinear_["drop"]:
             self._log(
-                f" --> O atributo {col} foi removido devido à " "colinearidade com outro atributo.",
+                f" --> O atributo {col} foi removido devido à colinearidade com outro atributo.",
                 2,
             )
             Xt = Xt.drop(columns=col)
@@ -1533,7 +1538,7 @@ class FeatureSelector(TransformerMixin):
 
         elif self.strategy == "univariate":
             self._log(
-                f" --> O teste univariado selecionou " f"{self._n_features} atributos do dataset.",
+                f" --> O teste univariado selecionou {self._n_features} atributos do dataset.",
                 2,
             )
             for n, column in enumerate(Xt):

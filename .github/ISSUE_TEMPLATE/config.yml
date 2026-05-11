@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Dúvida de uso
+    url: https://github.com/gersonrs/ExperionML/discussions
+    about: Para perguntas abertas use Discussions (não abra issue).
+  - name: 🔒 Vulnerabilidade de segurança
+    url: https://github.com/gersonrs/ExperionML/security/advisories/new
+    about: Reporte problemas de segurança em privado.

@@ -2893,7 +2893,9 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
                 # Draw automated feature scaling
                 if model.scaler:
                     add_wire(x_pos[-3], check_y((d.here[0], d.here[1] - offset)))
-                    d.add(RoundBox(w=7).label("Scaler", color="k").color(branch["color"]).drop("E"))
+                    d.add(
+                        RoundBox(w=7).label("Scaler", color="k").color(branch["color"]).drop("E")
+                    )
                     offset = 0
 
                 # Draw hyperparameter tuning

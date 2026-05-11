@@ -1,4 +1,3 @@
-
 import numpy as np
 import pandas as pd
 import pyarrow as pa
@@ -16,7 +15,7 @@ from experionml.utils.utils import check_is_fitted
 from .conftest import X_bin, X_label, y_bin, y_fc, y_label
 
 
-@pytest.fixture()
+@pytest.fixture
 def pipeline():
     """Get a pipeline from experionml with/without a final estimator."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
@@ -31,7 +30,7 @@ def pipeline():
     return get_pipeline
 
 
-@pytest.fixture()
+@pytest.fixture
 def pipeline_ts():
     """Get a forecast pipeline from experionml with a final estimator."""
     experionml = ExperionMLForecaster(y_fc, random_state=1)

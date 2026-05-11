@@ -526,7 +526,7 @@ class DataPlot(BasePlot, metaclass=ABCMeta):
                 "line": {"width": 2, "color": color},
             },
             hovertemplate="%{x}<extra></extra>",
-            name=f"Variance retained: {variance[:self.pca_._comps].sum():.3f}",
+            name=f"Variance retained: {variance[: self.pca_._comps].sum():.3f}",
             legendgroup="components",
             showlegend=BasePlot._fig.showlegend("components", legend),
             xaxis=xaxis,

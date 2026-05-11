@@ -571,8 +571,7 @@ class Branch:
 
         if len(inc) + len(exc) == 0:
             raise ValueError(
-                "Valor inválido para o parâmetro rows, got "
-                f"{rows}. Nenhuma linha foi selecionada."
+                f"Valor inválido para o parâmetro rows, got {rows}. Nenhuma linha foi selecionada."
             )
         elif inc and exc:
             raise ValueError(

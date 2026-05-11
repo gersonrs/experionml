@@ -12,7 +12,7 @@ from importlib.util import find_spec
 from logging import DEBUG, FileHandler, Formatter, Logger, NullHandler, getLogger
 from multiprocessing import cpu_count
 from pathlib import Path
-from typing import Literal, NoReturn, TypeVar, overload
+from typing import NoReturn, TypeVar, overload
 
 import joblib
 import mlflow
@@ -377,8 +377,8 @@ class BaseTransformer:
     @staticmethod
     @overload
     def _check_input(
-        X: Literal[None],
-        y: Literal[None],
+        X: None,
+        y: None,
         *,
         columns: Axes | None = ...,
         name: str | Axes | None = ...,
@@ -388,7 +388,7 @@ class BaseTransformer:
     @overload
     def _check_input(
         X: XSelector,
-        y: Literal[None],
+        y: None,
         *,
         columns: Axes | None = ...,
         name: str | Axes | None = ...,
@@ -397,7 +397,7 @@ class BaseTransformer:
     @staticmethod
     @overload
     def _check_input(
-        X: Literal[None],
+        X: None,
         y: YSelector,
         *,
         columns: Axes | None = ...,
@@ -518,7 +518,7 @@ class BaseTransformer:
         return Xt, yt
 
     @overload
-    def _convert(self, obj: Literal[None]) -> None: ...
+    def _convert(self, obj: None) -> None: ...
 
     @overload
     def _convert(self, obj: pd.DataFrame) -> XReturn: ...

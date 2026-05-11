@@ -1,10 +1,14 @@
-
 import pytest
 
 from experionml.training import (
-    DirectClassifier, DirectForecaster, DirectRegressor,
-    SuccessiveHalvingClassifier, SuccessiveHalvingForecaster,
-    SuccessiveHalvingRegressor, TrainSizingClassifier, TrainSizingForecaster,
+    DirectClassifier,
+    DirectForecaster,
+    DirectRegressor,
+    SuccessiveHalvingClassifier,
+    SuccessiveHalvingForecaster,
+    SuccessiveHalvingRegressor,
+    TrainSizingClassifier,
+    TrainSizingForecaster,
     TrainSizingRegressor,
 )
 
@@ -12,6 +16,7 @@ from .conftest import reg_test, reg_train
 
 
 # Test trainers ============================================== >>
+
 
 def test_sh_skip_runs_too_large():
     """Assert that an error is raised if skip_runs >= n_runs."""
@@ -52,6 +57,7 @@ def test_ts_different_train_sizes_types():
 
 
 # Test goals ======================================================= >>
+
 
 def test_goals_trainers():
     """Assert that the goal of every Trainer class is set correctly."""

@@ -1,4 +1,3 @@
-
 import glob
 from importlib.util import find_spec
 from unittest.mock import patch
@@ -17,7 +16,10 @@ from pandas.testing import assert_frame_equal, assert_series_equal
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
-    f1_score, mean_absolute_error, mean_absolute_percentage_error, r2_score,
+    f1_score,
+    mean_absolute_error,
+    mean_absolute_percentage_error,
+    r2_score,
     recall_score,
 )
 from sklearn.model_selection import FixedThresholdClassifier, KFold
@@ -26,17 +28,40 @@ from sklearn.tree import DecisionTreeClassifier
 from sktime.forecasting.base import ForecastingHorizon
 from sktime.proba.normal import Normal
 
-from experionml import ExperionMLClassifier, ExperionMLForecaster, ExperionMLModel, ExperionMLRegressor
+from experionml import (
+    ExperionMLClassifier,
+    ExperionMLForecaster,
+    ExperionMLModel,
+    ExperionMLRegressor,
+)
 from experionml.utils.utils import check_is_fitted, check_scaling
 
 from .conftest import (
-    X10_str, X_bin, X_class, X_ex, X_idx, X_label, X_reg, bin_groups,
-    bin_sample_weight, y10, y10_str, y_bin, y_class, y_ex, y_fc, y_idx,
-    y_label, y_multiclass, y_multireg, y_reg,
+    X10_str,
+    X_bin,
+    X_class,
+    X_ex,
+    X_idx,
+    X_label,
+    X_reg,
+    bin_groups,
+    bin_sample_weight,
+    y10,
+    y10_str,
+    y_bin,
+    y_class,
+    y_ex,
+    y_fc,
+    y_idx,
+    y_label,
+    y_multiclass,
+    y_multireg,
+    y_reg,
 )
 
 
 # Test magic methods ================================== >>
+
 
 def test_scaler():
     """Assert that a scaler is made for models that need scaling."""
@@ -89,6 +114,7 @@ def test_getitem():
 
 
 # Test training ==================================================== >>
+
 
 def test_est_params_invalid_param():
     """Assert that invalid parameters in est_params are caught."""
@@ -234,7 +260,9 @@ def test_ht_with_groups():
     experionml.run("lr_2", n_trials=1, ht_params={"cv": 2})
     assert hasattr(experionml.lr_2, "trials")
 
-    experionml = ExperionMLClassifier(X_bin, y_bin, stratify=None, metadata=bin_groups, random_state=1)
+    experionml = ExperionMLClassifier(
+        X_bin, y_bin, stratify=None, metadata=bin_groups, random_state=1
+    )
     experionml.run("lr", n_trials=1, ht_params={"cv": 2}, errors="raise")
     assert hasattr(experionml.lr, "trials")
 
@@ -304,7 +332,9 @@ def test_trials_stored_correctly():
     """Assert that the `trials` attribute has the same params as the trial object."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run("lr", n_trials=3, ht_params={"distributions": ["penalty", "C"]})
-    assert experionml.lr.trials.loc[2, "penalty"] == experionml.lr.study.trials[2].params["penalty"]
+    assert (
+        experionml.lr.trials.loc[2, "penalty"] == experionml.lr.study.trials[2].params["penalty"]
+    )
     assert experionml.lr.trials.loc[2, "C"] == experionml.lr.study.trials[2].params["C"]
 
 
@@ -400,6 +430,7 @@ def test_continued_bootstrapping():
 
 
 # Test utility properties ========================================== >>
+
 
 def test_name_property():
     """Assert that the name property can be set."""
@@ -537,6 +568,7 @@ def test_results_property():
 
 
 # Test data properties ============================================= >>
+
 
 def test_pipeline_property():
     """Assert that the pipeline property returns the scaler as well."""
@@ -678,6 +710,7 @@ def test_all_property():
 
 
 # Test utility methods ============================================= >>
+
 
 def test_calibrate_invalid_task():
     """Assert than an error is raised when task="regression"."""
@@ -964,6 +997,7 @@ def test_transform_output():
 
 # Test ClassRegModel ================================================== >>
 
+
 def test_classreg_get_tags():
     """Assert that the get_tags method returns the tags."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
@@ -1055,6 +1089,7 @@ def test_score_with_sample_weight():
 
 # Test ForecastModel =============================================== >>
 
+
 def test_forecast_get_tags():
     """Assert that the get_tags method returns the tags."""
     experionml = ExperionMLForecaster(y_fc, random_state=1)
@@ -1075,14 +1110,18 @@ def test_predictions_only_fh():
     experionml = ExperionMLForecaster(X_ex, y=y_ex, random_state=1)
     experionml.run("OLS")
     assert isinstance(experionml.ols.predict(fh=experionml.test), pd.Series)
-    assert isinstance(experionml.ols.predict(fh=ForecastingHorizon([1, 2]), X=X_ex.iloc[:2]), pd.Series)
+    assert isinstance(
+        experionml.ols.predict(fh=ForecastingHorizon([1, 2]), X=X_ex.iloc[:2]), pd.Series
+    )
 
 
 def test_predictions_with_exogenous():
     """Assert that predictions can be made with exogenous variables."""
     experionml = ExperionMLForecaster(X_ex, y=y_ex, random_state=1)
     experionml.run("NF")
-    assert isinstance(experionml.nf.predict(ForecastingHorizon(range(10)), X=X_ex.iloc[:10]), pd.Series)
+    assert isinstance(
+        experionml.nf.predict(ForecastingHorizon(range(10)), X=X_ex.iloc[:10]), pd.Series
+    )
     assert isinstance(experionml.nf.predict_proba(range(10), X=X_ex.iloc[:10]), Normal)
     assert isinstance(experionml.nf.predict_quantiles(range(10), X=X_ex.iloc[:10]), pd.DataFrame)
     assert isinstance(experionml.nf.predict_var(range(10), X=X_ex.iloc[:10]), pd.DataFrame)

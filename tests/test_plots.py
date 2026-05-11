@@ -1,4 +1,3 @@
-
 import glob
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -16,12 +15,29 @@ from experionml.utils.types import Legend
 from experionml.utils.utils import NotFittedError
 
 from .conftest import (
-    X10, X10_str, X_bin, X_class, X_ex, X_label, X_reg, X_sparse, X_text,
-    bin_groups, y10, y_bin, y_class, y_ex, y_fc, y_label, y_multiclass, y_reg,
+    X10,
+    X10_str,
+    X_bin,
+    X_class,
+    X_ex,
+    X_label,
+    X_reg,
+    X_sparse,
+    X_text,
+    bin_groups,
+    y10,
+    y_bin,
+    y_class,
+    y_ex,
+    y_fc,
+    y_label,
+    y_multiclass,
+    y_reg,
 )
 
 
 # Test BaseFigure ================================================== >>
+
 
 def test_get_elem():
     """Assert that elements are assigned correctly."""
@@ -32,6 +48,7 @@ def test_get_elem():
 
 
 # Test BasePlot ==================================================== >>
+
 
 def test_aesthetics():
     """Assert that the aesthetics getter works."""
@@ -271,6 +288,7 @@ def test_update_traces():
 
 # Test DataPlot ==================================================== >>
 
+
 @pytest.mark.parametrize("columns", [None, -1])
 def test_plot_acf(columns):
     """Assert that the plot_acf method works."""
@@ -416,6 +434,7 @@ def test_plot_wordcloud():
 
 # Test HyperparameterTuningPlot ==================================== >>
 
+
 def test_check_hyperparams():
     """Assert that an error is raised when models didn't run HT."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
@@ -433,7 +452,9 @@ def test_get_hyperparams():
     assert len(experionml._get_hyperparams(params=slice(1, 4), model=experionml.tree)) == 3
     assert len(experionml._get_hyperparams(params=[0, 1], model=experionml.tree)) == 2
     assert len(experionml._get_hyperparams(params=["criterion"], model=experionml.tree)) == 1
-    assert len(experionml._get_hyperparams(params="criterion+splitter", model=experionml.tree)) == 2
+    assert (
+        len(experionml._get_hyperparams(params="criterion+splitter", model=experionml.tree)) == 2
+    )
 
 
 def test_get_hyperparams_invalid_name():
@@ -543,6 +564,7 @@ def test_plot_trials():
 
 
 # Test PredictionPlot =================================================== >>
+
 
 def test_plot_bootstrap():
     """Assert that the plot_bootstrap method works."""
@@ -841,6 +863,7 @@ def test_plot_threshold_multilabel():
 
 
 # Test ShapPlot ==================================================== >>
+
 
 def test_plot_shap_fail():
     """Assert that an error is raised when the explainer can't be created."""

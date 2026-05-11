@@ -1,5 +1,3 @@
-
-
 import pandas as pd
 import pytest
 
@@ -10,6 +8,7 @@ from .conftest import X_bin, X_text, y10
 
 
 # Test TextCleaner ================================================= >>
+
 
 def test_corpus_is_not_present():
     """Assert that an error is raised when there is no corpus."""
@@ -84,6 +83,7 @@ def test_drop_empty_tokens():
 
 # Test Tokenizer =================================================== >>
 
+
 def test_tokenization():
     """Assert that the corpus is tokenized."""
     X = Tokenizer().transform([["A test"]])
@@ -124,6 +124,7 @@ def test_no_ngrams():
 
 # Test TextNormalizer ================================================== >>
 
+
 def test_normalizer_space_separation():
     """Assert that the corpus is separated by space if not tokenized."""
     assert TextNormalizer().transform([["b c"]])["corpus"][0] == ["b", "c"]
@@ -154,6 +155,7 @@ def test_lemmatization():
 
 
 # Test Vectorizer ================================================== >>
+
 
 def test_hashing_with_get_feature_names_out():
     """Assert that get_feature_names_out doesn't work with hashing."""
