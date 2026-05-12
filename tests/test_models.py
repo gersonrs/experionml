@@ -310,7 +310,7 @@ def test_MSTL_with_stl_kwargs_params(cls):
 def test_Prophet_non_standard_seasonality():
     """Assert that the Prophet model works with non-standard seasonality."""
     experionml = ExperionMLForecaster(y_fc, sp=3, random_state=1)
-    experionml.run("Prophet")
+    experionml.run("Prophet", errors="raise")
     assert experionml.models == "Prophet"
 
 

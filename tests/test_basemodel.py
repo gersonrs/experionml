@@ -224,8 +224,10 @@ def test_multi_objective_optimization():
     assert experionml.lr.study.sampler.__class__ == NSGAIISampler
 
 
-def test_hyperparameter_tuning_with_plot():
+def test_hyperparameter_tuning_with_plot(mocker):
     """Assert that you can plot the hyperparameter tuning as it runs."""
+    # Mock PlotCallback to avoid ipywidgets/FigureWidget display issues in CI
+    mocker.patch("experionml.basemodel.PlotCallback")
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run(models=["LDA", "lSVM", "SVM"], n_trials=10, ht_params={"plot": True})
 

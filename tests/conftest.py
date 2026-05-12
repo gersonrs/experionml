@@ -94,6 +94,29 @@ def _change_current_dir(tmp_path: Path, monkeypatch: MonkeyPatch):
     monkeypatch.chdir(tmp_path)
 
 
+@pytest.fixture(scope="session", autouse=True)
+def _download_nltk_data():
+    """Download required NLTK data for NLP tests.
+
+    Downloads point_tab (NLTK >= 3.9), averaged_perceptron_tagger_eng,
+    stopwords, wordnet, and omw-1.4. Falls back gracefully if unavailable.
+
+    """
+    try:
+        import nltk
+
+        for pkg in [
+            "punkt_tab",
+            "averaged_perceptron_tagger_eng",
+            "stopwords",
+            "wordnet",
+            "omw-1.4",
+        ]:
+            nltk.download(pkg, quiet=True)
+    except ImportError:
+        pass
+
+
 @pytest.fixture(autouse=True)
 def _mock_mlflow_log_model(mocker):
     """Mock mlflow's log_model function.
