@@ -24,10 +24,10 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - name: Install ruff + mypy
+      - name: Install package + lint deps
         run: |
           python -m pip install --upgrade pip
-          pip install "ruff>=0.6" "mypy>=1.10" pandas-stubs types-requests types-pyyaml beartype
+          pip install -e "." "ruff>=0.6" "mypy>=1.10" pandas-stubs types-requests types-pyyaml beartype
       - name: Ruff lint
         run: ruff check experionml tests
       - name: Ruff format check
@@ -60,7 +60,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[full]" pytest pytest-cov pytest-mock pytest-xdist nbmake
       - name: Run tests
-        run: pytest -n auto --cov=experionml --cov-report=xml --cov-report=term-missing
+        run: pytest --no-cov -p no:randomly --tb=line -q
+      - name: Run tests with coverage
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
+        run: pytest --cov=experionml --cov-report=xml --cov-report=term-missing --tb=line -q
       - name: Upload coverage to Codecov
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
         uses: codecov/codecov-action@v4

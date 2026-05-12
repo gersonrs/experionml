@@ -30,7 +30,7 @@ from .conftest import (
 
 def test_invalid_features():
     """Assert that an error is raised when features are invalid."""
-    with pytest.raises(ValueError, match=".*atributo.*pd\.Series\.dt.*"):
+    with pytest.raises(ValueError, match=r".*atributo.*pd\.Series\.dt.*"):
         FeatureExtractor(features="invalid").transform(X10_dt)
 
 

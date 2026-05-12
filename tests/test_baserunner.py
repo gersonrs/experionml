@@ -356,7 +356,9 @@ def test_results_property_train_sizing():
 
 def test_groups_with_forecast():
     """Assert that an error is raised when groups are provided in a forecast task."""
-    with pytest.raises(ValueError, match=".*groups.*não está disponível para tarefas de previsão.*"):
+    with pytest.raises(
+        ValueError, match=".*groups.*não está disponível para tarefas de previsão.*"
+    ):
         ExperionMLForecaster(
             y_fc, metadata={"groups": choices(["A", "B"], k=len(y_fc))}, random_state=1
         )
@@ -390,7 +392,10 @@ def test_index_is_int():
 
 def test_index_is_str_invalid():
     """Assert that an error is raised when the index is an invalid str."""
-    with pytest.raises(ValueError, match=".*não encontrada no dataset.*|.*não foi encontrada no conjunto de dados.*"):
+    with pytest.raises(
+        ValueError,
+        match=".*não encontrada no dataset.*|.*não foi encontrada no conjunto de dados.*",
+    ):
         ExperionMLClassifier(X_bin, y_bin, index="invalid", random_state=1)
 
 
@@ -466,7 +471,10 @@ def test_stratify_invalid_column_int():
 
 def test_stratify_invalid_column_str():
     """Assert that an error is raised when the value is invalid."""
-    with pytest.raises(ValueError, match=".*não encontrada no dataset.*|.*não foi encontrada no conjunto de dados.*"):
+    with pytest.raises(
+        ValueError,
+        match=".*não encontrada no dataset.*|.*não foi encontrada no conjunto de dados.*",
+    ):
         ExperionMLClassifier(X_bin, y_bin, stratify="invalid", random_state=1)
 
 

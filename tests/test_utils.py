@@ -8,6 +8,7 @@ import pytest
 
 try:
     import modin.pandas as md
+
     HAS_MODIN = True
 except ImportError:
     md = None

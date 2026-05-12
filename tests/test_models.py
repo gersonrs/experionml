@@ -162,12 +162,13 @@ def test_multivariate_forecast_custom_seasonality():
     )
 
 
-def _has_gpu():
+def _has_gpu() -> bool:
     """Check if GPU device is available via dpctl."""
     try:
-        import dpctl
-        return dpctl.has_gpu_devices()
-    except Exception:
+        import dpctl  # type: ignore[import-untyped]
+
+        return bool(dpctl.has_gpu_devices())
+    except ImportError:
         return False
 
 
@@ -176,6 +177,7 @@ def _has_gpu():
 )
 @pytest.mark.parametrize("device", ["cpu", "gpu"])
 def test_models_sklearnex_classification(device):
+    """Assert the sklearnex engine works for classification tasks."""
     if device == "gpu" and not _has_gpu():
         pytest.skip("GPU não disponível neste ambiente")
     """Assert the sklearnex engine works for classification tasks."""

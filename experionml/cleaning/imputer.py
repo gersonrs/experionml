@@ -12,6 +12,7 @@ from sklearn.utils.validation import _check_feature_names_in
 from sktime.transformations.series.impute import Imputer as SktimeImputer
 from typing_extensions import Self
 
+from experionml.cleaning.base import TransformerMixin
 from experionml.utils.constants import CAT_TYPES, DEFAULT_MISSING
 from experionml.utils.types import (
     CategoricalStrats,
@@ -38,9 +39,6 @@ from experionml.utils.utils import (
     to_tabular,
     variable_return,
 )
-
-
-from experionml.cleaning.base import TransformerMixin
 
 T_Transformer = TypeVar("T_Transformer", bound=Transformer)
 
@@ -326,7 +324,7 @@ class Imputer(TransformerMixin):
                     "cat_imputer",
                     cat_imputer,
                     list(Xt.select_dtypes(include=CAT_TYPES)),
-                ),  # type:ignore[arg-type]
+                ),  # type: ignore[arg-type]
             ],
             remainder="passthrough",
             n_jobs=self.n_jobs,

@@ -10,6 +10,7 @@ from sklearn.experimental import enable_iterative_imputer  # noqa: F401
 from sklearn.utils.validation import _check_feature_names_in
 from typing_extensions import Self
 
+from experionml.cleaning.base import TransformerMixin
 from experionml.utils.constants import CAT_TYPES, DEFAULT_MISSING
 from experionml.utils.types import (
     Bool,
@@ -37,9 +38,6 @@ from experionml.utils.utils import (
     to_tabular,
     variable_return,
 )
-
-
-from experionml.cleaning.base import TransformerMixin
 
 T_Transformer = TypeVar("T_Transformer", bound=Transformer)
 

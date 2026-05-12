@@ -132,7 +132,6 @@ from experionml.utils.utils import (
     to_series,
 )
 
-
 T_Transformer = TypeVar("T_Transformer", bound=Transformer)
 
 
@@ -1399,7 +1398,9 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
 
         # Adiciona método de clonagem customizado para manter atributos internos
         # Usa __wrapped__ para evitar a verificação de tipo beartype com typing.Self
-        _clone_fn = getattr(TransformerMixin.__sklearn_clone__, "__wrapped__", TransformerMixin.__sklearn_clone__)
+        _clone_fn = getattr(
+            TransformerMixin.__sklearn_clone__, "__wrapped__", TransformerMixin.__sklearn_clone__
+        )
         transformer_c.__class__.__sklearn_clone__ = _clone_fn
 
         if hasattr(transformer_c, "fit"):

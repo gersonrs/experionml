@@ -747,7 +747,9 @@ def test_pyarrow_engine():
     assert isinstance(experionml.y, pa.Array)
 
 
-@patch.dict("sys.modules", {"modin": MagicMock(spec=["__spec__", "pandas"]), "modin.pandas": MagicMock()})
+@patch.dict(
+    "sys.modules", {"modin": MagicMock(spec=["__spec__", "pandas"]), "modin.pandas": MagicMock()}
+)
 def test_modin_engine():
     """Assert that the modin engine returns modin types."""
     experionml = ExperionMLClassifier(X_bin, y_bin, engine="modin", random_state=1)

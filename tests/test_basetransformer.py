@@ -1,6 +1,5 @@
 import multiprocessing
 import os
-import sys
 from importlib.util import find_spec
 from logging import Logger
 from pathlib import Path
@@ -36,7 +35,6 @@ from .conftest import (
     y_bin_array,
     y_fc,
 )
-
 
 # Test properties ================================================== >>
 
