@@ -30,14 +30,14 @@ from .conftest import (
 
 def test_invalid_features():
     """Assert that an error is raised when features are invalid."""
-    with pytest.raises(ValueError, match=".*an attribute of pd.Series.dt.*"):
+    with pytest.raises(ValueError, match=".*atributo.*pd\.Series\.dt.*"):
         FeatureExtractor(features="invalid").transform(X10_dt)
 
 
 def test_from_index_invalid():
     """Assert that an error is raised when the index is no datetime."""
     extractor = FeatureExtractor(from_index=True)
-    with pytest.raises(ValueError, match=".*index to a timestamp format.*"):
+    with pytest.raises(ValueError, match=".*formato times.*"):
         extractor.transform(X_bin)
 
 
@@ -197,14 +197,14 @@ def test_default_feature_names():
 def test_operator_not_in_libraries():
     """Assert that an error is raised when an operator is not in np or stats."""
     grouper = FeatureGrouper({"g1": ["mean radius", "mean texture"]}, operators="invalid")
-    with pytest.raises(ValueError, match=".*operators parameter.*"):
+    with pytest.raises(ValueError, match=".*parâmetro operators.*"):
         grouper.transform(X_bin)
 
 
 def test_invalid_operator():
     """Assert that an error is raised when the result is not one-dimensional."""
     grouper = FeatureGrouper({"g1": ["mean radius", "mean texture"]}, operators="log")
-    with pytest.raises(ValueError, match=".*one-dimensional.*"):
+    with pytest.raises(ValueError, match=".*unidimensional.*|.*unidimensi.*"):
         grouper.transform(X_bin)
 
 
@@ -236,7 +236,7 @@ def test_columns_are_kept():
 def test_solver_parameter_empty():
     """Assert that an error is raised when solver is None."""
     selector = FeatureSelector(strategy="sfm", solver=None)
-    with pytest.raises(ValueError, match=".*can't be None.*"):
+    with pytest.raises(ValueError, match=".*não pode ser None.*"):
         selector.fit(X_reg, y_reg)
 
 
@@ -256,35 +256,35 @@ def test_goal_attribute():
 def test_sfm_invalid_solver():
     """Assert that an error is raised when solver is invalid."""
     selector = FeatureSelector(strategy="sfm", solver="invalid_class", n_features=5)
-    with pytest.raises(ValueError, match=".*Unknown model.*"):
+    with pytest.raises(ValueError, match=".*Modelo desconhecido.*"):
         selector.fit_transform(X_bin, y_bin)
 
 
 def test_sfm_invalid_solver_no_task():
     """Assert that an error is raised when solver is invalid."""
     selector = FeatureSelector(strategy="sfm", solver="RF")
-    with pytest.raises(ValueError, match=".*must be followed by '_class'.*"):
+    with pytest.raises(ValueError, match=".*'_class'.*"):
         selector.fit_transform(X_bin, y_bin)
 
 
 def test_kwargs_but_no_strategy():
     """Assert that an error is raised when kwargs are defined and strategy=None."""
     selector = FeatureSelector(strategy=None, cv=2)
-    with pytest.raises(ValueError, match=".*Keyword arguments.*"):
+    with pytest.raises(ValueError, match=".*argumentos nomeados.*"):
         selector.fit(X_reg, y_reg)
 
 
 def test_max_repeated_smaller_min_repeated():
     """Assert that an error is raised when min_repeated > max_repeated."""
     selector = FeatureSelector(strategy=None, min_repeated=100, max_repeated=2)
-    with pytest.raises(ValueError, match=".*can't be higher.*"):
+    with pytest.raises(ValueError, match=".*não pode ser maior.*"):
         selector.fit(X_reg, y_reg)
 
 
 def test_error_y_is_None():
     """Assert that an error is raised when y is None for some strategies."""
     selector = FeatureSelector(strategy="univariate", solver=f_regression, n_features=9)
-    with pytest.raises(ValueError, match=".*the y parameter.*"):
+    with pytest.raises(ValueError, match=".*parâmetro y.*"):
         selector.fit(X_reg)
 
 
@@ -335,14 +335,14 @@ def test_remove_collinear_with_y():
 def test_solver_parameter_empty_univariate():
     """Assert that an error is raised when solver is None for univariate."""
     selector = FeatureSelector(strategy="univariate")
-    with pytest.raises(ValueError, match=".*can't be None.*"):
+    with pytest.raises(ValueError, match=".*não pode ser None.*"):
         selector.fit(X_reg, y_reg)
 
 
 def test_raise_unknown_solver_univariate():
     """Assert that an error is raised when the solver is unknown."""
     selector = FeatureSelector(strategy="univariate", solver="invalid")
-    with pytest.raises(ValueError, match=".*the solver parameter.*"):
+    with pytest.raises(ValueError, match=".*parâmetro solver.*"):
         selector.fit(X_reg, y_reg)
 
 
@@ -387,7 +387,7 @@ def test_sfm_prefit_invalid_estimator():
         n_features=8,
         random_state=1,
     )
-    with pytest.raises(ValueError, match=".*different columns than X.*"):
+    with pytest.raises(ValueError, match=".*mesmas colunas.*|.*colunas diferentes.*"):
         selector.fit(X_bin, y_bin)
 
 
@@ -539,7 +539,7 @@ def test_advanced_provided_validation_sets():
 def test_advanced_missing_y_valid():
     """Assert that an error is raised when y_valid is missing."""
     selector = FeatureSelector("pso", solver="tree_class", X_valid=X_bin)
-    with pytest.raises(ValueError, match=".*y_valid parameter.*"):
+    with pytest.raises(ValueError, match=".*parâmetro y_valid.*"):
         selector.fit(X_bin, y_bin)
 
 

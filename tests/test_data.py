@@ -66,14 +66,14 @@ def test_data_property():
 def test_data_property_unassigned_data():
     """Assert that an error is raised when the data is still unassigned."""
     trainer = DirectClassifier("LR")
-    with pytest.raises(AttributeError, match=".*no dataset assigned.*"):
+    with pytest.raises(AttributeError, match=".*não possui um conjunto de dados atribuído.*"):
         print(trainer.dataset)
 
 
 def test_name_empty_name():
     """Assert that an error is raised when name is empty."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(ValueError, match=".*can't have an empty name.*"):
+    with pytest.raises(ValueError, match=".*nome vazio.*"):
         experionml.branch.name = ""
 
 
@@ -294,14 +294,14 @@ def test_data_properties_to_series():
 def test_setter_error_unequal_rows():
     """Assert that an error is raised when the setter has unequal rows."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(ValueError, match="number of rows"):
+    with pytest.raises(ValueError, match=".*número.*linhas.*"):
         experionml.X_train = X_bin
 
 
 def test_setter_error_unequal_index():
     """Assert that an error is raised when the setter has unequal indices."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(ValueError, match="the same indices"):
+    with pytest.raises(ValueError, match=".*mesmos índices.*"):
         experionml.y = pd.Series(y_bin_array, index=range(10, len(y_bin_array) + 10))
 
 
@@ -310,7 +310,7 @@ def test_setter_error_unequal_columns():
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     new_X = experionml.train
     new_X["new_column"] = 1
-    with pytest.raises(ValueError, match="number of columns"):
+    with pytest.raises(ValueError, match=".*número.*colunas.*"):
         experionml.train = new_X
 
 
@@ -319,7 +319,7 @@ def test_setter_error_unequal_column_names():
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     new_X = experionml.train.drop(columns=experionml.train.columns[0])
     new_X.insert(0, "new_column", 1)
-    with pytest.raises(ValueError, match="the same columns"):
+    with pytest.raises(ValueError, match=".*mesmas colunas.*|.*colunas diferentes.*"):
         experionml.train = new_X
 
 
@@ -328,7 +328,7 @@ def test_setter_error_unequal_target_names():
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     new_y_train = experionml.y_train
     new_y_train.name = "different_name"
-    with pytest.raises(ValueError, match="the same name"):
+    with pytest.raises(ValueError, match=".*mesmo nome.*"):
         experionml.y_train = new_y_train
 
 
@@ -365,7 +365,7 @@ def test_get_rows_by_exact_match():
 def test_get_rows_by_int():
     """Assert that rows can be retrieved by their index position."""
     experionml = ExperionMLClassifier(X_idx, y_idx, index=True, random_state=1)
-    with pytest.raises(IndexError, match=".*out of range.*"):
+    with pytest.raises(IndexError, match=".*fora do intervalo.*"):
         experionml.branch._get_rows(rows=1000)
     assert experionml.branch._get_rows(rows=100).equals(experionml.dataset.iloc[[100]])
 
@@ -376,7 +376,7 @@ def test_get_rows_by_str():
     assert len(experionml.branch._get_rows(rows="index_34+index_58")) == 2
     assert len(experionml.branch._get_rows(rows=["index_34+index_58", "index_57"])) == 3
     assert len(experionml.branch._get_rows(rows="test")) == len(experionml.test)
-    with pytest.raises(ValueError, match=".*No holdout data set was declared.*"):
+    with pytest.raises(ValueError, match=".*holdout.*"):
         experionml.branch._get_rows(rows="holdout")
     assert len(experionml.branch._get_rows(rows="index_3.*")) == 111
     assert len(experionml.branch._get_rows(rows="!index_3")) == len(X_idx) - 1
@@ -386,14 +386,14 @@ def test_get_rows_by_str():
 def test_get_rows_none_selected():
     """Assert that an error is raised when no rows are selected."""
     experionml = ExperionMLClassifier(X_idx, y_idx, index=True, random_state=1)
-    with pytest.raises(ValueError, match=".*No rows were selected.*"):
+    with pytest.raises(ValueError, match=".*Nenhum conjunto de dados.*|.*Nenhuma linha.*"):
         experionml.branch._get_rows(rows=slice(1000, 2000))
 
 
 def test_get_rows_include_or_exclude():
     """Assert that an error is raised when rows are included and excluded."""
     experionml = ExperionMLClassifier(X_idx, y_idx, index=True, random_state=1)
-    with pytest.raises(ValueError, match=".*either include or exclude rows.*"):
+    with pytest.raises(ValueError, match=".*incluir ou excluir.*|.*incluir ou excluir.*"):
         experionml.branch._get_rows(rows=["index_34", "!index_36"])
 
 
@@ -421,7 +421,7 @@ def test_get_columns_by_segment():
 def test_get_columns_by_int():
     """Assert that an index can retrieve columns."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(IndexError, match=".*out of range for data.*"):
+    with pytest.raises(IndexError, match=".*fora do intervalo.*"):
         experionml.branch._get_columns(columns=40)
     assert experionml.branch._get_columns(columns=0) == ["mean radius"]
 
@@ -434,7 +434,7 @@ def test_get_columns_by_str():
     assert len(experionml.branch._get_columns("mean .*")) == 10
     assert len(experionml.branch._get_columns("!mean radius")) == X_bin.shape[1]
     assert len(experionml.branch._get_columns("!mean .*")) == X_bin.shape[1] - 9
-    with pytest.raises(ValueError, match=".*any column that matches.*"):
+    with pytest.raises(ValueError, match=".*nenhuma coluna.*"):
         experionml.branch._get_columns("invalid")
 
 
@@ -448,7 +448,7 @@ def test_get_columns_by_type():
 def test_get_columns_exclude():
     """Assert that columns can be excluded using `!`."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(ValueError, match=".*not find any column.*"):
+    with pytest.raises(ValueError, match=".*nenhuma coluna.*"):
         experionml.branch._get_columns(columns="!invalid")
     assert len(experionml.branch._get_columns(columns="!mean radius")) == 30
     assert len(experionml.branch._get_columns(columns=["!mean radius", "!mean texture"])) == 29
@@ -457,14 +457,14 @@ def test_get_columns_exclude():
 def test_get_columns_none_selected():
     """Assert that an error is raised when no columns are selected."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(ValueError, match=".*At least one column.*"):
+    with pytest.raises(ValueError, match=".*Pelo menos uma.*"):
         experionml.branch._get_columns(columns="datetime")
 
 
 def test_get_columns_include_or_exclude():
     """Assert that an error is raised when cols are included and excluded."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(ValueError, match=".*either include or exclude columns.*"):
+    with pytest.raises(ValueError, match=".*incluir ou excluir.*"):
         experionml.branch._get_columns(columns=["mean radius", "!mean texture"])
 
 
@@ -484,14 +484,14 @@ def test_get_target_column():
 def test_get_target_column_str_invalid():
     """Assert that an error is raised when the column is invalid."""
     experionml = ExperionMLClassifier(X_class, y=y_multiclass, random_state=1)
-    with pytest.raises(ValueError, match=".*is not one of the target columns.*"):
+    with pytest.raises(ValueError, match=".*não é uma das colunas alvo.*|.*colunas alvo.*"):
         experionml.branch._get_target(target="invalid", only_columns=True)
 
 
 def test_get_target_column_int_invalid():
     """Assert that an error is raised when the column is invalid."""
     experionml = ExperionMLClassifier(X_class, y=y_multiclass, random_state=1)
-    with pytest.raises(ValueError, match=".*There are 3 target columns.*"):
+    with pytest.raises(ValueError, match=".*3 colunas alvo.*"):
         experionml.branch._get_target(target=3, only_columns=True)
 
 
@@ -506,14 +506,14 @@ def test_get_target_class():
 def test_get_target_class_str_invalid():
     """Assert that an error is raised when the target is invalid."""
     experionml = ExperionMLClassifier(X10, y10_str, random_state=1)
-    with pytest.raises(ValueError, match=".*not found in the mapping.*"):
+    with pytest.raises(ValueError, match=".*não.*encontrad.*"):
         experionml.branch._get_target(target="invalid")
 
 
 def test_get_target_class_int_invalid():
     """Assert that an error is raised when the value is invalid."""
     experionml = ExperionMLClassifier(X10, y10_str, random_state=1)
-    with pytest.raises(ValueError, match=".*There are 2 classes.*"):
+    with pytest.raises(ValueError, match=".*2 classes.*"):
         experionml.branch._get_target(target=3)
 
 
@@ -534,7 +534,7 @@ def test_get_target_tuple():
 def test_get_target_tuple_invalid_length():
     """Assert that the target class can be retrieved."""
     experionml = ExperionMLClassifier(X_class, y=y_multiclass, random_state=1)
-    with pytest.raises(ValueError, match=".*a tuple of length 2.*"):
+    with pytest.raises(ValueError, match=".*tupla.*"):
         experionml.branch._get_target(target=(2, 1, 2))
 
 
@@ -553,7 +553,7 @@ def test_load_no_file():
     experionml = ExperionMLClassifier(X_bin, y=y_bin, memory="", random_state=1)
     experionml.branch = "2"
     os.remove(experionml.branch._location.joinpath("Branch(main).pkl"))
-    with pytest.raises(FileNotFoundError, match=".*no data stored.*"):
+    with pytest.raises(FileNotFoundError, match=".*não possui dados armazenados.*"):
         experionml.branch = "main"
 
 
@@ -562,7 +562,7 @@ def test_load_no_dir():
     experionml = ExperionMLClassifier(X_bin, y=y_bin, memory="", random_state=1)
     experionml.branch = "2"
     experionml.memory.clear()
-    with pytest.raises(FileNotFoundError, match=".*does not exist.*"):
+    with pytest.raises(FileNotFoundError, match=".*não existe.*"):
         experionml.branch = "main"
 
 
@@ -747,7 +747,7 @@ def test_pyarrow_engine():
     assert isinstance(experionml.y, pa.Array)
 
 
-@patch.dict("sys.modules", {"modin": MagicMock(spec=["__spec__", "pandas"])})
+@patch.dict("sys.modules", {"modin": MagicMock(spec=["__spec__", "pandas"]), "modin.pandas": MagicMock()})
 def test_modin_engine():
     """Assert that the modin engine returns modin types."""
     experionml = ExperionMLClassifier(X_bin, y_bin, engine="modin", random_state=1)

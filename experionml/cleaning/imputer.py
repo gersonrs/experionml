@@ -243,7 +243,7 @@ class Imputer(TransformerMixin):
         self._check_n_features(Xt, reset=True)
 
         if not hasattr(self, "missing_"):
-            self.missing_ = DEFAULT_MISSING
+            self.missing_ = list(DEFAULT_MISSING)
 
         self._log("Ajustando Imputer...", 1)
 

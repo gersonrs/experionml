@@ -1,4 +1,5 @@
 import glob
+import sys
 from importlib.util import find_spec
 from unittest.mock import patch
 
@@ -26,7 +27,7 @@ from sklearn.model_selection import FixedThresholdClassifier, KFold
 from sklearn.multioutput import ClassifierChain
 from sklearn.tree import DecisionTreeClassifier
 from sktime.forecasting.base import ForecastingHorizon
-from sktime.proba.normal import Normal
+from skpro.distributions.normal import Normal
 
 from experionml import (
     ExperionMLClassifier,
@@ -131,7 +132,7 @@ def test_est_params_invalid_param():
 def test_est_params_unknown_param_fit():
     """Assert that unknown parameters in est_params_fit are caught."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(RuntimeError, match=".*All models failed.*"):
+    with pytest.raises(RuntimeError, match=".*Todos os modelos falharam.*"):
         experionml.run(["LR", "LGB"], n_trials=1, est_params={"test_fit": 220})
 
 
@@ -152,7 +153,7 @@ def test_custom_distributions_by_name_excluded():
 def test_custom_distributions_name_is_invalid():
     """Assert that an error is raised when an invalid parameter is provided."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(ValueError, match=".*is not a predefined hyperparameter.*"):
+    with pytest.raises(ValueError, match=".*não é um hiperparâmetro predefinido.*"):
         experionml.run(
             models="LR",
             n_trials=1,
@@ -175,7 +176,7 @@ def test_custom_distributions_is_dist():
 def test_custom_distributions_include_and_excluded():
     """Assert that an error is raised when parameters are included and excluded."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(ValueError, match=".*either include or exclude.*"):
+    with pytest.raises(ValueError, match=".*incluir ou excluir hiperparâmetros.*"):
         experionml.run(
             models="LR",
             n_trials=1,
@@ -508,7 +509,7 @@ def test_best_trial_property_invalid():
     """Assert that an error is raised when best_trial is invalid."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run("Tree", n_trials=5)
-    with pytest.raises(ValueError, match=".*should be a trial number.*"):
+    with pytest.raises(ValueError, match=".*deve ser um número de trial.*"):
         experionml.tree.best_trial = 22
 
 
@@ -751,7 +752,7 @@ def test_set_threshold():
     experionml.run("MNB")
     run = experionml.mnb._run
 
-    with pytest.raises(ValueError, match=".*should lie between 0 and 1.*"):
+    with pytest.raises(ValueError, match=".*deve estar entre 0 e 1.*"):
         experionml.mnb.set_threshold(threshold=1.5)
 
     experionml.mnb.set_threshold(threshold=0.2)
@@ -774,6 +775,7 @@ def test_clear():
     assert "holdout" not in experionml.sgd.branch.__dict__
 
 
+@pytest.mark.skipif(sys.version_info >= (3, 13), reason="pyaudioop removido no Python 3.13")
 @patch("gradio.Interface")
 def test_create_app(interface):
     """Assert that the create_app method calls the underlying package."""
@@ -789,7 +791,7 @@ def test_create_dashboard_multioutput():
     """Assert that the method is unavailable for multioutput tasks."""
     experionml = ExperionMLClassifier(X_class, y=y_multiclass, random_state=1)
     experionml.run("LR")
-    with pytest.raises(AttributeError, match=".*has no attribute.*"):
+    with pytest.raises(AttributeError, match=".*não possui o atributo.*"):
         experionml.tree.create_dashboard()
 
 
@@ -824,7 +826,7 @@ def test_cross_validate_groups():
     """Assert that an error is raised when groups are passed directly."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run("LR")
-    with pytest.raises(ValueError, match=".*groups can not be passed directly.*"):
+    with pytest.raises(ValueError, match=".*groups não pode ser passado diretamente.*"):
         experionml.lr.cross_validate(groups=bin_groups)
 
 
@@ -886,7 +888,7 @@ def test_full_train_no_holdout():
     """Assert that an error is raised when include_holdout=True with no set."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run("LGB")
-    with pytest.raises(ValueError, match=".*holdout data set.*"):
+    with pytest.raises(ValueError, match=".*holdout.*"):
         experionml.lgb.full_train(include_holdout=True)
 
 
@@ -963,7 +965,7 @@ def test_register_no_experiment():
     """Assert that an error is raised when there is no experiment."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run("MNB")
-    with pytest.raises(PermissionError, match=".*mlflow experiment.*"):
+    with pytest.raises(PermissionError, match=".*experimento mlflow.*"):
         experionml.mnb.register()
 
 
@@ -1101,7 +1103,7 @@ def test_predictions_invalid_fh():
     """Assert that predictions can be made using only the fh."""
     experionml = ExperionMLForecaster(y_fc, random_state=1)
     experionml.run("NF")
-    with pytest.raises(ValueError, match=".*Use a ForecastingHorizon.*"):
+    with pytest.raises(ValueError, match=".*ForecastingHorizon.*"):
         experionml.nf.predict(fh=range(200))
 
 

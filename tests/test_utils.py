@@ -2,10 +2,16 @@ import sys
 from datetime import timedelta
 from unittest.mock import patch
 
-import modin.pandas as md
 import pandas as pd
 import polars as pl
 import pytest
+
+try:
+    import modin.pandas as md
+    HAS_MODIN = True
+except ImportError:
+    md = None
+    HAS_MODIN = False
 
 from experionml import show_versions
 from experionml.utils.utils import (
@@ -34,7 +40,7 @@ def test_show_versions():
 
 def test_classmap_failed_initialization():
     """Assert that an error is raised when the classes do not have the key attribute."""
-    with pytest.raises(ValueError, match=".*has no attribute.*"):
+    with pytest.raises(ValueError, match=".*não possui o atributo.*"):
         ClassMap(2, 3)
 
 
@@ -71,6 +77,7 @@ def test_to_df_polars():
     assert isinstance(to_df(pl.from_pandas(X_bin)), pd.DataFrame)
 
 
+@pytest.mark.skipif(not HAS_MODIN, reason="modin não disponível neste ambiente")
 def test_to_df_interchange():
     """Assert that interchange protocol objects are converted to pandas objects."""
     assert isinstance(to_df(md.DataFrame(X_bin)), pd.DataFrame)
@@ -100,5 +107,5 @@ def test_time_to_string():
 
 def test_variable_return():
     """Assert that an error is raised when variable_return has both None."""
-    with pytest.raises(ValueError, match=".*Both X and y can't be None.*"):
+    with pytest.raises(ValueError, match=".*não podem ser ambos None.*"):
         variable_return(None, None)

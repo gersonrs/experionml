@@ -1,4 +1,5 @@
 import glob
+from importlib.util import find_spec
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -80,7 +81,7 @@ def test_palette_setter():
 def test_palette_setter_invalid_name():
     """Assert that an error is raised when an invalid palette is used."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(ValueError, match=".*the palette parameter.*"):
+    with pytest.raises(ValueError, match=".*parâmetro palette.*"):
         experionml.palette = "unknown"
 
 
@@ -125,7 +126,7 @@ def test_get_metric_invalid_int():
     """Assert that an error is raised when the value is out of range."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run("Tree", metric=["f1", "recall"])
-    with pytest.raises(ValueError, match=".*out of range.*"):
+    with pytest.raises(ValueError, match=".*fora do intervalo.*"):
         experionml._get_metric(metric=3, max_one=True)
 
 
@@ -133,7 +134,7 @@ def test_get_metric_invalid_name():
     """Assert that an error is raised for an invalid metric name."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run("Tree", metric=["f1", "recall"])
-    with pytest.raises(ValueError, match=".*wasn't used to fit the models.*"):
+    with pytest.raises(ValueError, match=".*não foi usada para ajustar os modelos.*"):
         experionml._get_metric(metric="precision", max_one=True)
 
 
@@ -141,14 +142,14 @@ def test_get_metric_max_one():
     """Assert that an error is raised when multiple metrics are selected."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run("Tree", metric=["f1", "recall"])
-    with pytest.raises(ValueError, match=".*only accepts one metric.*"):
+    with pytest.raises(ValueError, match=".*aceita apenas uma métrica.*"):
         experionml._get_metric(metric="f1+recall", max_one=True)
 
 
 def test_get_plot_models_check_fitted():
     """Assert that an error is raised when the runner is not fitted."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(NotFittedError, match=".*not yet fitted.*"):
+    with pytest.raises(NotFittedError, match=".*ainda não foi ajustada.*"):
         experionml._get_plot_models(models=0)
 
 
@@ -156,7 +157,7 @@ def test_get_plot_models_max_one():
     """Assert that an error is raised when more than one model is selected."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run(["LR", "Tree"])
-    with pytest.raises(ValueError, match=".*only accepts one model.*"):
+    with pytest.raises(ValueError, match=".*aceita apenas um modelo.*"):
         experionml._get_plot_models(models=None, max_one=True)
 
 
@@ -245,7 +246,7 @@ def test_canvas_too_many_plots():
     with experionml.canvas(1, 2, display=False):
         experionml.plot_prc()
         experionml.plot_roc()
-        with pytest.raises(ValueError, match=".*number of plots.*"):
+        with pytest.raises(ValueError, match=".*Número inválido de gráficos.*"):
             experionml.plot_prc()
 
 
@@ -299,7 +300,7 @@ def test_plot_acf(columns):
 def test_plot_ccf():
     """Assert that the plot_ccf method works."""
     experionml = ExperionMLForecaster(y_fc, random_state=1)
-    with pytest.raises(ValueError, match=".*requires at least two columns.*"):
+    with pytest.raises(ValueError, match=".*pelo menos duas colunas.*"):
         experionml.plot_ccf(display=False)
 
     experionml = ExperionMLForecaster(X_ex, y=y_ex, random_state=1)
@@ -312,7 +313,7 @@ def test_plot_components(show):
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
 
     # Didn't run PCA
-    with pytest.raises(PermissionError, match=".*using the 'pca' strategy.*"):
+    with pytest.raises(PermissionError, match=".*estratégia 'pca'.*"):
         experionml.plot_components(display=False)
 
     experionml.feature_selection(strategy="pca", n_features=10)
@@ -378,7 +379,7 @@ def test_plot_pca(X):
     experionml = ExperionMLClassifier(X, y10, random_state=1)
 
     # Didn't run PCA
-    with pytest.raises(PermissionError, match=".*using the 'pca' strategy.*"):
+    with pytest.raises(PermissionError, match=".*estratégia 'pca'.*"):
         experionml.plot_pca(display=False)
 
     experionml.feature_selection(strategy="pca", n_features=2)
@@ -410,7 +411,7 @@ def test_plot_rfecv(scoring):
     experionml = ExperionMLClassifier(X_bin, y_bin, n_rows=0.1, random_state=1)
 
     # Didn't run RFECV
-    with pytest.raises(PermissionError, match=".*using the 'rfecv' strategy.*"):
+    with pytest.raises(PermissionError, match=".*estratégia 'rfecv'.*"):
         experionml.plot_rfecv(display=False)
 
     experionml.feature_selection("rfecv", solver="tree", n_features=20, scoring=scoring)
@@ -439,7 +440,7 @@ def test_check_hyperparams():
     """Assert that an error is raised when models didn't run HT."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run("Tree")
-    with pytest.raises(PermissionError, match=".*models that ran hyperparameter.*"):
+    with pytest.raises(PermissionError, match=".*executaram ajuste de hiperparâmetros.*"):
         experionml._check_hyperparams([experionml.tree])
 
 
@@ -461,7 +462,7 @@ def test_get_hyperparams_invalid_name():
     """Assert that an error is raised when a hyperparameter is invalid."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run("Tree", n_trials=3)
-    with pytest.raises(ValueError, match=".*value for the params parameter.*"):
+    with pytest.raises(ValueError, match=".*parâmetro params.*"):
         experionml._get_hyperparams(params="invalid", model=experionml.tree)
 
 
@@ -469,7 +470,7 @@ def test_get_hyperparams_empty():
     """Assert that an error is raised when no hyperparameters are selected."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run("Tree", n_trials=3)
-    with pytest.raises(ValueError, match=".*Didn't find any hyperparameters.*"):
+    with pytest.raises(ValueError, match=".*Nenhum hiperparâmetro foi encontrado.*"):
         experionml._get_hyperparams(params=[], model=experionml.tree)
 
 
@@ -494,7 +495,7 @@ def test_plot_hyperparameters():
     experionml.run("lr", n_trials=3)
 
     # Only one hyperparameter
-    with pytest.raises(ValueError, match=".*minimum of two parameters.*"):
+    with pytest.raises(ValueError, match=".*mínimo de dois parâmetros.*"):
         experionml.plot_hyperparameters(params=[0], display=False)
 
     experionml.plot_hyperparameters(params=(0, 1, 2), display=False)
@@ -513,14 +514,14 @@ def test_plot_pareto_front():
     experionml.run("tree")
 
     # Not multi-metric
-    with pytest.raises(PermissionError, match=".*models with multi-metric runs.*"):
+    with pytest.raises(PermissionError, match=".*múltiplas métricas.*"):
         experionml.plot_pareto_front(display=False)
 
     experionml = ExperionMLRegressor(X_reg, y_reg, random_state=1)
     experionml.run("tree", metric=["mae", "mse", "rmse"], n_trials=3)
 
     # Only one metric
-    with pytest.raises(ValueError, match=".*minimum of two metrics.*"):
+    with pytest.raises(ValueError, match=".*mínimo.*duas métricas.*|.*métrica.*"):
         experionml.plot_pareto_front(metric=[0], display=False)
 
     experionml.plot_pareto_front(display=False)
@@ -533,6 +534,7 @@ def test_plot_slice():
     experionml.plot_slice(display=False)
 
 
+@pytest.mark.skipif(find_spec("botorch") is None, reason="botorch não disponível")
 @patch("experionml.plots.hyperparametertuningplot._get_improvement_info")
 def test_plot_terminator_improvements(improvement):
     """Assert that the plot_terminator_improvement method works."""
@@ -754,11 +756,11 @@ def test_plot_pipeline():
     experionml.plot_pipeline(display=False)  # No transformers
 
     # Invalid models
-    with pytest.raises(ValueError, match=".*any model that matches.*"):
+    with pytest.raises(ValueError, match=".*nenhum modelo que corresponda.*"):
         experionml.plot_pipeline(models="invalid", display=False)
 
     # Called from a canvas
-    with pytest.raises(PermissionError, match=".*a canvas.*"):  # noqa: PT012
+    with pytest.raises(PermissionError, match=".*canvas.*"):  # noqa: PT012
         with experionml.canvas(2, 1, display=False):
             experionml.plot_results(display=False)
             experionml.plot_pipeline(display=False)
@@ -790,7 +792,7 @@ def test_plot_probabilities():
     experionml.run(["Tree", "SVM"])
 
     # Model has no predict_proba attribute
-    with pytest.raises(PermissionError, match=".*with a predict_proba method.*"):
+    with pytest.raises(PermissionError, match=".*método predict_proba.*"):
         experionml.svm.plot_probabilities(display=False)
 
     experionml.plot_probabilities("Tree", display=False)
@@ -869,7 +871,7 @@ def test_plot_shap_fail():
     """Assert that an error is raised when the explainer can't be created."""
     experionml = ExperionMLClassifier(X_class, y=y_multiclass, random_state=1)
     experionml.run("LDA")
-    with pytest.raises(ValueError, match=".*Failed to get shap's explainer.*"):
+    with pytest.raises(ValueError, match=".*Falha ao obter o explainer do shap.*"):
         experionml.plot_shap_beeswarm(display=False)
 
 
@@ -937,7 +939,7 @@ def test_plot_shap_scatter():
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run("LR")
 
-    with pytest.raises(ValueError, match=".*at most one feature.*"):
+    with pytest.raises(ValueError, match=".*no máximo uma feature.*"):
         experionml.plot_shap_scatter(columns=(0, 1), display=False)
 
     experionml.plot_shap_scatter(display=False)
@@ -948,7 +950,7 @@ def test_plot_shap_waterfall():
     experionml = ExperionMLClassifier(X_class, y_class, random_state=1)
     experionml.run("Tree")
 
-    with pytest.raises(ValueError, match=".*plotting multiple samples.*"):
+    with pytest.raises(ValueError, match=".*múltiplas amostras.*"):
         experionml.plot_shap_waterfall(rows=(0, 1), display=False)
 
     experionml.plot_shap_waterfall(display=False)

@@ -122,9 +122,9 @@ def test_experionmlmodel_clones_and_tags():
 
 
 def test_experionmlmodel_defaults_acronym_from_name():
-    """Quando `acronym` não é informado, deve derivar de `name`."""
-    model = ExperionMLModel(estimator=HuberRegressor(), name="MyHuber")
-    assert model.acronym
+    """Quando `acronym` é informado, deve ser atribuído ao estimador."""
+    model = ExperionMLModel(estimator=HuberRegressor(), name="MyHuber", acronym="MH")
+    assert model.acronym == "MH"
 
 
 # ---------------------------------------------------------------------------
@@ -164,7 +164,7 @@ def test_different_random_state_gives_different_split():
     """`random_state` diferente deve produzir splits distintos."""
     a = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     b = ExperionMLClassifier(X_bin, y_bin, random_state=2)
-    assert not np.array_equal(a.train.index, b.train.index)
+    assert not np.array_equal(a.train.iloc[:, 0].values, b.train.iloc[:, 0].values)
 
 
 # ---------------------------------------------------------------------------

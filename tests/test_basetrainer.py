@@ -38,7 +38,7 @@ def test_model_is_predefined():
 def test_package_not_installed():
     """Assert that an error is raised when the model's package is not installed."""
     trainer = DirectClassifier("LGB", random_state=1)
-    with pytest.raises(ModuleNotFoundError, match=".*Unable to import.*"):
+    with pytest.raises(ModuleNotFoundError, match=".*importar.*"):
         trainer.run(bin_train, bin_test)
 
 
@@ -153,7 +153,7 @@ def test_metric_is_custom(metric):
 def test_metric_is_invalid_scorer_name():
     """Assert that an error is raised when scorer name is invalid."""
     trainer = DirectClassifier("LR", metric="test", random_state=1)
-    with pytest.raises(ValueError, match=".*metric parameter.*"):
+    with pytest.raises(ValueError, match=".*parâmetro metric.*"):
         trainer.run(bin_train, bin_test)
 
 
@@ -412,5 +412,5 @@ def test_parallel():
         random_state=1,
     )
     # Fails because Mock returns empty list
-    with pytest.raises(RuntimeError, match=".*All models failed.*"):
+    with pytest.raises(RuntimeError, match=".*Todos os modelos falharam.*"):
         trainer.run(bin_train, bin_test)

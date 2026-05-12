@@ -227,7 +227,7 @@ class Cleaner(TransformerMixin):
         self._estimators = {}
 
         if not hasattr(self, "missing_"):
-            self.missing_ = DEFAULT_MISSING
+            self.missing_ = list(DEFAULT_MISSING)
 
         self._log("Ajustando Cleaner...", 1)
 

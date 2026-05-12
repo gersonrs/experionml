@@ -2791,7 +2791,7 @@ class PredictionPlot(BasePlot, metaclass=ABCMeta):
         try:
             models_c = self._get_plot_models(models, check_fitted=False)
         except ValueError as ex:
-            if "No models were selected" in str(ex):
+            if "Nenhum modelo foi selecionado" in str(ex):
                 models_c = []
             else:
                 raise ex from None

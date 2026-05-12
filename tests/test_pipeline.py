@@ -6,7 +6,7 @@ from pandas.testing import assert_frame_equal
 from sklearn.linear_model import LogisticRegression
 from sklearn.multioutput import ClassifierChain
 from sklearn.preprocessing import LabelEncoder, StandardScaler
-from sktime.proba.normal import Normal
+from skpro.distributions.normal import Normal
 
 from experionml import ExperionMLClassifier, ExperionMLForecaster
 from experionml.pipeline import Pipeline
@@ -49,7 +49,7 @@ def test_contains(pipeline):
 def test_check_fitted():
     """Assert that the pipeline contains an element."""
     pl = Pipeline([("encoder", LabelEncoder())])
-    with pytest.raises(ValueError, match=".*not yet fitted.*"):
+    with pytest.raises(ValueError, match=".*ainda não foi ajustada.*"):
         check_is_fitted(pl)
 
 
@@ -103,14 +103,14 @@ def test_transform_only_X_or_y():
 def test_X_is_required_and_not_provided():
     """Assert that an error is raised when the transformer requires features."""
     pl = Pipeline(steps=[("scaler", StandardScaler())])
-    with pytest.raises(ValueError, match=".*X is required but has not been provided.*"):
+    with pytest.raises(ValueError, match=".*X é obrigatório, mas não foi fornecido.*"):
         pl.fit()  # StandardScaler.fit requires X
 
 
 def test_X_is_required_but_provided_empty():
     """Assert that an error is raised when the transformer requires features."""
     pl = Pipeline(steps=[("scaler", StandardScaler())])
-    with pytest.raises(ValueError, match=".*the provided feature set is empty.*"):
+    with pytest.raises(ValueError, match=".*conjunto de atributos fornecido está vazio.*"):
         pl.fit(pd.DataFrame())
 
 
@@ -133,7 +133,7 @@ def test_transform(pipeline):
 def test_transform_both_None(pipeline):
     """Assert that an error is raised when both X and y are None."""
     pl = pipeline(model=False)
-    with pytest.raises(ValueError, match=".*X and y cannot be both None.*"):
+    with pytest.raises(ValueError, match=".*X e y não podem ser ambos None.*"):
         pl.transform()
 
 
@@ -146,7 +146,7 @@ def test_transform_train_only(pipeline):
 def test_inverse_transform_both_None(pipeline):
     """Assert that an error is raised when both X and y are None."""
     pl = pipeline(model=False)
-    with pytest.raises(ValueError, match=".*X and y cannot be both None.*"):
+    with pytest.raises(ValueError, match=".*X e y não podem ser ambos None.*"):
         pl.inverse_transform()
 
 
@@ -165,7 +165,7 @@ def test_decision_function(pipeline):
 
 def test_predict_no_parameters(pipeline_ts):
     """Assert that an error is raised when X and fh are both None."""
-    with pytest.raises(ValueError, match=".*cannot be both None.*"):
+    with pytest.raises(ValueError, match=".*não podem ser ambos None.*"):
         pipeline_ts.predict()
 
 
@@ -177,7 +177,7 @@ def test_predict(pipeline):
 
 def test_predict_ts_no_fh(pipeline_ts):
     """Assert that the pipeline uses predict for forecast."""
-    with pytest.raises(ValueError, match=".*fh parameter cannot be None.*"):
+    with pytest.raises(ValueError, match=".*fh não pode ser None.*"):
         pipeline_ts.predict(range(3))
 
 
@@ -199,7 +199,7 @@ def test_predict_log_proba(pipeline):
 
 def test_predict_proba_no_parameters(pipeline_ts):
     """Assert that an error is raised when X and fh are both None."""
-    with pytest.raises(ValueError, match=".*cannot be both None.*"):
+    with pytest.raises(ValueError, match=".*não podem ser ambos None.*"):
         pipeline_ts.predict_proba()
 
 
@@ -211,7 +211,7 @@ def test_predict_proba(pipeline):
 
 def test_predict_proba_ts_no_fh(pipeline_ts):
     """Assert that the pipeline uses predict for forecast."""
-    with pytest.raises(ValueError, match=".*fh parameter cannot be None.*"):
+    with pytest.raises(ValueError, match=".*fh não pode ser None.*"):
         pipeline_ts.predict_proba(range(3))
 
 
@@ -249,7 +249,7 @@ def test_set_output(pipeline):
 
 def test_score_no_parameters(pipeline_ts):
     """Assert that an error is raised when X and fh are both None."""
-    with pytest.raises(ValueError, match=".*cannot be both None.*"):
+    with pytest.raises(ValueError, match=".*não podem ser ambos None.*"):
         pipeline_ts.score()
 
 

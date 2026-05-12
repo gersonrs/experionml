@@ -12,7 +12,7 @@ from .conftest import X_bin, X_text, y10
 
 def test_corpus_is_not_present():
     """Assert that an error is raised when there is no corpus."""
-    with pytest.raises(ValueError, match=".*contain a column named corpus.*"):
+    with pytest.raises(ValueError, match=".*coluna chamada corpus.*"):
         TextCleaner().transform(X_bin)
 
 
@@ -20,7 +20,7 @@ def test_corpus_is_not_of_correct_type():
     """Assert that an error is raised when corpus has an incorrect type."""
     X = X_bin.copy()
     X["corpus"] = 1
-    with pytest.raises(TypeError, match=".*consist of a string or sequence.*"):
+    with pytest.raises(TypeError, match=".*string ou em uma sequência.*"):
         TextCleaner().transform(X)
 
 
@@ -160,7 +160,7 @@ def test_lemmatization():
 def test_hashing_with_get_feature_names_out():
     """Assert that get_feature_names_out doesn't work with hashing."""
     vectorizer = Vectorizer(strategy="hashing", n_features=10).fit(X_text)
-    with pytest.raises(ValueError, match=".*get_feature_names_out method.*"):
+    with pytest.raises(ValueError, match=".*get_feature_names_out.*"):
         vectorizer.get_feature_names_out()
 
 
@@ -201,7 +201,7 @@ def test_error_sparse_with_dense():
 
     experionml = ExperionMLClassifier(X_text, y10, random_state=1)
     experionml.apply(test_func)
-    with pytest.raises(ValueError, match=".*value for the return_sparse.*"):
+    with pytest.raises(ValueError, match=".*return_sparse.*"):
         experionml.vectorize(strategy="bow", return_sparse=True)
 
 

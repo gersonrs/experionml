@@ -94,21 +94,21 @@ def test_set_output():
 
 def test_balance_multioutput_task():
     """Assert that an error is raised for multioutput tasks."""
-    with pytest.raises(ValueError, match=".*not support multioutput.*"):
+    with pytest.raises(ValueError, match=".*não suporta tarefas multioutput.*"):
         Balancer().fit_transform(X_class, y_multiclass)
 
 
 def test_balancer_strategy_unknown_str():
     """Assert that an error is raised when strategy is unknown."""
     balancer = Balancer(strategy="invalid")
-    with pytest.raises(ValueError, match=".*value for the strategy.*"):
+    with pytest.raises(ValueError, match=".*parâmetro strategy.*"):
         balancer.fit_transform(X_bin, y_bin)
 
 
 def test_balancer_strategy_invalid_estimator():
     """Assert that an error is raised when strategy is invalid."""
     balancer = Balancer(strategy=StandardScaler())
-    with pytest.raises(TypeError, match=".*type for the strategy.*"):
+    with pytest.raises(TypeError, match=".*parâmetro strategy.*"):
         balancer.fit_transform(X_bin, y_bin)
 
 
@@ -305,7 +305,7 @@ def test_cleaner_target_mapping_binary():
 
 def test_decomposer_invalid_model():
     """Assert that an error is raised when model is invalid."""
-    with pytest.raises(ValueError, match=".*value for the model.*"):
+    with pytest.raises(ValueError, match=".*parâmetro model.*"):
         Decomposer(model="invalid").fit(X_ex)
 
 
@@ -336,21 +336,21 @@ def test_missing_columns_in_dict_are_ignored():
 def test_invalid_bins_custom_strategy():
     """Assert that an error is raised when bins are not a sequence."""
     discretizer = Discretizer(strategy="custom", bins=5)
-    with pytest.raises(TypeError, match=".*a sequence of bin edges.*"):
+    with pytest.raises(TypeError, match=".*sequência.*"):
         discretizer.fit(X_bin)
 
 
 def test_invalid_length_labels():
     """Assert that an error is raised when len(bins) != len(labels)."""
     discretizer = Discretizer(strategy="custom", bins=[5, 10, 15], labels=["label"])
-    with pytest.raises(ValueError, match=".*length of the bins does not match.*"):
+    with pytest.raises(ValueError, match=".*número de bins.*"):
         discretizer.fit(X_bin)
 
 
 def test_invalid_bins_to_column_length():
     """Assert that an error is raised when len(bins) != len(columns)."""
     discretizer = Discretizer(strategy="uniform", bins=[5, 10])
-    with pytest.raises(ValueError, match=".*length of the bins does not match.*"):
+    with pytest.raises(ValueError, match=".*número de bins.*"):
         discretizer.fit(X_bin)
 
 
@@ -414,7 +414,7 @@ def test_labels_custom_strategy():
 def test_strategy_parameter_encoder():
     """Assert that the strategy parameter is set correctly."""
     encoder = Encoder(strategy="invalid")
-    with pytest.raises(ValueError, match=".*value for the strategy.*"):
+    with pytest.raises(ValueError, match=".*parâmetro strategy.*"):
         encoder.fit(X10_str, y10)
 
 
@@ -436,7 +436,7 @@ def test_infrequent_to_value(infrequent_to_value):
 def test_encoder_strategy_invalid_estimator():
     """Assert that an error is raised when strategy is invalid."""
     encoder = Encoder(strategy=StandardScaler())
-    with pytest.raises(TypeError, match=".*type for the strategy.*"):
+    with pytest.raises(TypeError, match=".*parâmetro strategy.*"):
         encoder.fit_transform(X10_str, y10)
 
 
@@ -525,7 +525,7 @@ def test_imputing_all_missing_values_categorical(missing):
 
 def test_max_nan_rows_invalid():
     """Assert that an error is raised when all rows are dropped."""
-    with pytest.raises(ValueError, match=".*rows contain more than.*"):
+    with pytest.raises(ValueError, match=".*linhas.*contêm.*|.*contém mais.*"):
         Imputer(max_nan_rows=0.01).fit_transform([[np.nan]])
 
 
@@ -631,7 +631,7 @@ def test_normalizer_all_strategies(strategy):
 
 def test_normalizer_no_columns():
     """Assert that an error is raised when there are no numerical columns."""
-    with pytest.raises(ValueError, match=".*no columns during fit.*"):
+    with pytest.raises(ValueError, match=".*não encontrou colunas.*"):
         Normalizer().fit([["a", "b", "a", "a"]])
 
 
@@ -681,7 +681,7 @@ def test_normalizer_attach_attribute():
 def test_invalid_method_for_non_z_score():
     """Assert that an error is raised for an invalid method and strat combination."""
     pruner = Pruner(strategy="iforest", method="minmax")
-    with pytest.raises(ValueError, match=".*accepts another method.*"):
+    with pytest.raises(ValueError, match=".*aceita outro método além de.*"):
         pruner.transform(X_bin)
 
 
@@ -784,7 +784,7 @@ def test_scaler_all_strategies(strategy):
 
 def test_scaler_no_columns():
     """Assert that an error is raised when there are no numerical columns."""
-    with pytest.raises(ValueError, match=".*no columns during fit.*"):
+    with pytest.raises(ValueError, match=".*não encontrou colunas.*"):
         Scaler(include_binary=False).fit([[0, 1, 0, 1, 1, 1, 1]])
 
 

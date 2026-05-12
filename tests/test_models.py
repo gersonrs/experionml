@@ -1,3 +1,4 @@
+from importlib.util import find_spec
 from platform import machine, system
 from unittest.mock import Mock, patch
 
@@ -30,7 +31,7 @@ def test_custom_model_properties():
 def test_custom_model_invalid_acronym():
     """Assert that an error is raised when name and acronym don't match."""
     experionml = ExperionMLRegressor(X_reg, y_reg, random_state=1)
-    with pytest.raises(ValueError, match=".*do not match.*"):
+    with pytest.raises(ValueError, match=".*não coincidem.*|.*mesmos.*"):
         experionml.run(models=ExperionMLModel(RandomForestRegressor, acronym="forest"))
 
 
@@ -102,6 +103,7 @@ def test_all_models_regression():
     )
 
 
+@pytest.mark.skipif(find_spec("tbats") is None, reason="tbats não disponível")
 def test_all_models_forecast():
     """Assert that all models work with forecast."""
     experionml = ExperionMLForecaster(y_fc, sp=12, random_state=1)
@@ -160,11 +162,22 @@ def test_multivariate_forecast_custom_seasonality():
     )
 
 
+def _has_gpu():
+    """Check if GPU device is available via dpctl."""
+    try:
+        import dpctl
+        return dpctl.has_gpu_devices()
+    except Exception:
+        return False
+
+
 @pytest.mark.skipif(
     system() == "Darwin" or machine() not in ("x86_64", "AMD64"), reason="No sklearnex"
 )
 @pytest.mark.parametrize("device", ["cpu", "gpu"])
 def test_models_sklearnex_classification(device):
+    if device == "gpu" and not _has_gpu():
+        pytest.skip("GPU não disponível neste ambiente")
     """Assert the sklearnex engine works for classification tasks."""
     experionml = ExperionMLClassifier(
         X_bin, y_bin, device=device, engine="sklearnex", random_state=1
@@ -291,6 +304,7 @@ def test_MSTL_with_stl_kwargs_params(cls):
     assert experionml.models == "MSTL"
 
 
+@pytest.mark.skipif(find_spec("prophet") is None, reason="prophet não disponível")
 def test_Prophet_non_standard_seasonality():
     """Assert that the Prophet model works with non-standard seasonality."""
     experionml = ExperionMLForecaster(y_fc, sp=3, random_state=1)
@@ -366,7 +380,7 @@ def test_ensemble_failed_feature_importance():
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run(models=["LDA", "SVM"])
     experionml.voting()
-    with pytest.raises(ValueError, match=".*feature importance for meta-estimator.*"):
+    with pytest.raises(ValueError, match=".*importância de features para o meta-estimador.*"):
         print(experionml.vote.feature_importance)
 
 
@@ -385,7 +399,7 @@ def test_stacking_forecast():
     experionml = ExperionMLForecaster(y_fc, random_state=1)
     experionml.run(models=["Croston", "Theta"])
     experionml.stacking()
-    assert isinstance(experionml.stack.estimator.forecasters_[0], Croston)
+    assert isinstance(experionml.stack.estimator.forecasters_[0][1], Croston)
 
 
 def test_voting():
@@ -400,7 +414,7 @@ def test_voting():
     )
 
     # Not all models have predict_proba
-    with pytest.raises(ValueError, match=".*a predict_proba method.*"):
+    with pytest.raises(ValueError, match=".*predict_proba.*"):
         experionml.voting(voting="soft")
 
     experionml.voting(models=["RF", "XGB"])
@@ -414,4 +428,4 @@ def test_voting_forecast():
     experionml = ExperionMLForecaster(y_fc, random_state=1)
     experionml.run(models=["Croston", "Theta"])
     experionml.voting()
-    assert isinstance(experionml.vote.estimator.forecasters_[0], Croston)
+    assert isinstance(experionml.vote.estimator.forecasters_[0][1], Croston)

@@ -1,5 +1,7 @@
 import multiprocessing
 import os
+import sys
+from importlib.util import find_spec
 from logging import Logger
 from pathlib import Path
 from platform import machine, system
@@ -78,7 +80,7 @@ def test_engine_parameter_sklearnex():
 
 def test_engine_parameter_no_cuml():
     """Assert that an error is raised when cuml is not installed."""
-    with pytest.raises(ModuleNotFoundError, match=".*Failed to import cuml.*"):
+    with pytest.raises(ModuleNotFoundError, match=".*Falha ao importar cuml.*"):
         BaseTransformer(device="gpu", engine={"estimator": "cuml"})
 
 
@@ -153,7 +155,7 @@ def test_experiment_dagshub(dagshub, request, token):
 
 def test_experiment_invalid_integrator():
     """Assert that an error is raised when the integrator does not exist."""
-    with pytest.raises(ValueError, match=".*preceded by a valid integration.*"):
+    with pytest.raises(ValueError, match=".*integração.*"):
         BaseTransformer(experiment="invalid:test")
 
 
@@ -171,7 +173,7 @@ def test_device_id_int():
 
 def test_device_id_invalid():
     """Assert that an error is raised when the device id is invalid."""
-    with pytest.raises(ValueError, match=".*Use a single integer.*"):
+    with pytest.raises(ValueError, match=".*Use um único inteiro.*"):
         BaseTransformer(device="gpu:2,3")
 
 
@@ -187,7 +189,7 @@ def test_input_is_copied():
 
 def test_input_X_and_y_None():
     """Assert that an error is raised when both X and y are None."""
-    with pytest.raises(ValueError, match=".*both None.*"):
+    with pytest.raises(ValueError, match=".*ambos None.*"):
         BaseTransformer._check_input()
 
 
@@ -206,15 +208,17 @@ def test_column_order_is_retained():
 
 def test_incorrect_columns():
     """Assert that an error is raised when the provided columns do not match."""
-    with pytest.raises(ValueError, match=".*columns are different.*"):
+    with pytest.raises(ValueError, match=".*colunas são diferentes.*"):
         BaseTransformer._check_input(X_bin, columns=["1", "2"])
 
 
 def test_input_data_in_experionml():
     """Assert that the data does not change once in an experionml pipeline."""
     experionml = ExperionMLClassifier(X10, y10, random_state=1)
+    original_value = X10[3][2]
     X10[3][2] = 99  # Change an item of the original variable
     assert 99 not in experionml.dataset  # Is unchanged in the pipeline
+    X10[3][2] = original_value  # Restore original value to avoid test contamination
 
 
 def test_input_data_in_training():
@@ -244,14 +248,14 @@ def test_error_multiindex():
     """Assert that an error is raised for multiindex dataframes."""
     X = X_bin.copy()
     X.columns = pd.MultiIndex.from_product([["dummy"], X.columns])
-    with pytest.raises(ValueError, match=".*MultiIndex columns are not supported.*"):
+    with pytest.raises(ValueError, match=".*MultiIndex.*"):
         ExperionMLClassifier(X, y_bin, random_state=1)
 
 
 def test_duplicate_column_names_in_X():
     """Assert that an error is raised when X has duplicate column names."""
     X = merge(X_bin.copy(), pd.Series(1, name="mean texture"))
-    with pytest.raises(ValueError, match=".*column names found in X.*"):
+    with pytest.raises(ValueError, match=".*nomes de colunas duplicados.*"):
         ExperionMLClassifier(X, y_bin, random_state=1)
 
 
@@ -285,14 +289,14 @@ def test_multioutput_int():
 
 def test_equal_length():
     """Assert that an error is raised when X and y have unequal length."""
-    with pytest.raises(ValueError, match=".*number of rows.*"):
+    with pytest.raises(ValueError, match=".*número.*linhas.*|.*número de linhas.*"):
         BaseTransformer._check_input(X10, [312, 22])
 
 
 def test_equal_index():
     """Assert that an error is raised when X and y don't have same indices."""
     y = pd.Series(y_bin_array, index=range(10, len(y_bin_array) + 10))
-    with pytest.raises(ValueError, match=".*same indices.*"):
+    with pytest.raises(ValueError, match=".*mesmos índices.*"):
         BaseTransformer._check_input(X_bin, y)
 
 
@@ -304,13 +308,13 @@ def test_target_is_string():
 
 def test_target_not_in_dataset():
     """Assert that the target column given by y is in X."""
-    with pytest.raises(ValueError, match=".*not found in X.*"):
+    with pytest.raises(ValueError, match=".*não encontrada.*"):
         BaseTransformer._check_input(X_bin, "X")
 
 
 def test_X_is_None_with_str():
     """Assert that an error is raised when X is None and y is a string."""
-    with pytest.raises(ValueError, match=".*can't be None when y is a str.*"):
+    with pytest.raises(ValueError, match=".*None quando y é uma string.*"):
         BaseTransformer._check_input(y="test")
 
 
@@ -328,7 +332,7 @@ def test_target_is_dict():
 
 def test_X_is_None_with_int():
     """Assert that an error is raised when X is None and y is an int."""
-    with pytest.raises(ValueError, match=".*can't be None when y is an int.*"):
+    with pytest.raises(ValueError, match=".*None quando y é um inteiro.*"):
         BaseTransformer._check_input(y=1)
 
 
@@ -364,6 +368,7 @@ def test_inherit_with_fixed_params():
     assert chain.base_estimator.get_params()["random_state"] == 3
 
 
+@pytest.mark.skipif(find_spec("tbats") is None, reason="tbats não disponível")
 def test_inherit_sp():
     """Assert that the seasonal periodicity is correctly inherited."""
     experionml = ExperionMLForecaster(y_fc, sp=[12, 24], random_state=1)

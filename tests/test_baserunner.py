@@ -101,7 +101,7 @@ def test_getattr_dataframe():
 def test_getattr_invalid():
     """Assert that an error is raised when there is no such attribute."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(AttributeError, match=".*object has no attribute.*"):
+    with pytest.raises(AttributeError, match=".*não possui o atributo.*"):
         _ = experionml.invalid
 
 
@@ -154,7 +154,7 @@ def test_len():
 def test_getitem_no_dataset():
     """Assert that an error is raised when getitem is used before run."""
     trainer = DirectClassifier(models="LR", random_state=1)
-    with pytest.raises(RuntimeError, match=".*has no dataset.*"):
+    with pytest.raises(RuntimeError, match=".*não possui um dataset.*"):
         print(trainer[4])
 
 
@@ -186,7 +186,7 @@ def test_getitem_str_from_column():
 def test_getitem_invalid_str():
     """Assert that an error is raised when getitem is invalid."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(ValueError, match=".*has no branch, model or column.*"):
+    with pytest.raises(ValueError, match=".*não possui branch.*"):
         print(experionml["invalid"])
 
 
@@ -207,7 +207,7 @@ def test_sp_property_none():
 
 def test_sp_property_invalid_index():
     """Assert that an error is raised when index has no freqstr."""
-    with pytest.raises(ValueError, match=".*has no attribute freqstr.*"):
+    with pytest.raises(ValueError, match=".*não possui o atributo freqstr.*"):
         ExperionMLForecaster(y_bin, sp="index", random_state=1)
 
 
@@ -225,7 +225,7 @@ def test_sp_property_infer():
 
 def test_sp_property_invalid_str():
     """Assert that an error is raised when sp in an unknown string."""
-    with pytest.raises(ValueError, match=".*a list of allowed values.*"):
+    with pytest.raises(ValueError, match=".*lista de valores permitidos.*"):
         ExperionMLForecaster(y_fc, sp="T", random_state=1)
 
 
@@ -262,7 +262,7 @@ def test_branch_property():
 def test_delete_last_branch():
     """Assert that an error is raised when the last branch is deleted."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(PermissionError, match=".*last branch.*"):
+    with pytest.raises(PermissionError, match=".*última branch.*"):
         del experionml.branch
 
 
@@ -356,7 +356,7 @@ def test_results_property_train_sizing():
 
 def test_groups_with_forecast():
     """Assert that an error is raised when groups are provided in a forecast task."""
-    with pytest.raises(ValueError, match=".*'groups' is unavailable for forecast.*"):
+    with pytest.raises(ValueError, match=".*groups.*não está disponível para tarefas de previsão.*"):
         ExperionMLForecaster(
             y_fc, metadata={"groups": choices(["A", "B"], k=len(y_fc))}, random_state=1
         )
@@ -376,7 +376,7 @@ def test_index_is_False():
 
 def test_index_is_int_invalid():
     """Assert that an error is raised when the index is an invalid int."""
-    with pytest.raises(IndexError, match=".*is out of range.*"):
+    with pytest.raises(IndexError, match=".*está fora do intervalo.*"):
         ExperionMLClassifier(X_bin, y_bin, index=1000, random_state=1)
 
 
@@ -390,7 +390,7 @@ def test_index_is_int():
 
 def test_index_is_str_invalid():
     """Assert that an error is raised when the index is an invalid str."""
-    with pytest.raises(ValueError, match=".*not found in the dataset.*"):
+    with pytest.raises(ValueError, match=".*não encontrada no dataset.*|.*não foi encontrada no conjunto de dados.*"):
         ExperionMLClassifier(X_bin, y_bin, index="invalid", random_state=1)
 
 
@@ -410,13 +410,13 @@ def test_index_is_range():
 
 def test_index_is_target():
     """Assert that an error is raised when the index is the target column."""
-    with pytest.raises(ValueError, match=".*same as the target column.*"):
+    with pytest.raises(ValueError, match=".*mesma que a coluna alvo.*"):
         ExperionMLRegressor(X_bin, index="worst fractal dimension", random_state=1)
 
 
 def test_index_is_sequence_no_data_sets_invalid_length():
     """Assert that an error is raised when len(index) != len(data)."""
-    with pytest.raises(IndexError, match=".*Length of index.*"):
+    with pytest.raises(IndexError, match=".*comprimento do índice.*"):
         ExperionMLClassifier(X_bin, y_bin, index=[1, 2, 3], random_state=1)
 
 
@@ -429,7 +429,7 @@ def test_index_is_sequence_no_data_sets():
 
 def test_index_is_sequence_has_data_sets_invalid_length():
     """Assert that an error is raised when len(index) != len(data)."""
-    with pytest.raises(IndexError, match=".*Length of index.*"):
+    with pytest.raises(IndexError, match=".*comprimento do índice.*"):
         ExperionMLClassifier(bin_train, bin_test, index=[1, 2, 3], random_state=1)
 
 
@@ -460,13 +460,13 @@ def test_stratify_is_None():
 
 def test_stratify_invalid_column_int():
     """Assert that an error is raised when the value is invalid."""
-    with pytest.raises(ValueError, match=".*out of range for a dataset.*"):
+    with pytest.raises(ValueError, match=".*fora do intervalo para um conjunto de dados.*"):
         ExperionMLClassifier(X_bin, y_bin, stratify=100, random_state=1)
 
 
 def test_stratify_invalid_column_str():
     """Assert that an error is raised when the value is invalid."""
-    with pytest.raises(ValueError, match=".*not found in the dataset.*"):
+    with pytest.raises(ValueError, match=".*não encontrada no dataset.*|.*não foi encontrada no conjunto de dados.*"):
         ExperionMLClassifier(X_bin, y_bin, stratify="invalid", random_state=1)
 
 
@@ -478,7 +478,7 @@ def test_input_is_y_without_arrays():
 
 def test_empty_data_arrays():
     """Assert that an error is raised when no data is provided."""
-    with pytest.raises(ValueError, match=".*data arrays are empty.*"):
+    with pytest.raises(ValueError, match=".*arrays de dados estão vazios.*"):
         ExperionMLClassifier(n_rows=100, random_state=1)
 
 
@@ -512,7 +512,7 @@ def test_input_is_X_with_parameter_y():
 
 def test_input_invalid_holdout():
     """Assert that an error is raised when holdout is invalid."""
-    with pytest.raises(ValueError, match=".*holdout_size parameter.*"):
+    with pytest.raises(ValueError, match=".*holdout_size.*"):
         ExperionMLClassifier(X_bin, test_size=0.3, holdout_size=0.8)
 
 
@@ -558,7 +558,7 @@ def test_n_rows_forecasting():
 
 def test_n_rows_too_large():
     """Assert that an error is raised when n_rows>len(data)."""
-    with pytest.raises(ValueError, match=".*n_rows parameter.*"):
+    with pytest.raises(ValueError, match=".*n_rows.*"):
         ExperionMLClassifier(X_bin, y_bin, n_rows=1e6, random_state=1)
 
 
@@ -570,14 +570,14 @@ def test_no_shuffle_X_y():
 
 def test_length_dataset():
     """Assert that the dataset is always len>=5."""
-    with pytest.raises(ValueError, match=".*n_rows=1 for small.*"):
+    with pytest.raises(ValueError, match=".*n_rows=1 para datasets pequenos.*"):
         ExperionMLClassifier(X10, y10, n_rows=0.01, random_state=1)
 
 
 @pytest.mark.parametrize("test_size", [-2, 0, 1000])
 def test_test_size_parameter(test_size):
     """Assert that the test_size parameter is in correct range."""
-    with pytest.raises(ValueError, match=".*test_size parameter.*"):
+    with pytest.raises(ValueError, match=".*test_size.*"):
         ExperionMLClassifier(X_bin, test_size=test_size, random_state=1)
 
 
@@ -686,7 +686,7 @@ def test_6_data_provided():
 def test_invalid_input():
     """Assert that an error is raised when input arrays are invalid."""
     trainer = DirectClassifier("LR", random_state=1)
-    with pytest.raises(ValueError, match=".*Invalid data arrays.*"):
+    with pytest.raises(ValueError, match=".*Arrays de dados inválidos.*"):
         trainer.run(X_bin, y_bin, X_bin, y_bin, y_bin, X_bin, X_bin)
 
 
@@ -709,7 +709,7 @@ def test_no_shuffle_train_test():
 
 def test_n_rows_train_test_int():
     """Assert that an error is raised when n_rows>1 for input with train and test."""
-    with pytest.raises(ValueError, match=".*must be <1 when the train and test.*"):
+    with pytest.raises(ValueError, match=".*deve ser <1 quando os conjuntos de treino e teste.*"):
         ExperionMLClassifier(bin_train, bin_test, n_rows=100, random_state=1)
 
 
@@ -733,13 +733,13 @@ def test_reset_index():
 
 def test_unequal_columns_train_test():
     """Assert that an error is raised when train and test have different columns."""
-    with pytest.raises(ValueError, match=".*train and test set do not have.*"):
+    with pytest.raises(ValueError, match=".*treino e teste não possuem as mesmas colunas.*"):
         ExperionMLClassifier(X10, bin_test, random_state=1)
 
 
 def test_unequal_columns_holdout():
     """Assert that an error is raised when holdout has different columns."""
-    with pytest.raises(ValueError, match=".*holdout set does not have.*"):
+    with pytest.raises(ValueError, match=".*holdout não possui as mesmas colunas.*"):
         ExperionMLClassifier(bin_train, bin_test, X10, random_state=1)
 
 
@@ -766,7 +766,7 @@ def test_invalid_index_forecast():
 
 def test_duplicate_indices():
     """Assert that an error is raised when there are duplicate indices."""
-    with pytest.raises(ValueError, match=".*duplicate indices.*"):
+    with pytest.raises(ValueError, match=".*índices duplicados.*"):
         ExperionMLClassifier(X_bin, X_bin, index=True, random_state=1)
 
 
@@ -783,7 +783,7 @@ def test_get_models_is_None():
 def test_get_models_by_int():
     """Assert that models can be selected by index."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(IndexError, match=".*out of range.*"):
+    with pytest.raises(IndexError, match=".*fora do intervalo.*"):
         experionml._get_models(models=0)
     experionml.run(["LR_1", "LR_2"])
     assert experionml._get_models(models=1) == [experionml.lr_2]
@@ -816,14 +816,14 @@ def test_get_models_by_str():
     assert experionml._get_models("lr.*") == [experionml.lr_1, experionml.lr_2]
     assert experionml._get_models("!lr_1") == [experionml.gnb, experionml.lr_2]
     assert experionml._get_models("!lr.*") == [experionml.gnb]
-    with pytest.raises(ValueError, match=".*any model that matches.*"):
+    with pytest.raises(ValueError, match=".*nenhum modelo que corresponda.*"):
         experionml._get_models(models="invalid")
 
 
 def test_get_models_exclude():
     """Assert that models can be excluded using `!`."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(ValueError, match=".*not find any model.*"):
+    with pytest.raises(ValueError, match=".*nenhum modelo que corresponda.*"):
         experionml._get_models(models="!invalid")
     experionml.run(["LR_1", "LR_2"])
     assert experionml._get_models(models="!lr_1") == [experionml.lr_2]
@@ -841,7 +841,7 @@ def test_get_models_include_or_exclude():
     """Assert that an error is raised when models are included and excluded."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run(["LR_1", "LR_2"])
-    with pytest.raises(ValueError, match=".*either include or exclude models.*"):
+    with pytest.raises(ValueError, match=".*incluir ou excluir modelos.*"):
         experionml._get_models(models=["LR_1", "!LR_2"])
 
 
@@ -859,7 +859,7 @@ def test_get_models_invalid_branch():
     experionml.run("LR")
     experionml.branch = "2"
     experionml.run("LDA")
-    with pytest.raises(ValueError, match=".*have been fitted.*"):
+    with pytest.raises(ValueError, match=".*foram ajustados.*"):
         experionml._get_models(models=None, branch=experionml.branch)
 
 
@@ -995,14 +995,14 @@ def test_get_seasonal_period_harmonic_strength_harmonics():
 def test_get_seasonal_period_no_periods():
     """Assert that an error is raised when no periods are detected."""
     experionml = ExperionMLForecaster(y_fc, random_state=1)
-    with pytest.raises(ValueError, match=".*No seasonal periods.*"):
+    with pytest.raises(ValueError, match=".*Nenhum período sazonal.*"):
         experionml.get_seasonal_period(max_sp=2)
 
 
 def test_merge_invalid_class():
     """Assert that an error is raised when the class is not a trainer."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(TypeError, match=".*Expecting a.*"):
+    with pytest.raises(TypeError, match=".*Esperando.*"):
         experionml.merge(ExperionMLRegressor(X_reg, y_reg, random_state=1))
 
 
@@ -1010,7 +1010,7 @@ def test_merge_different_dataset():
     """Assert that an error is raised when the og dataset is different."""
     experionml_1 = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml_2 = ExperionMLClassifier(X10, y10, random_state=1)
-    with pytest.raises(ValueError, match=".*different dataset.*"):
+    with pytest.raises(ValueError, match=".*instância fornecida.*"):
         experionml_1.merge(experionml_2)
 
 
@@ -1029,7 +1029,7 @@ def test_merge_different_metrics():
     experionml_1.run("Tree", metric="f1")
     experionml_2 = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml_2.run("Tree", metric="auc")
-    with pytest.raises(ValueError, match=".*different metric.*"):
+    with pytest.raises(ValueError, match=".*métrica diferente.*"):
         experionml_1.merge(experionml_2)
 
 
@@ -1097,7 +1097,7 @@ def test_stacking_invalid_models():
     """Assert that an error is raised when <2 models."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run("LR")
-    with pytest.raises(ValueError, match=".*contain at least two.*"):
+    with pytest.raises(ValueError, match=".*pelo menos dois.*"):
         experionml.stacking()
 
 
@@ -1106,7 +1106,7 @@ def test_stacking_invalid_name():
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run(["LR", "Tree"])
     experionml.stacking()
-    with pytest.raises(ValueError, match=".*multiple Stacking.*"):
+    with pytest.raises(ValueError, match=".*Stacking.*"):
         experionml.stacking()
 
 
@@ -1133,7 +1133,7 @@ def test_stacking_unknown_predefined_final_estimator():
     """Assert that an error is raised when the final estimator is unknown."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run(["LR", "LGB"], est_params={"LGB": {"n_estimators": 5}})
-    with pytest.raises(ValueError, match=".*Unknown model.*"):
+    with pytest.raises(ValueError, match=".*Modelo desconhecido.*"):
         experionml.stacking(final_estimator="invalid")
 
 
@@ -1141,7 +1141,7 @@ def test_stacking_invalid_predefined_final_estimator():
     """Assert that an error is raised when the final estimator is invalid."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run(["LR", "LGB"], est_params={"LGB": {"n_estimators": 5}})
-    with pytest.raises(ValueError, match=".*can not perform.*"):
+    with pytest.raises(ValueError, match=".*não pode executar.*"):
         experionml.stacking(final_estimator="OLS")
 
 
@@ -1176,7 +1176,7 @@ def test_voting_invalid_name():
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run(["LR", "Tree"])
     experionml.voting()
-    with pytest.raises(ValueError, match=".*multiple Voting.*"):
+    with pytest.raises(ValueError, match=".*Voting.*"):
         experionml.voting()
 
 
@@ -1184,7 +1184,7 @@ def test_voting_invalid_models():
     """Assert that an error is raised when <2 models."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run("LR")
-    with pytest.raises(ValueError, match=".*contain at least two.*"):
+    with pytest.raises(ValueError, match=".*pelo menos dois.*"):
         experionml.voting()
-    with pytest.raises(ValueError, match=".*contain at least two.*"):
+    with pytest.raises(ValueError, match=".*pelo menos dois.*"):
         experionml.voting()

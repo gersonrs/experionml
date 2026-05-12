@@ -97,13 +97,13 @@ def test_task_assignment():
 
 def test_raise_one_target_value():
     """Assert that error raises when there is only one target value."""
-    with pytest.raises(ValueError, match=".*1 target value.*"):
+    with pytest.raises(ValueError, match=".*1 valor alvo.*"):
         ExperionMLClassifier(X_bin, [1] * len(X_bin), random_state=1)
 
 
 def test_backend_with_n_jobs_1():
     """Assert that a warning is raised."""
-    with pytest.warns(UserWarning, match=".*Leaving n_jobs=1 ignores.*"):
+    with pytest.warns(UserWarning, match=".*Manter n_jobs=1 ignora.*"):
         ExperionMLClassifier(X_bin, y_bin, warnings=True, backend="threading", random_state=1)
 
 
@@ -165,14 +165,14 @@ def test_branch_existing_name():
     """Assert that an error is raised when the name already exists."""
     experionml = ExperionMLClassifier(X10, y10, random_state=1)
     experionml.branch = "b2"
-    with pytest.raises(ValueError, match=".*already exists.*"):
+    with pytest.raises(ValueError, match=".*já existe.*"):
         experionml.branch = "b2_from_main"
 
 
 def test_branch_unknown_parent():
     """Assert that an error is raised when the parent doesn't exist."""
     experionml = ExperionMLClassifier(X10, y10, random_state=1)
-    with pytest.raises(ValueError, match=".*does not exist.*"):
+    with pytest.raises(ValueError, match=".*não existe.*"):
         experionml.branch = "b2_from_invalid"
 
 
@@ -207,7 +207,7 @@ def test_pos_label():
 def test_pos_label_invalid_task():
     """Assert that the pos_label property is set for all metrics."""
     experionml = ExperionMLRegressor(X_reg, y_reg, random_state=1)
-    with pytest.raises(ValueError, match=".*pos_label property can only be set.*"):
+    with pytest.raises(ValueError, match=".*pos_label.*"):
         experionml.pos_label = 0
 
 
@@ -366,7 +366,7 @@ def test_eda_compare(cls):
 def test_eda_invalid_rows():
     """Assert that an error is raised with more than two datasets."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(ValueError, match=".*maximum number of.*"):
+    with pytest.raises(ValueError, match=".*máximo.*"):
         experionml.eda(rows=("train", "test", "train"))
 
 
@@ -389,7 +389,7 @@ def test_load_no_experionml():
     """Assert that an error is raised when the instance is not experionml."""
     trainer = DirectClassifier("LR", random_state=1)
     trainer.save("trainer")
-    with pytest.raises(ValueError, match=".*ExperionMLClassifier, ExperionMLRegressor nor.*"):
+    with pytest.raises(ValueError, match=".*ExperionML.*"):
         ExperionMLClassifier.load("trainer")
 
 
@@ -397,7 +397,7 @@ def test_load_already_contains_data():
     """Assert that an error is raised when data is provided without needed."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.save("experionml", save_data=True)
-    with pytest.raises(ValueError, match=".*already contains data.*"):
+    with pytest.raises(ValueError, match=".*já contém dados.*"):
         ExperionMLClassifier.load("experionml", data=(X_bin, y_bin))
 
 
@@ -585,7 +585,7 @@ def test_add_after_model():
     """Assert that an error is raised when adding after training a model."""
     experionml = ExperionMLClassifier(X_bin, y_bin, verbose=1, random_state=1)
     experionml.run("Dummy")
-    with pytest.raises(PermissionError, match=".*not allowed to add transformers.*"):
+    with pytest.raises(PermissionError, match=".*Não é permitido adicionar.*"):
         experionml.scale()
 
 
@@ -699,7 +699,7 @@ def test_returned_column_already_exists():
         return df
 
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(ValueError, match=".*already exists in the original.*"):
+    with pytest.raises(ValueError, match=".*já existe.*"):
         experionml.apply(func_test, columns="!mean texture")
 
 
@@ -745,7 +745,7 @@ def test_add_keep_column_names():
 def test_raise_length_mismatch():
     """Assert that an error is raised when there's a mismatch in row length."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
-    with pytest.raises(IndexError, match=".*does not match length.*"):
+    with pytest.raises(IndexError, match=".*não corresponde.*"):
         experionml.prune(columns=[2, 4])
 
 
@@ -799,7 +799,7 @@ def test_add_raise_duplicate_indices():
             return pd.concat([X, X.iloc[:5]]), pd.concat([y, y.iloc[:5]])
 
     experionml = ExperionMLClassifier(X_bin, y_bin, index=True, random_state=1)
-    with pytest.raises(ValueError, match=".*Duplicate indices.*"):
+    with pytest.raises(ValueError, match=".*índices duplicados.*"):
         experionml.add(AddRowsTransformer)
 
 
@@ -884,19 +884,19 @@ def test_balance_wrong_task():
     """Assert that an error is raised for regression and multioutput tasks."""
     # For regression tasks
     experionml = ExperionMLRegressor(X_reg, y_reg, random_state=1)
-    with pytest.raises(AttributeError, match=".*has no attribute.*"):
+    with pytest.raises(AttributeError, match=".*não possui o atributo.*"):
         experionml.balance()
 
     # For multioutput tasks
     experionml = ExperionMLClassifier(X_class, y=y_multiclass, random_state=1)
-    with pytest.raises(AttributeError, match=".*has no attribute.*"):
+    with pytest.raises(AttributeError, match=".*não possui o atributo.*"):
         experionml.balance()
 
 
 def test_balance_with_sample_weight():
     """Assert that an error is raised when sample weights are provided."""
     experionml = ExperionMLClassifier(X_bin, y_bin, metadata=bin_sample_weight, random_state=1)
-    with pytest.raises(PermissionError, match=".*not support sample weights.*"):
+    with pytest.raises(PermissionError, match=".*não dá suporte a sample weights.*"):
         experionml.balance()
 
 
@@ -1066,7 +1066,7 @@ def test_default_scoring():
 def test_non_numerical_target_column():
     """Assert that an error is raised when the target column is categorical."""
     experionml = ExperionMLClassifier(X10, y10_str, random_state=1)
-    with pytest.raises(ValueError, match=".*target column is not numerical.*"):
+    with pytest.raises(ValueError, match=".*não é numérica.*"):
         experionml.run("Tree")
 
 

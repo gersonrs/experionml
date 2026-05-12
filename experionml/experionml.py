@@ -1398,7 +1398,9 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
             transformer_c._cols = cols
 
         # Adiciona método de clonagem customizado para manter atributos internos
-        transformer_c.__class__.__sklearn_clone__ = TransformerMixin.__sklearn_clone__
+        # Usa __wrapped__ para evitar a verificação de tipo beartype com typing.Self
+        _clone_fn = getattr(TransformerMixin.__sklearn_clone__, "__wrapped__", TransformerMixin.__sklearn_clone__)
+        transformer_c.__class__.__sklearn_clone__ = _clone_fn
 
         if hasattr(transformer_c, "fit"):
             if not transformer_c.__module__.startswith("experionml"):
@@ -1429,6 +1431,12 @@ class ExperionML(BaseRunner, ExperionMLPlot, metaclass=ABCMeta):
                 )
 
             transformer_c = fit(**kwargs)
+
+        # Aplica callable feature_names_out diretamente na instância após o fit.
+        # Necessário para transformadores experionml que já têm get_feature_names_out
+        # definido na classe (ex: Imputer), onde make_sklearn não aplica o callable.
+        if callable(feature_names_out) and hasattr(transformer_c, "transform"):
+            transformer_c.get_feature_names_out = feature_names_out.__get__(transformer_c)
 
         # Se esta for a última branch vazia, cria uma nova branch 'og'
         if len([b for b in self._branches if not b.pipeline.steps]) == 1:

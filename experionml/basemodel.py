@@ -57,9 +57,12 @@ from sktime.split import ExpandingWindowSplitter, SingleWindowSplitter
 
 
 try:
-    from sktime.proba.normal import Normal
+    from skpro.distributions.normal import Normal
 except ModuleNotFoundError:
-    from sktime.base._proba._normal import Normal
+    try:
+        from sktime.proba.normal import Normal
+    except ModuleNotFoundError:
+        from sktime.base._proba._normal import Normal
 
 from experionml.data import Branch, BranchManager
 from experionml.data_cleaning import Scaler
