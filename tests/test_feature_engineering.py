@@ -11,19 +11,7 @@ from experionml.feature_engineering import (
 )
 from experionml.utils.utils import to_df
 
-from .conftest import (
-    X10_dt,
-    X10_str,
-    X_bin,
-    X_class,
-    X_reg,
-    X_sparse,
-    y_bin,
-    y_class,
-    y_fc,
-    y_reg,
-)
-
+from .conftest import X10_dt, X10_str, X_bin, X_class, X_reg, X_sparse, y_bin, y_class, y_fc, y_reg
 
 # Test FeatureExtractor ============================================ >>
 

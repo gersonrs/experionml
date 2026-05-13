@@ -23,7 +23,6 @@ from sktime.split import temporal_train_test_split
 from experionml.data_cleaning import TransformerMixin
 from experionml.utils.utils import merge, n_cols, to_df, to_tabular
 
-
 if TYPE_CHECKING:
     from pathlib import Path
 

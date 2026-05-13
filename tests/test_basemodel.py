@@ -26,8 +26,8 @@ from sklearn.metrics import (
 from sklearn.model_selection import FixedThresholdClassifier, KFold
 from sklearn.multioutput import ClassifierChain
 from sklearn.tree import DecisionTreeClassifier
-from sktime.forecasting.base import ForecastingHorizon
 from skpro.distributions.normal import Normal
+from sktime.forecasting.base import ForecastingHorizon
 
 from experionml import (
     ExperionMLClassifier,
@@ -59,7 +59,6 @@ from .conftest import (
     y_multireg,
     y_reg,
 )
-
 
 # Test magic methods ================================== >>
 
@@ -335,9 +334,7 @@ def test_trials_stored_correctly():
     """Assert that the `trials` attribute has the same params as the trial object."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run("lr", n_trials=3, ht_params={"distributions": ["penalty", "C"]})
-    assert (
-        experionml.lr.trials.loc[2, "penalty"] == experionml.lr.study.trials[2].params["penalty"]
-    )
+    assert experionml.lr.trials.loc[2, "penalty"] == experionml.lr.study.trials[2].params["penalty"]
     assert experionml.lr.trials.loc[2, "C"] == experionml.lr.study.trials[2].params["C"]
 
 
