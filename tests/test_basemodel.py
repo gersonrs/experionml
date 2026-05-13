@@ -334,7 +334,9 @@ def test_trials_stored_correctly():
     """Assert that the `trials` attribute has the same params as the trial object."""
     experionml = ExperionMLClassifier(X_bin, y_bin, random_state=1)
     experionml.run("lr", n_trials=3, ht_params={"distributions": ["penalty", "C"]})
-    assert experionml.lr.trials.loc[2, "penalty"] == experionml.lr.study.trials[2].params["penalty"]
+    assert (
+        experionml.lr.trials.loc[2, "penalty"] == experionml.lr.study.trials[2].params["penalty"]
+    )
     assert experionml.lr.trials.loc[2, "C"] == experionml.lr.study.trials[2].params["C"]
 
 

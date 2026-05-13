@@ -452,7 +452,9 @@ def test_get_hyperparams():
     assert len(experionml._get_hyperparams(params=slice(1, 4), model=experionml.tree)) == 3
     assert len(experionml._get_hyperparams(params=[0, 1], model=experionml.tree)) == 2
     assert len(experionml._get_hyperparams(params=["criterion"], model=experionml.tree)) == 1
-    assert len(experionml._get_hyperparams(params="criterion+splitter", model=experionml.tree)) == 2
+    assert (
+        len(experionml._get_hyperparams(params="criterion+splitter", model=experionml.tree)) == 2
+    )
 
 
 def test_get_hyperparams_invalid_name():
