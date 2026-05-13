@@ -544,7 +544,7 @@ def test_plot_terminator_improvements(improvement):
     experionml.run("tree", n_trials=1)
 
     # No cross-validation
-    with pytest.raises(PermissionError, match=".*using cross-validation.*"):
+    with pytest.raises(PermissionError, match=".*validação cruzada.*|.*cross-validation.*"):
         experionml.plot_terminator_improvement()
 
     experionml.run("tree", n_trials=1, ht_params={"cv": 2})

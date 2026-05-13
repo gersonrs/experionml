@@ -20,6 +20,17 @@ from experionml.pipeline import Pipeline
 from .conftest import X_bin, X_class, X_ex, X_reg, y_bin, y_class, y_fc, y_reg
 
 
+def _prophet_available() -> bool:
+    """Check if Prophet is installed and functional (Stan backend present)."""
+    try:
+        from prophet import Prophet
+
+        Prophet()
+        return True
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def test_custom_model_properties():
     """Assert that name and acronym are assigned correctly."""
     experionml = ExperionMLRegressor(X_reg, y_reg, random_state=1)
@@ -306,7 +317,7 @@ def test_MSTL_with_stl_kwargs_params(cls):
     assert experionml.models == "MSTL"
 
 
-@pytest.mark.skipif(find_spec("prophet") is None, reason="prophet não disponível")
+@pytest.mark.skipif(not _prophet_available(), reason="prophet não disponível ou sem backend Stan")
 def test_Prophet_non_standard_seasonality():
     """Assert that the Prophet model works with non-standard seasonality."""
     experionml = ExperionMLForecaster(y_fc, sp=3, random_state=1)
