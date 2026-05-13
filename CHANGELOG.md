@@ -1,5 +1,35 @@
 # Changelog
 
+## [1.6.0](https://github.com/gersonrs/experionml/compare/v1.5.0...v1.6.0) (2026-05-13)
+
+
+### 🚀 New Features
+
+* update example ([132501d](https://github.com/gersonrs/experionml/commit/132501da7785d77db03314d0b94954e681771ad0))
+
+
+### 🎨 Code Style
+
+* aplica formatação ruff nos arquivos de teste ([f47beea](https://github.com/gersonrs/experionml/commit/f47beea81ae10d9ebf276c35c3cefcac7f8d601d))
+* ruff format em test_basemodel e test_plots ([0faf615](https://github.com/gersonrs/experionml/commit/0faf615047de8fa2562944062384ec6679d8cdd3))
+
+
+### ⌨️ Code Refactoring
+
+* reorganiza módulos, corrige imports e atualiza dependências ([68cc8ca](https://github.com/gersonrs/experionml/commit/68cc8ca5df40ce9ffc9b9e721edcd0bbf49eaa90))
+
+
+### 🧪 Automated Testing
+
+* corrige skipif Prophet e regex do terminator_improvement ([579f157](https://github.com/gersonrs/experionml/commit/579f1579696cee231a36c6368971594cfce97f33))
+* corrige todos os testes e isola contaminação entre testes ([8539419](https://github.com/gersonrs/experionml/commit/85394197329913d1aa5be1ba1acc8c7b6be57cb9))
+
+
+### 📦 CI Improvements
+
+* corrige falhas NLTK, PlotCallback e espaço em disco no CI ([beac9ab](https://github.com/gersonrs/experionml/commit/beac9ab8e939e47e088c301e1450092e137c87da))
+* corrige lint ruff e atualiza workflow de CI ([5d3348b](https://github.com/gersonrs/experionml/commit/5d3348b8248d460c187c4ff377acff8a71bc5fcf))
+
 ## [1.5.0](https://github.com/gersonrs/experionml/compare/v1.4.0...v1.5.0) (2026-04-05)
 
 
